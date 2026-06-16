@@ -1,0 +1,95 @@
+name: Bedrock
+# XcodeGen spec — regenerate the .xcodeproj with `xcodegen generate`.
+# Do NOT hand-edit Bedrock.xcodeproj; it is a generated artifact (see .gitignore).
+options:
+  bundleIdPrefix: com.thebedrock
+  deploymentTarget:
+    # HARD CONSTRAINT §10.1: ship minimum is iOS 26.4 (closes the Screen Time
+    # passcode bypass). Held at 26.2 here because that is the installed SDK —
+    # bump to "26.4" before any release that relies on the passcode lock.
+    iOS: "26.2"
+  createIntermediateGroups: true
+  groupSortPosition: top
+  developmentLanguage: en
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    CODE_SIGN_STYLE: Automatic
+    TARGETED_DEVICE_FAMILY: "1" # iPhone only
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    GENERATE_INFOPLIST_FILE: NO
+
+targets:
+  Bedrock:
+    type: application
+    platform: iOS
+    sources:
+      - path: Bedrock
+        excludes:
+          - "**/*.entitlements"
+      - path: BedrockShared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.thebedrock.app
+        INFOPLIST_FILE: Bedrock/Resources/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Bedrock/Bedrock.entitlements
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        SWIFT_EMIT_LOC_STRINGS: YES
+    dependencies:
+      - target: BedrockMonitor
+      - target: BedrockShield
+      - target: BedrockShieldAction
+
+  BedrockMonitor:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: BedrockMonitor
+        excludes:
+          - "**/*.entitlements"
+      - path: BedrockShared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.thebedrock.app.monitor
+        INFOPLIST_FILE: BedrockMonitor/Info.plist
+        CODE_SIGN_ENTITLEMENTS: BedrockMonitor/BedrockMonitor.entitlements
+
+  BedrockShield:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: BedrockShield
+        excludes:
+          - "**/*.entitlements"
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.thebedrock.app.shield
+        INFOPLIST_FILE: BedrockShield/Info.plist
+        CODE_SIGN_ENTITLEMENTS: BedrockShield/BedrockShield.entitlements
+
+  BedrockShieldAction:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: BedrockShieldAction
+        excludes:
+          - "**/*.entitlements"
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.thebedrock.app.shieldaction
+        INFOPLIST_FILE: BedrockShieldAction/Info.plist
+        CODE_SIGN_ENTITLEMENTS: BedrockShieldAction/BedrockShieldAction.entitlements
+
+schemes:
+  Bedrock:
+    build:
+      targets:
+        Bedrock: all
+    run:
+      config: Debug
+    archive:
+      config: Release

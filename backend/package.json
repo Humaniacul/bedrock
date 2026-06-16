@@ -1,0 +1,30 @@
+{
+  "name": "bedrock-backend",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start -p ${PORT:-3000}",
+    "worker": "tsx src/worker/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0",
+    "bullmq": "^5.12.0",
+    "jsonwebtoken": "^9.0.2",
+    "next": "^15.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.6",
+    "@types/node": "^20.14.0",
+    "@types/react": "^18.3.0",
+    "tsx": "^4.16.0",
+    "typescript": "^5.5.0"
+  }
+}

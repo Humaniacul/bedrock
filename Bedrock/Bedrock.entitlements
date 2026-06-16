@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Family Controls — request a separate entitlement per bundle ID (§3, §9).
+	     Distribution tier is the weeks-long Apple approval on the critical path. -->
+	<key>com.apple.developer.family-controls</key>
+	<true/>
+	<key>com.apple.security.application-groups</key>
+	<array>
+		<string>group.com.thebedrock.app</string>
+	</array>
+</dict>
+</plist>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDisplayName</key>
+	<string>Bedrock</string>
+	<key>CFBundleName</key>
+	<string>Bedrock</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundlePackageType</key>
+	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(MARKETING_VERSION)</string>
+	<key>CFBundleVersion</key>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
+	<key>UILaunchScreen</key>
+	<dict/>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+	</array>
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<false/>
+	</dict>
+	<!-- §9 two-register rule: Apple-facing copy uses focus / usage-management
+	     framing ONLY. No recovery / addiction language in any system string. -->
+	<key>NSFamilyControlsUsageDescription</key>
+	<string>Bedrock uses Screen Time to help you limit the distracting apps and websites you choose, so you can stay focused.</string>
+	<!-- Bedrock API base URL (Phase 3). Empty = stub mode (no backend). Set to
+	     your Railway deployment URL to turn on accountability features. -->
+	<key>BEDROCK_API_BASE_URL</key>
+	<string></string>
+	<!-- Allow http to localhost for local backend development. Production uses
+	     https (Railway), so this affects only on-device/simulator dev. -->
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
+</dict>
+</plist>
