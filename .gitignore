@@ -19,6 +19,8 @@ Packages/
 node_modules/
 .next/
 *.log
+*.tsbuildinfo
+next-env.d.ts
 
 # Secrets (Supabase / RevenueCat / Railway keys — never commit)
 Secrets.xcconfig
