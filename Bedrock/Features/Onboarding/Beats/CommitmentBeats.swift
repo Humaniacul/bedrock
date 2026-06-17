@@ -1,33 +1,32 @@
 import SwiftUI
 
-// MARK: - Beat 25: The oath (press-and-hold)
+// MARK: - The oath (forging — press & hold)
 
 struct OathStoneView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     var onNext: () -> Void
 
-    @State private var progress: Double = 0
+    @State private var progress: CGFloat = 0
+    @State private var dust = 0
     @State private var done = false
-    @State private var rampTask: Task<Void, Never>?
+    @State private var flash = false
+    @State private var dustTask: Task<Void, Never>?
 
-    private let holdDuration: Double = 1.4
+    private let holdDuration: Double = 2.5
 
     var body: some View {
         VStack(spacing: Theme.Spacing.lg) {
             Spacer()
             if done {
                 Image(systemName: "checkmark.seal.fill")
-                    .font(.system(size: 60))
-                    .foregroundStyle(Theme.accent)
+                    .font(.system(size: 58)).foregroundStyle(Theme.accent)
                     .riseIn(0, reduceMotion: reduceMotion)
                 Text("Carved into bedrock.")
                     .font(.system(.largeTitle, design: .serif, weight: .semibold))
-                    .foregroundStyle(Theme.textPrimary)
-                    .multilineTextAlignment(.center)
+                    .foregroundStyle(Theme.textPrimary).multilineTextAlignment(.center)
                     .riseIn(0.1, reduceMotion: reduceMotion)
-                Text("This is your line. We'll hold it with you.")
-                    .font(Theme.Typography.body)
-                    .foregroundStyle(Theme.textSecondary)
+                Text("This is your line in the ground. We hold it with you.")
+                    .font(Theme.Typography.body).foregroundStyle(Theme.textSecondary)
                     .multilineTextAlignment(.center)
                     .riseIn(0.2, reduceMotion: reduceMotion)
                 Spacer()
@@ -35,74 +34,86 @@ struct OathStoneView: View {
                     .buttonStyle(.bedrockPrimary)
                     .riseIn(0.3, reduceMotion: reduceMotion)
             } else {
-                Text("Set the first stone.")
+                Text("Set your first stone.")
                     .font(.system(.largeTitle, design: .serif, weight: .semibold))
-                    .foregroundStyle(Theme.textPrimary)
-                    .multilineTextAlignment(.center)
-                Text("Press and hold to make it real.")
-                    .font(Theme.Typography.body)
-                    .foregroundStyle(Theme.textSecondary)
+                    .foregroundStyle(Theme.textPrimary).multilineTextAlignment(.center)
+                Text("Press, and hold.")
+                    .font(Theme.Typography.body).foregroundStyle(Theme.textSecondary)
                 Spacer()
-                holdControl
+                forgeStone
                 Spacer()
             }
         }
         .padding(Theme.Spacing.xl)
-        .onDisappear { rampTask?.cancel() }
+        .onDisappear { dustTask?.cancel() }
     }
 
-    private var holdControl: some View {
+    private var forgeStone: some View {
         ZStack {
-            Circle().stroke(BedrockColor.slate, lineWidth: 10)
-            Circle()
-                .trim(from: 0, to: progress)
-                .stroke(Theme.accent, style: StrokeStyle(lineWidth: 10, lineCap: .round))
-                .rotationEffect(.degrees(-90))
-            Image(systemName: "hand.point.up.left.fill")
-                .font(.system(size: 34))
-                .foregroundStyle(progress > 0 ? Theme.accent : Theme.textSecondary)
+            RoundedRectangle(cornerRadius: Theme.Radius.md)
+                .fill(BedrockColor.slate)
+            // Sand/ember fills the stone from the base upward as it's forged.
+            GeometryReader { geo in
+                Rectangle()
+                    .fill(LinearGradient(colors: [Theme.accent, BedrockColor.bronze],
+                                         startPoint: .bottom, endPoint: .top))
+                    .frame(height: geo.size.height * progress)
+                    .frame(maxHeight: .infinity, alignment: .bottom)
+            }
+            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.md))
+            Image(systemName: "hammer.fill")
+                .font(.system(size: 30))
+                .foregroundStyle(progress > 0.05 ? Theme.onAccent : Theme.textSecondary)
+            StoneParticles(trigger: dust, color: BedrockColor.ash, burst: 4)
         }
-        .frame(width: 168, height: 168)
-        .contentShape(Circle())
-        .onLongPressGesture(minimumDuration: holdDuration, maximumDistance: 60) {
+        .frame(width: 188, height: 132)
+        .overlay(RoundedRectangle(cornerRadius: Theme.Radius.md).strokeBorder(Theme.accent.opacity(0.3 + progress * 0.5)))
+        .scaleEffect(flash ? 1.05 : 1)
+        .shadow(color: BedrockColor.ember.opacity(progress * 0.6), radius: 10 + progress * 22, y: 6)
+        .contentShape(RoundedRectangle(cornerRadius: Theme.Radius.md))
+        .onLongPressGesture(minimumDuration: holdDuration, maximumDistance: 80) {
             complete()
         } onPressingChanged: { pressing in
             if pressing { beginHold() } else if !done { cancelHold() }
         }
         .accessibilityAddTraits(.isButton)
-        .accessibilityLabel("Set the first stone")
+        .accessibilityLabel("Set your first stone")
         .accessibilityHint("Activates your commitment")
-        .accessibilityAction { complete() } // VoiceOver / motor-accessibility fallback
+        .accessibilityAction { complete() }
     }
 
     private func beginHold() {
+        BedrockHaptics.oathRamp(duration: holdDuration)
         withAnimation(.linear(duration: holdDuration)) { progress = 1 }
-        rampTask?.cancel()
-        rampTask = Task {
+        dustTask?.cancel()
+        dustTask = Task {
             while !Task.isCancelled {
-                BedrockHaptics.selection()
-                try? await Task.sleep(for: .milliseconds(260))
+                dust += 1
+                try? await Task.sleep(for: .milliseconds(130))
             }
         }
     }
 
     private func cancelHold() {
-        rampTask?.cancel()
-        withAnimation(.easeOut(duration: 0.2)) { progress = 0 }
+        BedrockHaptics.stopRamp()
+        dustTask?.cancel()
+        withAnimation(.easeOut(duration: 0.25)) { progress = 0 }
     }
 
     private func complete() {
         guard !done else { return }
-        rampTask?.cancel()
-        BedrockHaptics.milestone()
-        withAnimation(Theme.Motion.reduced(.smooth, when: reduceMotion)) {
-            progress = 1
+        dustTask?.cancel()
+        BedrockHaptics.stopRamp()
+        BedrockHaptics.stoneSet()
+        withAnimation(.easeInOut(duration: 0.12)) { flash = true; progress = 1 }
+        withAnimation(Theme.Motion.reduced(.smooth.delay(0.12), when: reduceMotion)) {
+            flash = false
             done = true
         }
     }
 }
 
-// MARK: - Beat 26: Carve your why
+// MARK: - Carve your why
 
 struct CarveWhyView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -118,7 +129,6 @@ struct CarveWhyView: View {
         "Because I'm done hiding.",
         "For who I'm becoming.",
     ]
-
     private var hasWhy: Bool { !model.why.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
 
     var body: some View {
@@ -128,7 +138,7 @@ struct CarveWhyView: View {
                 .font(.system(.title, design: .serif, weight: .semibold))
                 .foregroundStyle(Theme.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
-            Text("At 1am, you won't feel this clarity. Write it now — in your own words — so future-you can read it back at your weakest moment.")
+            Text("At 1am, you won't feel this clarity. Write it now — in your own words — and we'll read it back to you when you need it most.")
                 .font(Theme.Typography.callout)
                 .foregroundStyle(Theme.textSecondary)
 
@@ -178,45 +188,58 @@ struct CarveWhyView: View {
     }
 }
 
-// MARK: - Beat 27: The 90-day projection
+// MARK: - The projection (the climb)
 
-struct ProjectionChartView: View {
+struct ProjectionView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let model: OnboardingModel
     var onNext: () -> Void
 
     @State private var draw: CGFloat = 0
 
+    private var summit: String {
+        let why = model.why.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let first = why.split(separator: "\n").first, !first.isEmpty { return String(first) }
+        return "The man you're building"
+    }
+
     var body: some View {
         VStack(spacing: Theme.Spacing.lg) {
             Spacer()
-            Text("Your foundation, projected")
+            Text("Your path, projected")
                 .font(.system(.title, design: .serif, weight: .semibold))
                 .foregroundStyle(Theme.textPrimary)
-                .multilineTextAlignment(.center)
 
-            ZStack {
-                CurveShape(points: model.projectionPoints)
+            ZStack(alignment: .topTrailing) {
+                ClimbShape(points: model.projectionPoints)
                     .trim(from: 0, to: draw)
                     .stroke(Theme.accent, style: StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
+                if draw > 0.95 {
+                    Text("“\(summit)”")
+                        .font(Theme.Typography.caption)
+                        .foregroundStyle(Theme.textPrimary)
+                        .padding(6)
+                        .background(RoundedRectangle(cornerRadius: 8).fill(BedrockColor.slate.opacity(0.8)))
+                        .transition(.opacity)
+                }
             }
             .frame(height: 180)
             .padding(.horizontal, Theme.Spacing.sm)
             .accessibilityElement()
-            .accessibilityLabel("A rising 90-day recovery curve from your current foundation toward fully rebuilt.")
+            .accessibilityLabel("A rising 90-day path toward your goal: \(summit).")
 
-            HStack {
+            HStack(alignment: .top) {
                 milestone("Day 7", "fog lifts")
-                Spacer()
-                milestone("Day 30", "reset begins")
-                Spacer()
-                milestone("Day 90", "rewired")
+                Spacer(); milestone("Day 14", "urges crest")
+                Spacer(); milestone("Day 30", "reset begins")
+                Spacer(); milestone("Day 90", "rewired")
             }
             .padding(.horizontal, Theme.Spacing.sm)
 
-            Text("This is what we build together.")
+            Text("This is what we build together. Starting today.")
                 .font(Theme.Typography.body)
                 .foregroundStyle(Theme.textSecondary)
+                .multilineTextAlignment(.center)
             Spacer()
             Button("Continue") { onNext() }
                 .buttonStyle(.bedrockPrimary)
@@ -224,19 +247,19 @@ struct ProjectionChartView: View {
         .padding(Theme.Spacing.xl)
         .task {
             if reduceMotion { draw = 1 }
-            else { withAnimation(.easeInOut(duration: 1.6)) { draw = 1 } }
+            else { withAnimation(.easeInOut(duration: 1.8)) { draw = 1 } }
         }
     }
 
     private func milestone(_ day: String, _ label: String) -> some View {
         VStack(spacing: 2) {
-            Text(day).font(Theme.Typography.monoCaption).foregroundStyle(Theme.accent)
-            Text(label).font(Theme.Typography.caption).foregroundStyle(Theme.textSecondary)
+            Text(day).font(.system(.caption2, design: .monospaced).weight(.semibold)).foregroundStyle(Theme.accent)
+            Text(label).font(.caption2).foregroundStyle(Theme.textSecondary)
         }
     }
 }
 
-private struct CurveShape: Shape {
+private struct ClimbShape: Shape {
     let points: [Double]
     func path(in rect: CGRect) -> Path {
         var path = Path()
@@ -250,7 +273,7 @@ private struct CurveShape: Shape {
     }
 }
 
-// MARK: - Beat 30: Stand guard (local-notification opt-in)
+// MARK: - Stand guard (local-notification opt-in)
 
 struct StandGuardView: View {
     @Environment(AppServices.self) private var services
@@ -262,26 +285,21 @@ struct StandGuardView: View {
         VStack(spacing: Theme.Spacing.lg) {
             Spacer()
             Image(systemName: "bell.badge.fill")
-                .font(.system(size: 46))
-                .foregroundStyle(Theme.accent)
+                .font(.system(size: 46)).foregroundStyle(Theme.accent)
                 .riseIn(0, reduceMotion: reduceMotion)
-            Text("We'll stand guard at your hardest hour.")
+            Text("Let us stand guard at your hardest hour.")
                 .font(.system(.title, design: .serif, weight: .semibold))
-                .foregroundStyle(Theme.textPrimary)
-                .multilineTextAlignment(.center)
+                .foregroundStyle(Theme.textPrimary).multilineTextAlignment(.center)
                 .riseIn(0.1, reduceMotion: reduceMotion)
-            Text("As Bedrock learns your danger windows, it can send a quiet, on-device check-in just before them — scheduled on your phone, never on a server.")
-                .font(Theme.Typography.body)
-                .foregroundStyle(Theme.textSecondary)
+            Text("As Bedrock learns your danger windows, it can send a quiet check-in just before them — scheduled on your phone, never on a server.")
+                .font(Theme.Typography.body).foregroundStyle(Theme.textSecondary)
                 .multilineTextAlignment(.center)
                 .riseIn(0.2, reduceMotion: reduceMotion)
             Spacer()
             Button(working ? "Just a moment…" : "Stand guard") { enable() }
-                .buttonStyle(.bedrockPrimary)
-                .disabled(working)
+                .buttonStyle(.bedrockPrimary).disabled(working)
             Button("Not now") { onNext() }
-                .font(Theme.Typography.callout)
-                .foregroundStyle(Theme.textSecondary)
+                .font(Theme.Typography.callout).foregroundStyle(Theme.textSecondary)
         }
         .padding(Theme.Spacing.xl)
     }

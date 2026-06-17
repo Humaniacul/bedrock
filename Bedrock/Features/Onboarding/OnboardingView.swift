@@ -37,17 +37,19 @@ struct OnboardingView: View {
 
     @ViewBuilder private func beatView(_ beat: Beat) -> some View {
         switch beat {
-        case .message(let content): MessageBeatView(content: content, onNext: advance)
+        case .chisel(let content): ChiselBeatView(content: content, onNext: advance)
         case .assessment(let question): AssessmentBeatView(question: question, model: model, onNext: advance)
-        case .brain: BrainPulseView(onNext: advance)
-        case .people: PeopleFieldView(onNext: advance)
+        case .brainPulse: BrainPulseView(onNext: advance)
+        case .peopleField: PeopleFieldView(onNext: advance)
         case .cost: CostCalculatorView(model: model, onNext: advance)
         case .assembling: AssemblingView(onNext: advance)
         case .verdict: VerdictGaugeView(model: model, onNext: advance)
-        case .layers: MechanismStep(onNext: advance)
+        case .sandToRock: SandToRockView(onNext: advance)
+        case .foundersVow: FoundersVowView(onNext: advance)
+        case .layers: LayersView(onNext: advance)
         case .oath: OathStoneView(onNext: advance)
         case .carveWhy: CarveWhyView(model: model, onNext: advance)
-        case .projection: ProjectionChartView(model: model, onNext: advance)
+        case .projection: ProjectionView(model: model, onNext: advance)
         case .raiseWall: ProtectStep(onNext: advance)
         case .standGuard: StandGuardView(onNext: advance)
         case .paywall: PaywallView(context: .onboarding(why: model.why), onContinue: advance)
@@ -88,6 +90,12 @@ struct OnboardingView: View {
 
     private var stepTransition: AnyTransition {
         if reduceMotion { return .opacity }
+        // Act seams "set into place" (ember → stone) rather than slide.
+        if current.emberSeam, goingForward {
+            return .asymmetric(
+                insertion: .scale(scale: 1.06).combined(with: .opacity),
+                removal: .opacity)
+        }
         let insertion: Edge = goingForward ? .trailing : .leading
         let removal: Edge = goingForward ? .leading : .trailing
         return .asymmetric(

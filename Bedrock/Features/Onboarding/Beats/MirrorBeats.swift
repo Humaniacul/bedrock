@@ -51,7 +51,7 @@ struct VerdictGaugeView: View {
         let verdict = model.verdict
         return VStack(spacing: Theme.Spacing.lg) {
             Spacer()
-            Text("YOUR FOUNDATION")
+            Text("STRUCTURAL INTEGRITY")
                 .font(Theme.Typography.monoCaption)
                 .tracking(3)
                 .foregroundStyle(Theme.textSecondary)

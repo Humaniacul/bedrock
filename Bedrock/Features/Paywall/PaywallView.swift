@@ -61,9 +61,15 @@ struct PaywallView: View {
             VStack(spacing: 0) {
                 ScrollView {
                     VStack(alignment: .leading, spacing: Theme.Spacing.xl) {
-                        header
-                        pillarList
-                        planCards
+                        if case .onboarding(let why) = context {
+                            onboardingHeader(why: why)
+                            planCards
+                            cyclePromise
+                        } else {
+                            header
+                            pillarList
+                            planCards
+                        }
                     }
                     .padding(Theme.Spacing.xl)
                     .padding(.bottom, Theme.Spacing.md)
@@ -115,6 +121,50 @@ struct PaywallView: View {
         case .gate(let feature):
             return feature.blurb
         }
+    }
+
+    // MARK: - Onboarding "threshold" header (§5 — mission, not features)
+
+    private func onboardingHeader(why: String) -> some View {
+        let trimmed = why.trimmingCharacters(in: .whitespacesAndNewlines)
+        let reason = trimmed.split(separator: "\n").first.map(String.init)
+        return VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
+            FoundationMonolith(foundationDays: 1, hasCrack: false)
+                .frame(maxHeight: 150)
+                .frame(maxWidth: .infinity)
+
+            VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+                if let reason {
+                    Text("“\(reason)”")
+                        .font(.system(.title3, design: .serif, weight: .medium))
+                        .foregroundStyle(Theme.accent)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                Text(reason == nil
+                     ? "Make your decision unbreakable."
+                     : "Let's make sure nothing takes it from you again.")
+                    .font(.system(.largeTitle, design: .serif, weight: .bold))
+                    .foregroundStyle(Theme.textPrimary)
+                    .fixedSize(horizontal: false, vertical: true)
+                Text("From tonight, you don't have to white-knuckle this alone. We've got the door — you just have to walk forward.")
+                    .font(Theme.Typography.callout)
+                    .foregroundStyle(Theme.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                Text("Your subscription doesn't make us rich — it keeps the lights on so the next man doesn't have to fight alone. You'd be joining something.")
+                    .font(Theme.Typography.caption)
+                    .foregroundStyle(Theme.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .riseIn(0, reduceMotion: reduceMotion)
+    }
+
+    private var cyclePromise: some View {
+        Text("You've deleted blockers before. This is the one you keep.")
+            .font(.system(.body, design: .serif, weight: .medium))
+            .foregroundStyle(Theme.textPrimary)
+            .multilineTextAlignment(.center)
+            .frame(maxWidth: .infinity)
     }
 
     // MARK: - Pillars
