@@ -23,4 +23,11 @@ enum DeviceIdentity {
             else { Keychain.delete(Account.token) }
         }
     }
+
+    /// Forget this device's identity (used by account deletion). The next access
+    /// to `deviceId` mints a fresh id.
+    static func reset() {
+        Keychain.delete(Account.deviceId)
+        Keychain.delete(Account.token)
+    }
 }

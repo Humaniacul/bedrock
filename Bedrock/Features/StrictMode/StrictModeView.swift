@@ -9,6 +9,7 @@ struct StrictModeView: View {
     @State private var gauntlet: GauntletCoordinator?
     @State private var showSleepBlocked = false
     @State private var editingLetter = false
+    @State private var showPaywall = false
 
     private var strict: StrictModeService { services.strictMode }
 
@@ -19,8 +20,10 @@ struct StrictModeView: View {
                 VStack(spacing: Theme.Spacing.lg) {
                     if strict.isEnabled {
                         enabledState
-                    } else {
+                    } else if services.paywall.isPremium {
                         setupState
+                    } else {
+                        premiumLockCard
                     }
                 }
                 .padding(Theme.Spacing.xl)
@@ -39,10 +42,40 @@ struct StrictModeView: View {
         .fullScreenCover(item: $gauntlet) { coordinator in
             DisableGauntletView(coordinator: coordinator)
         }
+        .sheet(isPresented: $showPaywall) {
+            PaywallView(context: .gate(.strictMode))
+        }
         .alert("Not during the night", isPresented: $showSleepBlocked) {
             Button("OK", role: .cancel) {}
         } message: {
             Text("You set disables to only work between \(strict.config.sleepWindow.startHour):00 and \(strict.config.sleepWindow.endHour):00. Sleep on it — come back when the window's open.")
+        }
+    }
+
+    // MARK: - Premium gate (§8)
+
+    private var premiumLockCard: some View {
+        GlassCard {
+            VStack(spacing: Theme.Spacing.md) {
+                Image(systemName: "lock.fill")
+                    .font(.system(size: 40))
+                    .foregroundStyle(Theme.accent)
+                Text("Make it unbreakable")
+                    .font(Theme.Typography.title)
+                    .foregroundStyle(Theme.textPrimary)
+                Text("Strict Mode is part of Premium — the lock you can't undo in a weak moment, plus an accountability partner and insight into your danger windows.")
+                    .font(Theme.Typography.callout)
+                    .foregroundStyle(Theme.textSecondary)
+                    .multilineTextAlignment(.center)
+                Button("Unlock with Premium") { showPaywall = true }
+                    .buttonStyle(.bedrockPrimary)
+                    .padding(.top, Theme.Spacing.xs)
+                Text("Basic blocking stays free, always.")
+                    .font(Theme.Typography.caption)
+                    .foregroundStyle(Theme.textSecondary)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, Theme.Spacing.md)
         }
     }
 
@@ -247,7 +280,8 @@ struct StrictModeView: View {
 extension PasscodeModel: Identifiable { public var id: String { rawValue } }
 extension GauntletCoordinator: Identifiable {}
 
-private struct LetterEditor: View {
+/// Edits the future-self letter (reused by Settings). Internal, not private.
+struct LetterEditor: View {
     @Environment(\.dismiss) private var dismiss
     @Binding var text: String
 

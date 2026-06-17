@@ -25,6 +25,11 @@ enum AppGroup {
         static let commitmentLetter = "strict.commitmentLetter"  // String — future-self letter
         static let commitmentPassage = "strict.commitmentPassage" // [String] — passage to retype
         static let tamperQueue = "accountability.tamperQueue"    // [String] — tamper kinds awaiting upload
+        static let triggerEvents = "triggers.events"             // Data — encoded [TriggerEngine.Event] (on-device only)
+        static let supportContact = "support.contact"            // Data — encoded SupportContactStore.Contact (on-device only)
+        static let nudgesEnabled = "triggers.nudgesEnabled"      // Bool — opt-in to local danger-window check-ins
+        static let onboardingComplete = "onboarding.complete"   // Bool — first-run flow finished
+        static let premiumEntitlement = "paywall.premium"       // Bool — premium active (mirrors StoreKit; §8)
     }
 
     /// Identifiers for the shared Screen Time objects. Kept as raw strings here

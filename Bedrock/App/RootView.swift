@@ -12,8 +12,17 @@ struct RootView: View {
     @Environment(AppServices.self) private var services
     @Environment(\.scenePhase) private var scenePhase
     @State private var selection: AppTab = RootView.initialTab
+    @State private var onboardingDone = RootView.startsOnboarded
 
     var body: some View {
+        if onboardingDone {
+            mainTabs
+        } else {
+            OnboardingView { withAnimation(.smooth) { onboardingDone = true } }
+        }
+    }
+
+    private var mainTabs: some View {
         TabView(selection: $selection) {
             Tab("Foundation", systemImage: "square.3.layers.3d.down.right", value: AppTab.foundation) {
                 FoundationView()
@@ -21,14 +30,15 @@ struct RootView: View {
             Tab("Protection", systemImage: "shield.fill", value: AppTab.protection) {
                 ProtectionView()
             }
+            // Accountability + insights are premium (§8); basic blocking is free.
             Tab("Partner", systemImage: "person.2.fill", value: AppTab.partner) {
-                PartnerView()
+                PartnerView().premiumGated(.accountability)
             }
             Tab("Insights", systemImage: "chart.bar.xaxis", value: AppTab.insights) {
-                PlaceholderScreen(title: "Insights", phase: "Phase 4")
+                InsightsView().premiumGated(.insights)
             }
             Tab("Settings", systemImage: "gearshape.fill", value: AppTab.settings) {
-                PlaceholderScreen(title: "Settings", phase: "Phase 0+")
+                SettingsView()
             }
         }
         .onChange(of: scenePhase) { _, newPhase in
@@ -43,6 +53,14 @@ struct RootView: View {
             }
         }
         .task {
+            #if DEBUG
+            // Seed a realistic urge pattern so Insights can be explored on a
+            // fresh install: SIMCTL_CHILD_BEDROCK_DEMO_SEED_TRIGGERS=1.
+            if ProcessInfo.processInfo.environment["BEDROCK_DEMO_SEED_TRIGGERS"] == "1",
+               services.triggers.events.isEmpty {
+                services.triggers.debugSeedSamples()
+            }
+            #endif
             // Initial sync on launch.
             await services.heartbeat.sync(
                 protectionActive: services.blocking.isProtected,
@@ -50,6 +68,14 @@ struct RootView: View {
             )
             await services.accountability.refresh()
         }
+    }
+
+    private static var startsOnboarded: Bool {
+        #if DEBUG
+        // Force the first-run flow for testing: SIMCTL_CHILD_BEDROCK_FORCE_ONBOARDING=1.
+        if ProcessInfo.processInfo.environment["BEDROCK_FORCE_ONBOARDING"] == "1" { return false }
+        #endif
+        return OnboardingModel.isComplete
     }
 
     private static var initialTab: AppTab {

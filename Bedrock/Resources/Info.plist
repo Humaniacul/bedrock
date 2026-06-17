@@ -36,6 +36,12 @@
 	<!-- Bedrock API base URL (Phase 3). Empty = stub mode (no backend). Set to
 	     your Railway deployment URL to turn on accountability features. -->
 	<key>BEDROCK_API_BASE_URL</key>
+	<string>https://bedrock-production-3d8f.up.railway.app</string>
+	<!-- RevenueCat PUBLIC SDK key (§3, §8). This is the publishable client key
+	     (starts with "appl_") — safe to ship in the app, unlike the secret/webhook
+	     keys. Empty = the paywall runs in local/fallback mode (no real purchases).
+	     Get it from RevenueCat → Project → API keys → Apple App Store. -->
+	<key>REVENUECAT_API_KEY</key>
 	<string></string>
 	<!-- Allow http to localhost for local backend development. Production uses
 	     https (Railway), so this affects only on-device/simulator dev. -->

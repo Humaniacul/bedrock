@@ -62,6 +62,9 @@ protocol AccountabilityService: AnyObject {
     // the gauntlet falls back to the local (monotonic) timer.
     func startServerCooldown(seconds: Int) async -> String?
     func serverCooldownComplete(id: String) async -> Bool
+
+    /// Delete all server-side data for this device (App Store Guideline 5.1.1(v)).
+    func deleteAccount() async
 }
 
 /// No-backend stub — keeps the app running solo. No partner, no network.
@@ -84,6 +87,7 @@ final class StubAccountabilityService: AccountabilityService {
     func respondToApproval(id: String, approve: Bool) async {}
     func startServerCooldown(seconds: Int) async -> String? { nil }
     func serverCooldownComplete(id: String) async -> Bool { true }
+    func deleteAccount() async {}
 }
 
 /// API-backed accountability (§3).
@@ -183,6 +187,11 @@ final class LiveAccountabilityService: AccountabilityService {
 
     func serverCooldownComplete(id: String) async -> Bool {
         do { return try await api.checkCooldown(id: id).complete } catch { return false }
+    }
+
+    func deleteAccount() async {
+        try? await api.ensureRegistered(displayName: nil)
+        try? await api.deleteAccount()
     }
 
     private static func parseDate(_ s: String) -> Date? {

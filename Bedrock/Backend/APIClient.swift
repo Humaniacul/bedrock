@@ -86,6 +86,11 @@ struct APIClient {
         try await send("/api/cooldown/check?id=\(id)", method: "GET")
     }
 
+    /// Delete the account + all server-side data (App Store Guideline 5.1.1(v)).
+    func deleteAccount() async throws {
+        try await sendVoid("/api/account", method: "DELETE")
+    }
+
     // MARK: Transport
 
     private func send<T: Decodable>(_ path: String, method: String,

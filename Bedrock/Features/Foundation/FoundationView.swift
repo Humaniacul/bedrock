@@ -8,6 +8,7 @@ struct FoundationView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     // Hero numerals scale with Dynamic Type via @ScaledMetric (§6.2 / quality bar).
     @ScaledMetric(relativeTo: .largeTitle) private var counterSize = Theme.Typography.Size.counter
+    @State private var showIntercept = false
 
     private var streak: StreakStore { services.streak }
 
@@ -29,10 +30,14 @@ struct FoundationView: View {
         // Float the HUD in the bottom safe-area inset so it clears the Liquid
         // Glass tab bar (which content otherwise scrolls behind).
         .safeAreaInset(edge: .bottom) {
-            statusHUD
-                .padding(.horizontal, Theme.Spacing.xl)
-                .padding(.bottom, Theme.Spacing.sm)
+            VStack(spacing: Theme.Spacing.sm) {
+                if services.triggers.isHighRiskNow { dangerBanner }
+                statusHUD
+            }
+            .padding(.horizontal, Theme.Spacing.xl)
+            .padding(.bottom, Theme.Spacing.sm)
         }
+        .fullScreenCover(isPresented: $showIntercept) { InterceptView() }
         .onAppear { streak.refreshForToday() }
         .onChange(of: streak.foundationDays) { oldValue, newValue in
             if newValue > oldValue { BedrockHaptics.set() }
@@ -77,7 +82,8 @@ struct FoundationView: View {
                     }
                     Spacer(minLength: Theme.Spacing.md)
                     Button {
-                        // Phase 4: opens the Intercept / Panic flow.
+                        BedrockHaptics.set()
+                        showIntercept = true
                     } label: {
                         Text("SOS").frame(maxWidth: .infinity)
                     }
@@ -98,6 +104,37 @@ struct FoundationView: View {
             return "Next: \(next.name) · \(toGo) \(toGo == 1 ? "day" : "days") to go"
         }
         return "Every layer named. Keep building."
+    }
+
+    // Proactive intervention (§4): we're inside one of the user's known danger
+    // windows — offer to get ahead of it before the urge builds. Supportive,
+    // never alarmist.
+    private var dangerBanner: some View {
+        Button {
+            BedrockHaptics.calm()
+            showIntercept = true
+        } label: {
+            HStack(spacing: Theme.Spacing.md) {
+                Image(systemName: "shield.lefthalf.filled")
+                    .foregroundStyle(Theme.accent)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("A steadier minute?")
+                        .font(Theme.Typography.headline)
+                        .foregroundStyle(Theme.textPrimary)
+                    Text("This is usually a tougher stretch. Get ahead of it.")
+                        .font(Theme.Typography.caption)
+                        .foregroundStyle(Theme.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                Spacer(minLength: 0)
+                Image(systemName: "chevron.right").foregroundStyle(Theme.textSecondary)
+            }
+            .padding(Theme.Spacing.md)
+        }
+        .buttonStyle(.plain)
+        .background(RoundedRectangle(cornerRadius: Theme.Radius.lg).fill(BedrockColor.slate.opacity(0.6)))
+        .overlay(RoundedRectangle(cornerRadius: Theme.Radius.lg).strokeBorder(Theme.accent.opacity(0.4)))
+        .accessibilityHint("Opens an urge-surf session")
     }
 
     private var crackBanner: some View {

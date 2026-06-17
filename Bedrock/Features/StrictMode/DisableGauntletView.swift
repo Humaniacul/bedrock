@@ -200,13 +200,13 @@ struct DisableGauntletView: View {
     }
 
     private func logUrge(_ rating: Int?) {
+        // The user is riding out the urge as part of the disable gauntlet.
         services.triggers.log(
             TriggerEngine.Event(
                 date: .now,
-                weekday: Calendar.current.component(.weekday, from: .now),
-                originatingApp: nil,
-                moodTag: "gauntlet",
-                urgeIntensity: rating
+                trigger: "Gauntlet",
+                urgeIntensity: rating,
+                outcome: .surfed
             )
         )
     }
