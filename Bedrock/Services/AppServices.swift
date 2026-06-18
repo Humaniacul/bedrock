@@ -18,6 +18,7 @@ final class AppServices {
     let nudges: NudgeScheduler
     let streak: StreakStore
     let paywall: PaywallService
+    let auth: AuthService
 
     /// Set by the app root; called after a data wipe so the app can rebuild a
     /// fresh service graph and return to onboarding.
@@ -34,7 +35,8 @@ final class AppServices {
         supportContact: SupportContactStore,
         nudges: NudgeScheduler,
         streak: StreakStore,
-        paywall: PaywallService
+        paywall: PaywallService,
+        auth: AuthService
     ) {
         self.blocking = blocking
         self.strictMode = strictMode
@@ -47,6 +49,7 @@ final class AppServices {
         self.nudges = nudges
         self.streak = streak
         self.paywall = paywall
+        self.auth = auth
     }
 
     /// App Store Guideline 5.1.1(v): delete the account + all data — on the
@@ -79,7 +82,8 @@ final class AppServices {
             supportContact: SupportContactStore(),
             nudges: NudgeScheduler(),
             streak: StreakStore.live(),
-            paywall: PaywallService()
+            paywall: PaywallService(),
+            auth: AuthService(api: api)
         )
     }
 
@@ -96,7 +100,8 @@ final class AppServices {
             supportContact: SupportContactStore(persist: false),
             nudges: NudgeScheduler(useNotificationCenter: false),
             streak: StreakStore.preview(),
-            paywall: PaywallService()
+            paywall: PaywallService(),
+            auth: AuthService(api: nil)
         )
     }
 }

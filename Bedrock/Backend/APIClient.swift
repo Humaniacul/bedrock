@@ -91,6 +91,13 @@ struct APIClient {
         try await sendVoid("/api/account", method: "DELETE")
     }
 
+    /// Link a Sign in with Apple identity to this device's user (§3). The server
+    /// verifies the identity token and stores apple_sub / email / rc_app_user_id.
+    func linkApple(identityToken: String, displayName: String?) async throws {
+        try await sendVoid("/api/auth/apple", method: "POST",
+                           body: ["identityToken": identityToken, "displayName": displayName])
+    }
+
     // MARK: Transport
 
     private func send<T: Decodable>(_ path: String, method: String,

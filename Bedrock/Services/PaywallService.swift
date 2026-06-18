@@ -17,9 +17,9 @@ import RevenueCat
 @MainActor
 @Observable
 final class PaywallService {
-    /// RevenueCat entitlement identifier — create an entitlement named this in
-    /// the RevenueCat dashboard and attach the products to it.
-    static let entitlementID = "premium"
+    /// RevenueCat entitlement identifier (the dashboard entitlement is "pro").
+    /// The offering is "default" — `Purchases.shared.offerings().current` returns it.
+    static let entitlementID = "pro"
 
     enum Entitlement: Equatable { case free, premium }
 

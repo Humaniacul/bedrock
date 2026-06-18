@@ -59,7 +59,9 @@ export async function POST(req: Request) {
       rc_app_user_id: appUserId,
       rc_updated_at: new Date().toISOString(),
     })
-    .eq('device_id', appUserId);
+    // Match whether RevenueCat's app_user_id is the device id (anonymous) or the
+    // Apple sub (signed in). Updates every device row sharing that id.
+    .or(`rc_app_user_id.eq.${appUserId},device_id.eq.${appUserId}`);
 
   return ok();
 }

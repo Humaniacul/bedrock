@@ -42,6 +42,7 @@ enum Beat {
     case raiseWall       // free protection (ProtectStep)
     case standGuard      // local-notification opt-in
     case paywall         // the threshold (PaywallView)
+    case auth            // Sign in with Apple (after the paywall, skippable)
     case dayZero         // commit (CommitStep)
 }
 
@@ -179,6 +180,7 @@ enum OnboardingFlow {
         FlowStep(act: 6, beat: .raiseWall),
         FlowStep(act: 6, beat: .standGuard),
         FlowStep(act: 6, beat: .paywall),
+        FlowStep(act: 6, beat: .auth),
         FlowStep(act: 6, beat: .dayZero),
     ]
 }

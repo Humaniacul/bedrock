@@ -1,4 +1,5 @@
 import SwiftUI
+import AuthenticationServices
 
 /// Settings (§7). Membership management (required by App Store review),
 /// commitment editing, the on-device privacy story, support, and about.
@@ -24,6 +25,7 @@ struct SettingsView: View {
                 StoneBackground()
                 ScrollView {
                     VStack(spacing: Theme.Spacing.lg) {
+                        accountSection
                         membershipSection
                         commitmentSection
                         privacySection
@@ -46,6 +48,46 @@ struct SettingsView: View {
                 Button("Cancel", role: .cancel) {}
             } message: {
                 Text("This permanently deletes your account, your accountability links, and all data on this device and our servers — your foundation, streak, and settings can't be recovered. It won't cancel an active subscription; manage that in your Apple ID settings.")
+            }
+        }
+    }
+
+    // MARK: - Account (Sign in with Apple)
+
+    private var accountSection: some View {
+        GlassCard {
+            VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+                sectionHeader("Account")
+                if services.auth.isSignedIn {
+                    HStack(spacing: Theme.Spacing.md) {
+                        Image(systemName: "checkmark.seal.fill").foregroundStyle(Theme.accent).frame(width: 28)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(services.auth.displayName ?? "Signed in")
+                                .font(Theme.Typography.body).foregroundStyle(Theme.textPrimary)
+                            if let email = services.auth.email {
+                                Text(email).font(Theme.Typography.caption).foregroundStyle(Theme.textSecondary)
+                            }
+                        }
+                        Spacer(minLength: 0)
+                    }
+                    Divider().overlay(Theme.hairline)
+                    actionRow("rectangle.portrait.and.arrow.right", "Sign out") {
+                        Task { await services.auth.signOut() }
+                    }
+                } else {
+                    Text("Sign in so your progress and membership follow you to a new phone.")
+                        .font(Theme.Typography.caption)
+                        .foregroundStyle(Theme.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                    SignInWithAppleButton(
+                        .signIn,
+                        onRequest: { services.auth.configureRequest($0) },
+                        onCompletion: { result in Task { await services.auth.handle(result) } }
+                    )
+                    .signInWithAppleButtonStyle(.white)
+                    .frame(height: 48)
+                    .clipShape(Capsule())
+                }
             }
         }
     }

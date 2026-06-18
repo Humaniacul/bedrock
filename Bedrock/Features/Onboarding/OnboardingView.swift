@@ -53,6 +53,7 @@ struct OnboardingView: View {
         case .raiseWall: ProtectStep(onNext: advance)
         case .standGuard: StandGuardView(onNext: advance)
         case .paywall: PaywallView(context: .onboarding(why: model.why), onContinue: advance)
+        case .auth: AuthView(onNext: advance)
         case .dayZero: CommitStep(model: model, onDone: finish)
         }
     }

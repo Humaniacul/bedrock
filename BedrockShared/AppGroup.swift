@@ -30,6 +30,8 @@ enum AppGroup {
         static let nudgesEnabled = "triggers.nudgesEnabled"      // Bool — opt-in to local danger-window check-ins
         static let onboardingComplete = "onboarding.complete"   // Bool — first-run flow finished
         static let premiumEntitlement = "paywall.premium"       // Bool — premium active (mirrors StoreKit; §8)
+        static let authDisplayName = "auth.displayName"          // String — Sign in with Apple name
+        static let authEmail = "auth.email"                      // String — Sign in with Apple email
     }
 
     /// Identifiers for the shared Screen Time objects. Kept as raw strings here

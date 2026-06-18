@@ -10,5 +10,11 @@
 	<array>
 		<string>group.com.thebedrock.app</string>
 	</array>
+	<!-- Sign in with Apple (auth after the paywall). Enable the capability on the
+	     App ID too; automatic signing provisions it for development. -->
+	<key>com.apple.developer.applesignin</key>
+	<array>
+		<string>Default</string>
+	</array>
 </dict>
 </plist>
