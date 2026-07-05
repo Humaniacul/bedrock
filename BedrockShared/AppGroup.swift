@@ -29,6 +29,7 @@ enum AppGroup {
         static let supportContact = "support.contact"            // Data — encoded SupportContactStore.Contact (on-device only)
         static let nudgesEnabled = "triggers.nudgesEnabled"      // Bool — opt-in to local danger-window check-ins
         static let onboardingComplete = "onboarding.complete"   // Bool — first-run flow finished
+        static let onboardingProgress = "onboarding.progress"   // Data — encoded resume snapshot (cleared on complete)
         static let premiumEntitlement = "paywall.premium"       // Bool — premium active (mirrors StoreKit; §8)
         static let authDisplayName = "auth.displayName"          // String — Sign in with Apple name
         static let authEmail = "auth.email"                      // String — Sign in with Apple email

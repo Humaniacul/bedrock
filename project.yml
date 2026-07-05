@@ -5,9 +5,9 @@ options:
   bundleIdPrefix: com.thebedrock
   deploymentTarget:
     # HARD CONSTRAINT §10.1: ship minimum is iOS 26.4 (closes the Screen Time
-    # passcode bypass). Held at 26.2 here because that is the installed SDK —
-    # bump to "26.4" before any release that relies on the passcode lock.
-    iOS: "26.2"
+    # passcode bypass). Set to 26.4 — the security floor — so any device on
+    # 26.4+ can install. Built against the installed 26.5 SDK.
+    iOS: "26.4"
   createIntermediateGroups: true
   groupSortPosition: top
   developmentLanguage: en

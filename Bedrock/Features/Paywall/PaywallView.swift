@@ -23,14 +23,15 @@ enum PremiumFeature {
 }
 
 enum PaywallContext {
-    case onboarding(why: String)
+    /// Onboarding S27 — the ask as the conclusion of the commitment ladder.
+    case onboarding(why: String, bestSelfWord: String)
     case gate(PremiumFeature)
 }
 
-/// The conversion screen (§8). Shown as the climax of onboarding (value-first,
-/// skippable) and as a sheet when a free user reaches a premium feature.
-/// Converts on belief — framed around the user's own stated "why" — never on
-/// pressure or dark patterns.
+/// The crossing (spec S27). Reached only after the user has built a foundation
+/// with his own hands — outcomes, trust, price on one screen. NO fake timers,
+/// NO fake discounts, NO countdowns: the trust built across the flow is the
+/// lever. Also shown as a sheet when a free user reaches a premium feature.
 struct PaywallView: View {
     @Environment(AppServices.self) private var services
     @Environment(\.dismiss) private var dismiss
@@ -38,18 +39,35 @@ struct PaywallView: View {
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
     let context: PaywallContext
-    /// Onboarding passes this to advance to the commit step on success or skip.
+    /// Onboarding passes this to advance on success or honest skip.
     var onContinue: (() -> Void)? = nil
 
     @State private var selectedPlanID: String?
     @State private var showError = false
+    @State private var emberFlood = false
 
     private var plans: [PaywallService.Plan] { services.paywall.plans }
     private var selectedPlan: PaywallService.Plan? {
         plans.first { $0.id == selectedPlanID } ?? plans.first
     }
 
-    private let pillars: [(icon: String, title: String)] = [
+    /// What becomes possible — outcomes, NOT features (the user infers).
+    private let outcomes: [String] = [
+        "The wall stays up — even at 2am, even when you'd take it down.",
+        "When the urge hits, your own words meet it.",
+        "You watch the groove fill in, day by day.",
+        "On the hard days, you're not holding the line alone.",
+        "Mornings that start with you.",
+    ]
+
+    /// Dissolves the two real objections: exposure and scam.
+    private let trustRow: [(icon: String, text: String)] = [
+        ("iphone.and.arrow.forward.inward", "Private by design — your data never leaves your device."),
+        ("heart.fill", "No shame, ever — slip up and Bedrock holds the line."),
+        ("checkmark.seal", "Cancel anytime. No tricks, no countdowns."),
+    ]
+
+    private let gatePillars: [(icon: String, title: String)] = [
         ("lock.fill", "Strict Mode — a lock you can't undo in a weak moment"),
         ("person.2.fill", "An accountability partner who's got your back"),
         ("eye.fill", "Insight that sees your danger windows coming"),
@@ -57,17 +75,20 @@ struct PaywallView: View {
 
     var body: some View {
         ZStack {
-            StoneBackground(emberGlow: 0.3)
+            StoneBackground(emberGlow: 0.28)
             VStack(spacing: 0) {
                 ScrollView {
                     VStack(alignment: .leading, spacing: Theme.Spacing.xl) {
-                        if case .onboarding(let why) = context {
-                            onboardingHeader(why: why)
+                        switch context {
+                        case .onboarding(let why, let word):
+                            crossingHeader(why: why, bestSelfWord: word)
+                            outcomeList
+                            trustList
+                            statPills
                             planCards
-                            cyclePromise
-                        } else {
-                            header
-                            pillarList
+                        case .gate:
+                            gateHeader
+                            gatePillarList
                             planCards
                         }
                     }
@@ -76,102 +97,124 @@ struct PaywallView: View {
                 }
                 bottomBar
             }
+            // On purchase: ember floods the foundation — permanent now.
+            if emberFlood {
+                RadialGradient(colors: [BedrockColor.emberGlow.opacity(0.5), Theme.accent.opacity(0.25), .clear],
+                               center: .bottom, startRadius: 20, endRadius: 700)
+                    .ignoresSafeArea()
+                    .transition(.opacity)
+                    .allowsHitTesting(false)
+            }
         }
         .onAppear { if selectedPlanID == nil { selectedPlanID = plans.first?.id } }
-        .alert("Couldn't start the trial", isPresented: $showError) {
+        .alert("Couldn't complete the purchase", isPresented: $showError) {
             Button("OK", role: .cancel) {}
         } message: {
-            Text("In-app purchases aren't available yet on this build. You can keep going with basic blocking.")
+            Text("In-app purchases aren't available right now. You can keep going with basic blocking and upgrade later.")
         }
     }
 
-    // MARK: - Header
+    // MARK: - S27 header — the finished foundation, crowned
 
-    private var header: some View {
-        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
-            Text(headline)
-                .font(.system(.largeTitle, design: .serif, weight: .bold))
-                .foregroundStyle(Theme.textPrimary)
-                .fixedSize(horizontal: false, vertical: true)
-            if let sub = subhead {
-                Text(sub)
-                    .font(Theme.Typography.callout)
-                    .foregroundStyle(Theme.textSecondary)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-        }
-        .riseIn(0, reduceMotion: reduceMotion)
-    }
-
-    private var headline: String {
-        switch context {
-        case .onboarding: "Willpower got you here.\nIt won't get you out."
-        case .gate(let feature): feature.headline
-        }
-    }
-
-    private var subhead: String? {
-        switch context {
-        case .onboarding(let why):
-            let trimmed = why.trimmingCharacters(in: .whitespacesAndNewlines)
-            if let firstLine = trimmed.split(separator: "\n").first, !firstLine.isEmpty {
-                return "You wrote: “\(firstLine)” — give it a foundation that holds when you can't."
-            }
-            return "Give your resolve a foundation that holds when you can't."
-        case .gate(let feature):
-            return feature.blurb
-        }
-    }
-
-    // MARK: - Onboarding "threshold" header (§5 — mission, not features)
-
-    private func onboardingHeader(why: String) -> some View {
-        let trimmed = why.trimmingCharacters(in: .whitespacesAndNewlines)
-        let reason = trimmed.split(separator: "\n").first.map(String.init)
-        return VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
-            FoundationMonolith(foundationDays: 1, hasCrack: false)
-                .frame(maxHeight: 150)
+    private func crossingHeader(why: String, bestSelfWord: String) -> some View {
+        VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
+            FoundationWall(blocks: 5, capstone: bestSelfWord)
                 .frame(maxWidth: .infinity)
-
+                .breath(reduceMotion: reduceMotion)
             VStack(alignment: .leading, spacing: Theme.Spacing.md) {
-                if let reason {
-                    Text("“\(reason)”")
-                        .font(.system(.title3, design: .serif, weight: .medium))
-                        .foregroundStyle(Theme.accent)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                Text(reason == nil
-                     ? "Make your decision unbreakable."
-                     : "Let's make sure nothing takes it from you again.")
+                Text("Make the foundation permanent.")
                     .font(.system(.largeTitle, design: .serif, weight: .bold))
                     .foregroundStyle(Theme.textPrimary)
                     .fixedSize(horizontal: false, vertical: true)
-                Text("From tonight, you don't have to white-knuckle this alone. We've got the door — you just have to walk forward.")
-                    .font(Theme.Typography.callout)
+                if !why.trimmingCharacters(in: .whitespaces).isEmpty,
+                   let firstLine = why.split(separator: "\n").first {
+                    Text("“\(firstLine)” — your words, carved this morning. Here's what keeps them standing.")
+                        .font(Theme.Typography.callout)
+                        .foregroundStyle(Theme.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+        }
+        .settleIn(reduceMotion: reduceMotion)
+    }
+
+    private var outcomeList: some View {
+        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+            ForEach(Array(outcomes.enumerated()), id: \.offset) { index, outcome in
+                HStack(alignment: .firstTextBaseline, spacing: Theme.Spacing.md) {
+                    Rectangle()
+                        .fill(Theme.accent.opacity(0.8))
+                        .frame(width: 3, height: 18)
+                        .clipShape(Capsule())
+                    Text(outcome)
+                        .font(Theme.Typography.callout)
+                        .foregroundStyle(Theme.textPrimary)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Spacer(minLength: 0)
+                }
+                .padding(Theme.Spacing.md)
+                .background(RoundedRectangle(cornerRadius: Theme.Radius.md)
+                    .fill(BedrockColor.slate.opacity(0.45)))
+                .strata(index, reduceMotion: reduceMotion) // each rises as a lit stratum
+            }
+        }
+    }
+
+    private var trustList: some View {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+            ForEach(Array(trustRow.enumerated()), id: \.offset) { _, item in
+                HStack(spacing: Theme.Spacing.sm) {
+                    Image(systemName: item.icon)
+                        .font(.caption)
+                        .foregroundStyle(Theme.accent)
+                        .frame(width: 20)
+                    Text(item.text)
+                        .font(Theme.Typography.caption)
+                        .foregroundStyle(Theme.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+        }
+    }
+
+    /// ⚠️ MOCK values (OnboardingStat) — // VERIFY BEFORE LAUNCH or remove.
+    private var statPills: some View {
+        HStack(spacing: Theme.Spacing.sm) {
+            ForEach([OnboardingStat.rating, OnboardingStat.rebuilding, OnboardingStat.holding], id: \.self) { stat in
+                Text(stat)
+                    .font(Theme.Typography.monoCaption)
                     .foregroundStyle(Theme.textSecondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, Theme.Spacing.sm)
+                    .padding(.vertical, Theme.Spacing.sm)
+                    .frame(maxWidth: .infinity, minHeight: 48)
+                    .background(RoundedRectangle(cornerRadius: Theme.Radius.md).fill(BedrockColor.slate.opacity(0.5)))
+                    .overlay(RoundedRectangle(cornerRadius: Theme.Radius.md).strokeBorder(Theme.hairline))
+            }
+        }
+    }
+
+    // MARK: - Gate header (unchanged behavior)
+
+    private var gateHeader: some View {
+        VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+            if case .gate(let feature) = context {
+                Text(feature.headline)
+                    .font(.system(.largeTitle, design: .serif, weight: .bold))
+                    .foregroundStyle(Theme.textPrimary)
                     .fixedSize(horizontal: false, vertical: true)
-                Text("Your subscription doesn't make us rich — it keeps the lights on so the next man doesn't have to fight alone. You'd be joining something.")
-                    .font(Theme.Typography.caption)
+                Text(feature.blurb)
+                    .font(Theme.Typography.callout)
                     .foregroundStyle(Theme.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
-        .riseIn(0, reduceMotion: reduceMotion)
+        .settleIn(reduceMotion: reduceMotion)
     }
 
-    private var cyclePromise: some View {
-        Text("You've deleted blockers before. This is the one you keep.")
-            .font(.system(.body, design: .serif, weight: .medium))
-            .foregroundStyle(Theme.textPrimary)
-            .multilineTextAlignment(.center)
-            .frame(maxWidth: .infinity)
-    }
-
-    // MARK: - Pillars
-
-    private var pillarList: some View {
+    private var gatePillarList: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.md) {
-            ForEach(Array(pillars.enumerated()), id: \.offset) { index, pillar in
+            ForEach(Array(gatePillars.enumerated()), id: \.offset) { index, pillar in
                 HStack(spacing: Theme.Spacing.md) {
                     Image(systemName: pillar.icon)
                         .font(.headline)
@@ -183,12 +226,12 @@ struct PaywallView: View {
                         .fixedSize(horizontal: false, vertical: true)
                     Spacer(minLength: 0)
                 }
-                .riseIn(0.1 + Double(index) * 0.1, reduceMotion: reduceMotion)
+                .strata(index, reduceMotion: reduceMotion)
             }
         }
     }
 
-    // MARK: - Plans
+    // MARK: - Plans (live from RevenueCat; honest fallbacks)
 
     private var planCards: some View {
         VStack(spacing: Theme.Spacing.md) {
@@ -249,7 +292,7 @@ struct PaywallView: View {
         .accessibilityAddTraits(selected ? [.isButton, .isSelected] : .isButton)
     }
 
-    // MARK: - Bottom bar (CTA + trust + escape)
+    // MARK: - Bottom bar (CTA + honest exit + legal)
 
     private var bottomBar: some View {
         VStack(spacing: Theme.Spacing.sm) {
@@ -271,6 +314,14 @@ struct PaywallView: View {
                 .foregroundStyle(Theme.textSecondary)
                 .multilineTextAlignment(.center)
 
+            if isOnboarding, let plan = selectedPlan {
+                // The honest anchor — no urgency theater.
+                Text("\(plan.price) — less than a month of the hours you're getting back.")
+                    .font(Theme.Typography.caption)
+                    .foregroundStyle(Theme.textSecondary.opacity(0.85))
+                    .multilineTextAlignment(.center)
+            }
+
             HStack(spacing: Theme.Spacing.lg) {
                 Button(secondaryTitle) { skip() }
                     .font(Theme.Typography.callout)
@@ -280,6 +331,8 @@ struct PaywallView: View {
                     .foregroundStyle(Theme.textSecondary)
             }
             .padding(.top, 2)
+
+            PaywallLegalFooter()
         }
         .padding(.horizontal, Theme.Spacing.xl)
         .padding(.top, Theme.Spacing.md)
@@ -288,22 +341,28 @@ struct PaywallView: View {
         .background(reduceTransparency ? AnyShapeStyle(BedrockColor.basalt) : AnyShapeStyle(.ultraThinMaterial))
     }
 
+    private var isOnboarding: Bool {
+        if case .onboarding = context { return true }
+        return false
+    }
+
     private var ctaTitle: String {
         guard let plan = selectedPlan else { return "Continue" }
-        if let trial = plan.trialText { return "Start my \(trial)" }
-        if plan.isLifetime { return "Unlock Lifetime — \(plan.price)" }
-        return "Subscribe — \(plan.price)\(plan.unit)"
+        if plan.hasTrial { return "Start my free trial" }
+        if plan.isLifetime { return "Decide once — \(plan.price)" }
+        return "Begin — \(plan.price)\(plan.unit)"
     }
 
     private var trustLine: String {
         guard let plan = selectedPlan else { return "Cancel anytime." }
-        if let trial = plan.trialText { return "\(trial), then \(plan.price)\(plan.unit). Cancel anytime." }
+        if let trial = plan.trialText { return "\(trial), then \(plan.price)\(plan.unit). Cancel in two taps." }
         if plan.isLifetime { return "One-time \(plan.price). Yours forever." }
-        return "\(plan.price)\(plan.unit). Cancel anytime."
+        return "\(plan.price)\(plan.unit). Cancel in two taps."
     }
 
     private var secondaryTitle: String {
-        if case .onboarding = context { return "Continue with basic blocking" }
+        // Honest soft exit — no guilt copy.
+        if isOnboarding { return "Continue with basic blocking — free, forever" }
         return "Not now"
     }
 
@@ -315,6 +374,8 @@ struct PaywallView: View {
             let ok = await services.paywall.purchase(plan)
             if ok {
                 BedrockHaptics.milestone()
+                withAnimation(.easeIn(duration: reduceMotion ? 0 : 0.5)) { emberFlood = true }
+                try? await Task.sleep(for: .milliseconds(reduceMotion ? 100 : 900))
                 resolveSuccess()
             } else {
                 showError = true
@@ -335,8 +396,27 @@ struct PaywallView: View {
     }
 }
 
+/// Auto-renew terms + the links Apple expects — quiet, complete, honest.
+struct PaywallLegalFooter: View {
+    var body: some View {
+        VStack(spacing: 4) {
+            Text("Subscriptions auto-renew until cancelled; your Apple Account is charged at confirmation. Manage or cancel in Settings → Subscriptions.")
+                .font(.system(size: 10))
+                .foregroundStyle(Theme.textSecondary.opacity(0.7))
+                .multilineTextAlignment(.center)
+            HStack(spacing: Theme.Spacing.md) {
+                Link("Terms", destination: URL(string: "https://thebedrock.app/terms")!)
+                Link("Privacy", destination: URL(string: "https://thebedrock.app/privacy")!)
+            }
+            .font(.system(size: 10, weight: .medium))
+            .foregroundStyle(Theme.textSecondary)
+        }
+        .padding(.top, 2)
+    }
+}
+
 #Preview("Onboarding") {
-    PaywallView(context: .onboarding(why: "To be present for my kids."))
+    PaywallView(context: .onboarding(why: "To be present for my kids.", bestSelfWord: "present"))
         .environment(AppServices.makeStub())
 }
 

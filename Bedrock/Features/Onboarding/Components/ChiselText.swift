@@ -48,7 +48,8 @@ struct ChiselText: View {
             if i < revealed - 1 {
                 run.foregroundColor = color
             } else if i == revealed - 1 {
-                run.foregroundColor = Theme.accent
+                // The chisel tip glows ember while carving, cools when done.
+                run.foregroundColor = finished ? color : Theme.accent
             } else {
                 run.foregroundColor = .clear
             }
@@ -72,7 +73,8 @@ struct ChiselText: View {
                 if Task.isCancelled { return }
                 revealed = i + 1
                 if !chars[i].isWhitespace {
-                    BedrockHaptics.chiselTick()
+                    // Fine transient every 2nd glyph (restraint — spec §Motion).
+                    if i.isMultiple(of: 2) { BedrockHaptics.chiselTick() }
                     dust += 1
                 }
             }

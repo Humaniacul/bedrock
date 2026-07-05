@@ -34,7 +34,11 @@ final class ShieldActionExtension: ShieldActionDelegate {
         switch action {
         case .primaryButtonPressed:
             return .close // Phase 4: open Bedrock into the Intercept Moment.
-        case .secondaryButtonPressed:
+        case .secondaryButtonPressed,
+             .firstSecondarySubmenuItemPressed,
+             .secondSecondarySubmenuItemPressed,
+             .thirdSecondarySubmenuItemPressed:
+            // Bedrock defines no shield submenus; never silently lift protection.
             return .defer
         @unknown default:
             return .none

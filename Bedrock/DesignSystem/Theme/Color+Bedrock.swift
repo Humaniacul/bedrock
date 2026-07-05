@@ -21,12 +21,13 @@ extension Color {
 /// The raw geology palette. Prefer the semantic roles in `Theme` below; reach
 /// for these only when a role doesn't exist yet.
 enum BedrockColor {
-    static let obsidian = Color(hex: 0x0E0F12) // deepest base / app background
-    static let basalt   = Color(hex: 0x16181D) // raised surfaces, sheets
-    static let slate    = Color(hex: 0x23262D) // cards, strata lines
-    static let ash      = Color(hex: 0x6B7079) // secondary text, dividers, inactive
-    static let quartz   = Color(hex: 0xEAE7E1) // primary text (warm off-white — never #FFF)
-    static let ember    = Color(hex: 0xE2683B) // primary accent: molten core / progress
+    static let obsidian = Color(hex: 0x0E0D0C) // deepest base / app background (warm near-black, never pure)
+    static let basalt   = Color(hex: 0x1A1917) // raised surfaces, sheets
+    static let slate    = Color(hex: 0x242220) // cards, strata lines
+    static let ash      = Color(hex: 0x7D7770) // secondary text, dividers, inactive
+    static let quartz   = Color(hex: 0xF4F1EC) // primary text (bone white — never clinical #FFF)
+    static let ember    = Color(hex: 0xC8743C) // primary accent: molten core / progress
+    static let emberGlow = Color(hex: 0xE8A05C) // accent glow — highlights, warmed words
     static let bronze   = Color(hex: 0xB5652E) // pressed/secondary states, milestone metal
     static let mineral  = Color(hex: 0x5E8A8F) // cool counterpoint — calm/clarity states ONLY
 }
@@ -39,7 +40,7 @@ extension Theme {
     static let surfaceRaised = BedrockColor.slate
     static let textPrimary   = BedrockColor.quartz
     static let textSecondary = BedrockColor.ash
-    static let hairline      = Color(hex: 0xEAE7E1, alpha: 0.08)
+    static let hairline      = Color(hex: 0x2A2724)
     static let accent        = BedrockColor.ember
     static let accentPressed = BedrockColor.bronze
     static let onAccent      = BedrockColor.obsidian // text/icon sitting on an ember fill

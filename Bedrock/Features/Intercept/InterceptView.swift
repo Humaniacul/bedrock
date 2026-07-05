@@ -42,9 +42,21 @@ struct InterceptView: View {
     @ViewBuilder private var content: some View {
         switch step {
         case .breathe:
-            UrgeSurfView(minCycles: 2, collectsRating: true) { rating in
-                urge = rating
-                step = .name
+            VStack(spacing: Theme.Spacing.lg) {
+                // Their own words meet the urge (carved during onboarding S25).
+                if services.commitment.hasLetter {
+                    Text("“\(services.commitment.letter)”")
+                        .font(.system(.body, design: .serif, weight: .medium))
+                        .foregroundStyle(Theme.textPrimary)
+                        .multilineTextAlignment(.center)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.horizontal, Theme.Spacing.lg)
+                        .accessibilityLabel("Your why: \(services.commitment.letter)")
+                }
+                UrgeSurfView(minCycles: 2, collectsRating: true) { rating in
+                    urge = rating
+                    step = .name
+                }
             }
         case .name:
             nameStep

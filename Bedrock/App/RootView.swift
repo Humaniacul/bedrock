@@ -18,7 +18,7 @@ struct RootView: View {
         if onboardingDone {
             mainTabs
         } else {
-            OnboardingView { withAnimation(.smooth) { onboardingDone = true } }
+            OnboardingContainerView { withAnimation(.smooth) { onboardingDone = true } }
         }
     }
 
