@@ -60,6 +60,8 @@ protocol AccountabilityService: AnyObject {
     func accept(code: String) async -> InviteAcceptance
     func sendDisableReason(_ message: String)
     func reportTamper(_ kind: TamperKind)
+    /// Hex APNs device token for supporter requests and alerts.
+    func registerPushToken(_ token: String) async
 
     // Gauntlet step 6.
     func requestApproval() async -> [String]
@@ -96,6 +98,7 @@ final class StubAccountabilityService: AccountabilityService {
     func accept(code: String) async -> InviteAcceptance { .unreachable }
     func sendDisableReason(_ message: String) {}
     func reportTamper(_ kind: TamperKind) {}
+    func registerPushToken(_ token: String) async {}
     func requestApproval() async -> [String] { [] }
     func pollApproval(ids: [String]) async -> ApprovalOutcome { .pending }
     func respondToApproval(id: String, approve: Bool) async {}
@@ -175,6 +178,11 @@ final class LiveAccountabilityService: AccountabilityService {
             try? await api.ensureRegistered(displayName: nil)
             try? await api.reportTamper(kind: kind.rawValue)
         }
+    }
+
+    func registerPushToken(_ token: String) async {
+        try? await api.ensureRegistered(displayName: nil)
+        try? await api.registerPushToken(token)
     }
 
     func requestApproval() async -> [String] {

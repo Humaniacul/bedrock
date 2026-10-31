@@ -16,6 +16,10 @@
 	<array>
 		<string>Default</string>
 	</array>
+	<!-- Push: a supporter's approval requests and check-in alerts (SP3). Xcode
+	     signs App Store builds with "production". -->
+	<key>aps-environment</key>
+	<string>development</string>
 	<!-- Universal links: thebedrock.app/join/CODE opens SP1 (needs the
 	     apple-app-site-association file on the site, website/.well-known/). -->
 	<key>com.apple.developer.associated-domains</key>

@@ -1,8 +1,10 @@
 import { authenticate } from '@/lib/auth';
 import { db } from '@/lib/supabase';
 import { ok, err, readJson } from '@/lib/http';
+import { OPEN_STATUSES } from '@/lib/approvals';
 
-// The partner approves or denies a pending request.
+// The partner approves, or says “Not yet” (denied). “Not yet” only delays:
+// the request still opens 3 days after it was made (lib/approvals.ts).
 export async function POST(req: Request) {
   const user = await authenticate(req);
   if (!user) return err('unauthorized', 401);
@@ -16,7 +18,7 @@ export async function POST(req: Request) {
     .update({ status: decision, responded_at: new Date().toISOString() })
     .eq('id', id)
     .eq('partner_id', user.id) // only the assigned partner may respond
-    .eq('status', 'pending')
+    .in('status', OPEN_STATUSES) // “Not yet” can still become an approval
     .select('id')
     .maybeSingle();
 

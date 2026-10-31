@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 import UserNotifications
 
 /// Notification permission, asked only in context (S14, SP3, the late-night
@@ -14,7 +15,10 @@ enum NotificationPermission {
         let center = UNUserNotificationCenter.current()
         switch await status() {
         case .notDetermined:
-            return (try? await center.requestAuthorization(options: [.alert, .sound])) ?? false
+            let granted = (try? await center.requestAuthorization(options: [.alert, .sound])) ?? false
+            // Remote too, so a supporter's requests and alerts can reach this phone.
+            if granted { await MainActor.run { UIApplication.shared.registerForRemoteNotifications() } }
+            return granted
         case .authorized, .provisional, .ephemeral:
             return true
         default:

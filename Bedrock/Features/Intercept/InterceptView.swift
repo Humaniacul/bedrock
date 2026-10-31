@@ -15,7 +15,9 @@ struct InterceptView: View {
     @State private var urge: Int?
     @State private var trigger: String?
     @State private var customTrigger = ""
-    @State private var actionIndex = Int.random(in: 0..<InterceptView.actions.count)
+    /// Replacement actions in the order that fits what's usually underneath (S6).
+    @State private var actionOrder: [Int] = Array(InterceptView.actions.indices).shuffled()
+    @State private var actionPosition = 0
     @State private var showingContactSheet = false
 
     var body: some View {
@@ -37,12 +39,55 @@ struct InterceptView: View {
         }
         .sheet(isPresented: $showingContactSheet) { SupportContactSheet() }
         .animation(.easeInOut, value: step)
+        .onAppear(perform: startFromOnboarding)
+    }
+
+    private var actionIndex: Int { actionOrder[actionPosition % actionOrder.count] }
+
+    /// The urge flow starts from their own answers (SPEC.md S6, S7): the word
+    /// heads it, the first feeling is already picked on “What's underneath it?”,
+    /// and the actions that suit it come first.
+    private func startFromOnboarding() {
+        guard trigger == nil, let state = FirstLightState.load() else { return }
+        let labels = OnbCopy.parts("onb.s6.chips")
+        if let feeling = state.feelings.first(where: { $0 != .notSure }),
+           let index = Feeling.allCases.firstIndex(of: feeling), labels.indices.contains(index) {
+            trigger = labels[index]
+            let preferred = Self.actionsFor(feeling)
+            actionOrder = preferred + actionOrder.filter { !preferred.contains($0) }
+        }
+    }
+
+    /// Actions that suit a feeling, best first (indices into `actions`).
+    private static func actionsFor(_ feeling: Feeling) -> [Int] {
+        switch feeling {
+        case .bored: [4, 0, 6]
+        case .stressed: [1, 7, 5]
+        case .lonely: [3, 4]
+        case .tired: [2, 5, 7]
+        case .anxious: [1, 5, 7]
+        case .notSure: []
+        }
+    }
+
+    /// “You want to be steady.”
+    private var wordLine: String? {
+        let word = FirstLightState.load()?.word ?? AppGroup.defaults.string(forKey: AppGroup.Key.userWord)
+        guard let word, !word.isEmpty else { return nil }
+        return OnbCopy.string("onb.s8.line_3").replacingOccurrences(of: "{word}", with: word)
     }
 
     @ViewBuilder private var content: some View {
         switch step {
         case .breathe:
             VStack(spacing: Theme.Spacing.lg) {
+                if let wordLine {
+                    Text(wordLine)
+                        .font(BedrockFont.titleS)
+                        .foregroundStyle(BedrockColor.emberGlow)
+                        .multilineTextAlignment(.center)
+                        .accessibilityAddTraits(.isHeader)
+                }
                 // Their own words meet the urge (carved during onboarding S25).
                 if services.commitment.hasLetter {
                     Text("“\(services.commitment.letter)”")
@@ -74,7 +119,7 @@ struct InterceptView: View {
             Spacer()
             stepHeader("What's underneath it?",
                        "Naming the feeling takes some of its power away. Pick what fits — or skip.")
-            ChoiceChips(options: Self.triggers, selection: $trigger)
+            ChoiceChips(options: triggerOptions, selection: $trigger)
             customField
             Spacer()
             Button("Continue") { step = .act }
@@ -115,7 +160,7 @@ struct InterceptView: View {
             }
             Button {
                 BedrockHaptics.selection()
-                actionIndex = (actionIndex + 1) % Self.actions.count
+                actionPosition += 1
             } label: {
                 Label("Give me another", systemImage: "arrow.triangle.2.circlepath")
                     .font(Theme.Typography.callout)
@@ -208,10 +253,13 @@ struct InterceptView: View {
 
     // MARK: - Content
 
-    private static let triggers = [
-        "Bored", "Stressed", "Lonely", "Tired", "Anxious",
-        "Lustful", "Procrastinating", "Angry", "On autopilot",
-    ]
+    /// S6's feelings first (same words as onboarding), then a few more.
+    private var triggerOptions: [String] {
+        let feelings = OnbCopy.parts("onb.s6.chips").dropLast() // without “Not sure”
+        return Array(feelings) + Self.moreTriggers.filter { !feelings.contains($0) }
+    }
+
+    private static let moreTriggers = ["Lustful", "Procrastinating", "Angry", "On autopilot"]
 
     private struct Action { let text: String; let icon: String }
     private static let actions: [Action] = [

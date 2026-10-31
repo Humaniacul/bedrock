@@ -11,8 +11,10 @@ import SwiftUI
 extension Theme {
     enum Typography {
         // Display — confident, grounded. (System heavy as a placeholder for Geist.)
-        static let display  = Font.system(.largeTitle, design: .default, weight: .heavy)
-        static let title    = Font.system(.title2, design: .default, weight: .semibold)
+        // Display and titles share onboarding's serif (Instrument Serif), so the
+        // app reads as the same world as First Light.
+        static let display  = BedrockFont.serif(36, relativeTo: .largeTitle)
+        static let title    = BedrockFont.serif(26, relativeTo: .title2)
         static let headline = Font.system(.headline)
         static let body     = Font.system(.body)
         static let callout  = Font.system(.callout)

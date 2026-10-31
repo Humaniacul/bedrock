@@ -163,6 +163,7 @@ struct PreviewTag: View {
             .background(Capsule().fill(BedrockColor.bgBase))
             .background(Capsule().fill(BedrockColor.emberWash))
             .overlay(Capsule().strokeBorder(BedrockColor.emberDeep))
+            .dynamicTypeSize(...DynamicTypeSize.large) // chrome under the Dynamic Island
             .accessibilityLabel(OnbCopy.string("onb.b9.a11y_tag"))
     }
 }

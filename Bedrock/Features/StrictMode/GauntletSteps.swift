@@ -238,10 +238,11 @@ struct PartnerApprovalStep: View {
         VStack(spacing: Theme.Spacing.lg) {
             Spacer()
             ProgressView().controlSize(.large).tint(Theme.accent)
-            Text("Waiting for your partner to approve")
+            Text("Waiting for your person")
                 .font(Theme.Typography.title)
                 .foregroundStyle(Theme.textPrimary)
-            Text("They've been notified. This unlocks when they tap Approve.")
+            // Phase 7: nobody gets stuck. Without their approval, it opens after 3 days.
+            Text("They've been told. It opens when they approve, or after 3 days if they don't. You can close this and come back.")
                 .font(Theme.Typography.callout)
                 .foregroundStyle(Theme.textSecondary)
                 .multilineTextAlignment(.center)

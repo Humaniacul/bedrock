@@ -30,6 +30,23 @@ enum Analytics {
     }
 }
 
+/// Shield taps are counted by the shield extension (it can't send analytics)
+/// and sent here the next time Bedrock opens, then reset.
+@MainActor
+enum ShieldStats {
+    static func flush() {
+        let defaults = AppGroup.defaults
+        let closes = defaults.integer(forKey: AppGroup.Key.shieldCloses)
+        let minutes = defaults.integer(forKey: AppGroup.Key.shieldMinutes)
+        guard closes + minutes > 0 else { return }
+        defaults.set(0, forKey: AppGroup.Key.shieldCloses)
+        defaults.set(0, forKey: AppGroup.Key.shieldMinutes)
+        let startedAt = FirstLightState.load()?.startedAt
+        for _ in 0..<min(closes, 50) { Analytics.track(.shieldAction(.close), screen: .home, startedAt: startedAt) }
+        for _ in 0..<min(minutes, 50) { Analytics.track(.shieldAction(.needMinute), screen: .home, startedAt: startedAt) }
+    }
+}
+
 /// Values the product changes without an app update. Read from PostHog feature
 /// flags when analytics is configured; otherwise the defaults below apply.
 @MainActor

@@ -2,11 +2,27 @@ import SwiftUI
 
 @main
 struct BedrockApp: App {
+    @UIApplicationDelegateAdaptor(BedrockAppDelegate.self) private var appDelegate
+
     init() {
         // Before the first scene: tapped notifications route through here, and
         // analytics is on only when a PostHog key is configured.
         NotificationRouter.shared.install()
         Analytics.configureIfPossible()
+        Self.styleNavigationTitles()
+    }
+
+    /// Large titles in onboarding's serif, so every tab reads as the same world.
+    private static func styleNavigationTitles() {
+        let ink = UIColor(BedrockColor.inkPrimary)
+        if let large = UIFont(name: BedrockFont.serifName, size: 38) {
+            UINavigationBar.appearance().largeTitleTextAttributes = [
+                .font: UIFontMetrics(forTextStyle: .largeTitle).scaledFont(for: large), .foregroundColor: ink]
+        }
+        if let inline = UIFont(name: BedrockFont.serifName, size: 21) {
+            UINavigationBar.appearance().titleTextAttributes = [
+                .font: UIFontMetrics(forTextStyle: .headline).scaledFont(for: inline), .foregroundColor: ink]
+        }
     }
 
     @State private var services = AppServices.makeLive()

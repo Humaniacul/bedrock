@@ -2,6 +2,7 @@ import { Worker, Queue } from 'bullmq';
 import { redisConnection, HEARTBEAT_SWEEP } from '../lib/queue';
 import { db } from '../lib/supabase';
 import { sendPush } from '../lib/apns';
+import { releaseStaleApprovals } from '../lib/approvals';
 
 // Railway worker service (§3). Runs the missed-heartbeat sweep on a schedule:
 // if a user who should be protected has gone quiet (app deleted / Screen Time
@@ -44,15 +45,20 @@ async function runSweep(): Promise<void> {
     for (const link of links ?? []) {
       const { data: partner } = await supabase.from('users').select('apns_token').eq('id', link.partner_id).maybeSingle();
       if (partner?.apns_token) {
-        await sendPush(partner.apns_token, 'A good moment to reach out', `You haven't heard from ${name} in a while.`).catch(() => {});
+        // SP4's promise, in its own words. Discreet: nothing says what Bedrock is for.
+        await sendPush(partner.apns_token, 'Might be worth a check-in', `Haven't heard from ${name}'s Bedrock in a while.`).catch(() => {});
       }
     }
   }
 }
 
 async function main() {
-  // Process sweep jobs.
-  new Worker(HEARTBEAT_SWEEP, async () => runSweep(), { connection: redisConnection() });
+  // Process sweep jobs: quiet phones, and approval requests past their 3 days.
+  new Worker(HEARTBEAT_SWEEP, async () => {
+    await runSweep();
+    const released = await releaseStaleApprovals();
+    if (released > 0) console.log(`[worker] released ${released} approval request(s) after 3 days`);
+  }, { connection: redisConnection() });
 
   // Schedule a repeatable sweep (idempotent — BullMQ dedupes by repeat key).
   const queue = new Queue(HEARTBEAT_SWEEP, { connection: redisConnection() });

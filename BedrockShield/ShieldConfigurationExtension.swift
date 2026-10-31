@@ -1,22 +1,20 @@
 import ManagedSettings
 import ManagedSettingsUI
+import SwiftUI
 import UIKit
 
-/// ShieldConfiguration extension (§3, §4 Intercept Moment). Styles the block
-/// screen so it is never a dead wall — it points the user back into Bedrock to
-/// ride out the urge.
-///
-/// NOTE: this runs in a separate process and cannot import the SwiftUI `Theme`,
-/// so the palette is mirrored here as raw `UIColor`s. Keep in sync with §6.1.
+/// The shield over apps and sites behind the wall (SPEC.md S7: “The word …
+/// sits on every shield instead of a lecture”). Nothing on it says what Bedrock
+/// is for: a neutral title, their own word, the stone mark, Bedrock's colours.
+/// Close shuts it; “I need a minute” (handled by BedrockShieldAction) sends a
+/// quiet notification that opens the urge flow.
 final class ShieldConfigurationExtension: ShieldConfigurationDataSource {
     override func configuration(shielding application: Application) -> ShieldConfiguration {
         bedrockShield()
     }
 
-    override func configuration(
-        shielding application: Application,
-        in category: ActivityCategory
-    ) -> ShieldConfiguration {
+    override func configuration(shielding application: Application,
+                                in category: ActivityCategory) -> ShieldConfiguration {
         bedrockShield()
     }
 
@@ -24,34 +22,54 @@ final class ShieldConfigurationExtension: ShieldConfigurationDataSource {
         bedrockShield()
     }
 
-    override func configuration(
-        shielding webDomain: WebDomain,
-        in category: ActivityCategory
-    ) -> ShieldConfiguration {
+    override func configuration(shielding webDomain: WebDomain,
+                                in category: ActivityCategory) -> ShieldConfiguration {
         bedrockShield()
     }
 
     private func bedrockShield() -> ShieldConfiguration {
         ShieldConfiguration(
             backgroundBlurStyle: .systemUltraThinMaterialDark,
-            backgroundColor: Palette.obsidian,
-            icon: nil,
-            title: ShieldConfiguration.Label(text: "Pause.", color: Palette.quartz),
-            subtitle: ShieldConfiguration.Label(
-                text: "This is the urge talking. Open Bedrock and ride it out — it passes.",
-                color: Palette.ash
-            ),
-            primaryButtonLabel: ShieldConfiguration.Label(text: "Open Bedrock", color: Palette.obsidian),
-            primaryButtonBackgroundColor: Palette.ember,
-            secondaryButtonLabel: nil
+            backgroundColor: UIColor(BedrockColor.bgBase),
+            icon: Self.stoneMark,
+            title: ShieldConfiguration.Label(text: copy("onb.shield.title"), color: UIColor(BedrockColor.inkPrimary)),
+            subtitle: ShieldConfiguration.Label(text: subtitle, color: UIColor(BedrockColor.inkSecondary)),
+            primaryButtonLabel: ShieldConfiguration.Label(text: copy("onb.shield.close"), color: UIColor(BedrockColor.onEmber)),
+            primaryButtonBackgroundColor: UIColor(BedrockColor.ember),
+            secondaryButtonLabel: ShieldConfiguration.Label(text: copy("onb.shield.minute"), color: UIColor(BedrockColor.emberGlow))
         )
     }
 
-    // §6.1 palette mirror (process-isolated from the SwiftUI Theme).
-    private enum Palette {
-        static let obsidian = UIColor(red: 0x0E / 255, green: 0x0F / 255, blue: 0x12 / 255, alpha: 1)
-        static let quartz   = UIColor(red: 0xEA / 255, green: 0xE7 / 255, blue: 0xE1 / 255, alpha: 1)
-        static let ash      = UIColor(red: 0x6B / 255, green: 0x70 / 255, blue: 0x79 / 255, alpha: 1)
-        static let ember    = UIColor(red: 0xE2 / 255, green: 0x68 / 255, blue: 0x3B / 255, alpha: 1)
+    /// “You want to be steady.” — or a neutral line before a word is chosen.
+    private var subtitle: String {
+        let word = AppGroup.defaults.string(forKey: AppGroup.Key.userWord)?
+            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        guard !word.isEmpty else { return copy("onb.shield.subtitle_no_word") }
+        return copy("onb.shield.subtitle").replacingOccurrences(of: "{word}", with: word)
     }
+
+    private func copy(_ key: String) -> String {
+        Bundle.main.localizedString(forKey: key, value: nil, table: nil)
+    }
+
+    /// The five-point stone mark in ember, drawn once (matches the app icon).
+    private static let stoneMark: UIImage = {
+        let size = CGSize(width: 56, height: 80)
+        let points: [CGPoint] = [CGPoint(x: 0.24, y: 0.00), CGPoint(x: 0.86, y: 0.08), CGPoint(x: 1.00, y: 0.64),
+                                 CGPoint(x: 0.58, y: 1.00), CGPoint(x: 0.00, y: 0.76)]
+        return UIGraphicsImageRenderer(size: size).image { context in
+            let path = UIBezierPath()
+            for (index, point) in points.enumerated() {
+                let p = CGPoint(x: point.x * size.width, y: point.y * size.height)
+                index == 0 ? path.move(to: p) : path.addLine(to: p)
+            }
+            path.close()
+            path.addClip()
+            let colors = [UIColor(BedrockColor.emberHot).cgColor, UIColor(BedrockColor.ember).cgColor] as CFArray
+            if let gradient = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(), colors: colors, locations: [0, 1]) {
+                context.cgContext.drawLinearGradient(gradient, start: .zero,
+                                                     end: CGPoint(x: size.width, y: size.height), options: [])
+            }
+        }
+    }()
 }

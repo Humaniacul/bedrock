@@ -86,6 +86,11 @@ struct APIClient {
         try await send("/api/cooldown/check?id=\(id)", method: "GET")
     }
 
+    /// This device's APNs token, so requests and check-in alerts can reach it.
+    func registerPushToken(_ token: String) async throws {
+        try await sendVoid("/api/push/token", method: "POST", body: ["token": token])
+    }
+
     /// Delete the account + all server-side data (App Store Guideline 5.1.1(v)).
     func deleteAccount() async throws {
         try await sendVoid("/api/account", method: "DELETE")

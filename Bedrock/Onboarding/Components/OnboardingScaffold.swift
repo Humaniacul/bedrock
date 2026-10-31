@@ -43,6 +43,7 @@ struct OnboardingScaffold<Content: View, Footer: View, Accessory: View>: View {
     @Environment(\.onboardingScrollAnchor) private var scrollAnchor
     @State private var contentUnderFooter = false
     @State private var viewportHeight: CGFloat = 0
+    @State private var viewportWidth: CGFloat = 0
     @State private var keyboardHeight: CGFloat = 0
     @State private var scrollPosition = ScrollPosition(edge: .top)
 
@@ -123,11 +124,10 @@ struct OnboardingScaffold<Content: View, Footer: View, Accessory: View>: View {
             // With `onboardingFillsHeight`, at least the visible height, so a
             // screen can push part of its content down with a Spacer (S1's
             // lower-half text) and still scroll once it outgrows the screen.
-            FillHeight(minHeight: fillsHeight ? viewportHeight : 0) {
-                content
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, Space.s6)
-                    .padding(.bottom, Space.s6)
+            if fillsHeight {
+                FillHeight(minHeight: viewportHeight, width: viewportWidth) { paddedContent }
+            } else {
+                paddedContent
             }
         }
         .scrollBounceBehavior(.basedOnSize)
@@ -141,9 +141,17 @@ struct OnboardingScaffold<Content: View, Footer: View, Accessory: View>: View {
         } action: { _, isUnder in
             contentUnderFooter = isUnder
         }
-        .onScrollGeometryChange(for: CGFloat.self) { $0.containerSize.height } action: { _, height in
-            viewportHeight = height
+        .onScrollGeometryChange(for: CGSize.self) { $0.containerSize } action: { _, size in
+            viewportHeight = size.height
+            viewportWidth = size.width
         }
+    }
+
+    private var paddedContent: some View {
+        content
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, Space.s6)
+            .padding(.bottom, Space.s6)
     }
 
     private func footerArea(bottomInset: CGFloat) -> some View {
@@ -237,11 +245,15 @@ struct OnboardingScaffold<Content: View, Footer: View, Accessory: View>: View {
 /// Spacers inside can expand; taller content keeps its own height (and scrolls).
 struct FillHeight: Layout {
     var minHeight: CGFloat
+    /// The width to measure at when the scroll view doesn't propose one, so
+    /// wrapping text is measured as it will be laid out.
+    var width: CGFloat = 0
 
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
         guard let child = subviews.first else { return .zero }
-        let ideal = child.sizeThatFits(ProposedViewSize(width: proposal.width, height: nil))
-        return CGSize(width: proposal.width ?? ideal.width, height: max(ideal.height, minHeight))
+        let measureWidth = proposal.width ?? (width > 0 ? width : nil)
+        let ideal = child.sizeThatFits(ProposedViewSize(width: measureWidth, height: nil))
+        return CGSize(width: measureWidth ?? ideal.width, height: max(ideal.height, minHeight))
     }
 
     func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {

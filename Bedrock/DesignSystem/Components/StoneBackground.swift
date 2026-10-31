@@ -9,20 +9,9 @@ struct StoneBackground: View {
     var emberGlow: Double = 0.10
 
     var body: some View {
-        LinearGradient(
-            colors: [BedrockColor.obsidian, BedrockColor.basalt, BedrockColor.obsidian],
-            startPoint: .top,
-            endPoint: .bottom
-        )
-        .overlay(
-            RadialGradient(
-                colors: [BedrockColor.ember.opacity(emberGlow), .clear],
-                center: UnitPoint(x: 0.5, y: 0.96),
-                startRadius: 0,
-                endRadius: 460
-            )
-        )
-        .ignoresSafeArea()
+        // The onboarding backdrop: obsidian, the horizon glow, the grain. The
+        // old 0.1–0.28 glow range maps onto Dawn levels.
+        OnboardingBackdrop(level: min(emberGlow * 3, 1))
     }
 }
 

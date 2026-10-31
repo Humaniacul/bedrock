@@ -30,7 +30,8 @@ extension Theme {
     static let surface       = BedrockColor.basalt   // solid surface (also the Reduce-Transparency glass fallback)
     static let surfaceRaised = BedrockColor.slate
     static let textPrimary   = BedrockColor.quartz
-    static let textSecondary = BedrockColor.ash
+    /// Limestone, as onboarding's supporting text. (The old Ash, #7D7770, failed AA.)
+    static let textSecondary = BedrockColor.inkSecondary
     static let hairline      = Color(hex: 0x2A2724)
     static let accent        = BedrockColor.ember
     static let accentPressed = BedrockColor.bronze

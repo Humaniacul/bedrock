@@ -216,21 +216,23 @@ struct StoneScreen: View {
                     Text(OnbCopy.string("onb.s8.caption"))
                         .font(BedrockFont.footnote)
                         .foregroundStyle(BedrockColor.inkTertiary)
+                    if afterShown {
+                        Text(OnbCopy.string("onb.s8.after"))
+                            .font(BedrockFont.subhead)
+                            .foregroundStyle(BedrockColor.inkSecondary)
+                            .multilineTextAlignment(.center)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .padding(.top, Space.s2)
+                            .bedrockAppear(.settle)
+                    }
                 }
                 .frame(maxWidth: .infinity)
             }
         } footer: {
             Group {
                 if afterShown {
-                    VStack(spacing: Space.s4) {
-                        Text(OnbCopy.string("onb.s8.after"))
-                            .font(BedrockFont.subhead)
-                            .foregroundStyle(BedrockColor.inkSecondary)
-                            .multilineTextAlignment(.center)
-                            .fixedSize(horizontal: false, vertical: true)
-                        PrimaryButton(title: OnbCopy.string("onb.s8.primary")) { flow.afterStone() }
-                    }
-                    .bedrockAppear(.settle)
+                    PrimaryButton(title: OnbCopy.string("onb.s8.primary")) { flow.afterStone() }
+                        .bedrockAppear(.settle)
                 } else if !isSet {
                     HoldToSetControl(label: OnbCopy.string("onb.s8.hold_label"),
                                      tapHint: OnbCopy.string("onb.s8.tap_hint"),
@@ -245,6 +247,8 @@ struct StoneScreen: View {
         } footerAccessory: {
             CrisisLink { flow.showsCrisis = true }
         }
+        // Once set, keep the new line under the stone in view.
+        .environment(\.onboardingScrollAnchor, afterShown ? .bottom : nil)
         .onAppear {
             if flow.state.stoneSetAt != nil {
                 isSet = true

@@ -34,6 +34,7 @@ enum AppGroup {
         static let homeHeadlineShown = "home.headlineShown"     // Bool — Home's first headline carved once         // Data — encoded FirstLightState (written on every screen change)
         static let userWord = "user.word"                        // String — the S7 word; Home, Intercept and the shield show it
         static let shieldCloses = "shield.closes"                // Int — shield “Close” taps, sent on the next app open (count only)
+        static let shieldMinutes = "shield.minutes"              // Int — “I need a minute” taps since last open
         static let premiumEntitlement = "paywall.premium"       // Bool — premium active (mirrors StoreKit; §8)
         static let authDisplayName = "auth.displayName"          // String — Sign in with Apple name
         static let authEmail = "auth.email"                      // String — Sign in with Apple email

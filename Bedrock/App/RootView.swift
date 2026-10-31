@@ -17,6 +17,8 @@ struct RootView: View {
     /// A flow over whatever is showing: an invite link, the “decide tomorrow” reminder.
     @State private var launch: FlowLaunch?
     @State private var notifications = NotificationRouter.shared
+    /// “I need a minute” from the shield opens the urge flow.
+    @State private var showIntercept = false
 
     enum Route: Equatable { case onboarding, supporter, app }
 
@@ -54,9 +56,14 @@ struct RootView: View {
             FirstLightView(mode: launch.mode) { _ in self.launch = nil }
                 .environment(services)
         }
+        .fullScreenCover(isPresented: $showIntercept) { InterceptView().environment(services) }
         .onOpenURL(perform: open)
         .onContinueUserActivity(NSUserActivityTypeBrowsingWeb) { activity in
             if let url = activity.webpageURL { open(url) }
+        }
+        .onChange(of: notifications.deviceToken) { _, token in
+            guard let token else { return }
+            Task { await services.accountability.registerPushToken(token) }
         }
         .onChange(of: notifications.pending) { _, pending in
             guard let pending else { return }
@@ -105,6 +112,7 @@ struct RootView: View {
         .onChange(of: scenePhase) { _, newPhase in
             guard newPhase == .active else { return }
             services.streak.refreshForToday()
+            ShieldStats.flush()
             Task {
                 await services.paywall.refresh()
                 await services.heartbeat.sync(
@@ -182,6 +190,10 @@ struct RootView: View {
             launch = FlowLaunch(mode: .paywall)
         case "subscriptions":
             UIApplication.shared.open(Legal.subscriptions)
+        case "intercept":
+            guard self.route == .app else { return }
+            selection = .foundation
+            showIntercept = true
         default:
             selection = .foundation
             if self.route == .app {

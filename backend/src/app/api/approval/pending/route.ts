@@ -1,8 +1,10 @@
 import { authenticate } from '@/lib/auth';
 import { db } from '@/lib/supabase';
 import { ok, err } from '@/lib/http';
+import { OPEN_STATUSES } from '@/lib/approvals';
 
-// Requests awaiting THIS user's decision (partner-side inbox).
+// Requests awaiting THIS user's decision (partner-side inbox), including ones
+// answered “Not yet”, which can still be approved before they open.
 export async function GET(req: Request) {
   const user = await authenticate(req);
   if (!user) return err('unauthorized', 401);
@@ -11,7 +13,7 @@ export async function GET(req: Request) {
     .from('approval_requests')
     .select('id, reason, created_at, users:user_id (display_name)')
     .eq('partner_id', user.id)
-    .eq('status', 'pending')
+    .in('status', OPEN_STATUSES) // “Not yet” stays answerable until it opens
     .order('created_at', { ascending: false });
 
   const pending = (data ?? []).map((r) => {

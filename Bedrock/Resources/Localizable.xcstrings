@@ -553,6 +553,18 @@
         }
       }
     },
+    "onb.nudge.body": {
+      "comment": "Danger-window check-in body (opt-in, Settings). Discreet: nothing on the shield says what Bedrock is for.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A good moment to plan the next hour."
+          }
+        }
+      }
+    },
     "onb.reminder.heads_up": {
       "comment": "Heads-up notification body. Discreet: never says what Bedrock is for.",
       "extractionState": "manual",
@@ -4089,6 +4101,78 @@
           "stringUnit": {
             "state": "translated",
             "value": "Screen Time access · Bedrock"
+          }
+        }
+      }
+    },
+    "onb.shield.close": {
+      "comment": "Shield primary button: closes the shield.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close"
+          }
+        }
+      }
+    },
+    "onb.shield.minute": {
+      "comment": "Shield secondary button: sends a notification that opens the urge flow.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I need a minute"
+          }
+        }
+      }
+    },
+    "onb.shield.minute_notification": {
+      "comment": "Notification after “I need a minute”: title · body. Discreet: nothing on the shield says what Bedrock is for.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Take a minute. · Tap to breathe it through."
+          }
+        }
+      }
+    },
+    "onb.shield.subtitle": {
+      "comment": "Shield subtitle: the S7 word instead of a lecture (S8 line 3). Discreet: nothing on the shield says what Bedrock is for.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You want to be {word}."
+          }
+        }
+      }
+    },
+    "onb.shield.subtitle_no_word": {
+      "comment": "Shield subtitle when no word was chosen. Discreet: nothing on the shield says what Bedrock is for.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Take a breath. It passes."
+          }
+        }
+      }
+    },
+    "onb.shield.title": {
+      "comment": "Shield title (apps and sites behind the wall). Discreet: nothing on the shield says what Bedrock is for.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Held."
           }
         }
       }

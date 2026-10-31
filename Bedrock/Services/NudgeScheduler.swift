@@ -77,8 +77,9 @@ final class NudgeScheduler {
             components.minute = 0
 
             let content = UNMutableNotificationContent()
-            content.title = "A steadier minute?"
-            content.body = "This is usually a tougher stretch for you. Want to breathe through it before it builds?"
+            // Discreet: nothing on a notification says what Bedrock is for.
+            content.body = OnbCopy.string("onb.nudge.body")
+            content.userInfo = [Reminders.routeKey: "home"]
             content.sound = .default
 
             let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: true)

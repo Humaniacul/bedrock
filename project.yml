@@ -86,6 +86,8 @@ targets:
           - "**/*.entitlements"
       # Shared palette (BedrockShared/Design/BedrockTokens.swift) + App Group.
       - path: BedrockShared
+      # Shield copy comes from the same catalog as the app (onb.shield.*).
+      - path: Bedrock/Resources/Localizable.xcstrings
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.thebedrock.app.shield
@@ -99,6 +101,9 @@ targets:
       - path: BedrockShieldAction
         excludes:
           - "**/*.entitlements"
+      # App Group keys (shield counts) and the catalog (the “need a minute” notification).
+      - path: BedrockShared
+      - path: Bedrock/Resources/Localizable.xcstrings
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.thebedrock.app.shieldaction
