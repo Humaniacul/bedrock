@@ -295,6 +295,50 @@ struct OnboardingProgressBar: View {
     }
 }
 
+// MARK: - Fragment pile (the connective spine — answers become stone)
+
+/// Every Act-II answer drops a small stone fragment into a pile at the bottom
+/// of the screen. The fragments assemble into the user's reading at S14 and
+/// build into the foundation in Act IV — no input is a throwaway.
+struct FragmentPile: View {
+    let count: Int
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        ZStack {
+            ForEach(0..<min(count, 14), id: \.self) { i in
+                fragment(i)
+            }
+        }
+        .frame(height: 34)
+        .frame(maxWidth: .infinity)
+        .animation(Theme.Motion.reduced(.spring(response: 0.5, dampingFraction: 0.72), when: reduceMotion), value: count)
+        .onChange(of: count) { old, new in
+            if new > old { BedrockHaptics.selection() } // .light — a fragment lands
+        }
+        .accessibilityElement()
+        .accessibilityLabel(count == 0 ? "" : "\(count) stone fragments gathered from your answers")
+    }
+
+    /// Deterministic scatter — the same answer always lands the same way.
+    private func fragment(_ i: Int) -> some View {
+        let seed = Double(i)
+        let x = CGFloat(sin(seed * 12.9898) * 88)
+        let y = CGFloat(abs(sin(seed * 78.233)) * -12)
+        let width = 16 + CGFloat(abs(sin(seed * 3.7)) * 12)
+        let rotation = Double(sin(seed * 5.1) * 14)
+        return RoundedRectangle(cornerRadius: 3)
+            .fill(LinearGradient(colors: [BedrockColor.slate, BedrockColor.basalt],
+                                 startPoint: .top, endPoint: .bottom))
+            .overlay(RoundedRectangle(cornerRadius: 3).strokeBorder(Theme.accent.opacity(0.25)))
+            .frame(width: width, height: 11)
+            .rotationEffect(.degrees(rotation))
+            .offset(x: x, y: y)
+            .transition(reduceMotion ? .opacity : .move(edge: .top).combined(with: .opacity))
+    }
+}
+
 // MARK: - Vulnerable-user safeguard (quiet, always-available)
 
 struct StrugglingLink: View {

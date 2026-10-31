@@ -31,6 +31,12 @@ packages:
   RevenueCat:
     url: https://github.com/RevenueCat/purchases-ios.git
     from: "5.0.0"
+  # Onboarding analytics (docs/onboarding/OnboardingAnalytics.swift). Pinned
+  # exactly: the config property names in OnboardingAnalytics are checked
+  # against this version, and Package.resolved isn't committed.
+  PostHog:
+    url: https://github.com/PostHog/posthog-ios.git
+    exactVersion: "3.93.1"
 
 targets:
   Bedrock:
@@ -54,6 +60,8 @@ targets:
       - target: BedrockShieldAction
       - package: RevenueCat
         product: RevenueCat
+      - package: PostHog
+        product: PostHog
 
   BedrockMonitor:
     type: app-extension
@@ -76,6 +84,8 @@ targets:
       - path: BedrockShield
         excludes:
           - "**/*.entitlements"
+      # Shared palette (BedrockShared/Design/BedrockTokens.swift) + App Group.
+      - path: BedrockShared
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.thebedrock.app.shield

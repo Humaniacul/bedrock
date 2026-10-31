@@ -1,9 +1,10 @@
 import SwiftUI
 
-// ACT I — THE THRESHOLD (spec S1–S6): disarm, earn "they get me," reframe past
-// failure as relief. Emotional beats have no chrome; tempo is the cinematography.
+// ACT I — THE THRESHOLD (spec v2 S1–S5): disarm freely, then make them admit
+// it themselves. S2 is one of only four "gift" reads in the whole flow —
+// everywhere else in this act, the user works.
 
-// MARK: - S1 · Cold Open
+// MARK: - S1 · Cold Open [watch]
 
 struct ColdOpenBeat: View {
     var onNext: () -> Void
@@ -45,7 +46,7 @@ struct ColdOpenBeat: View {
     }
 }
 
-// MARK: - S2 · The Disarm — protect this screen above all
+// MARK: - S2 · The Disarm [read — a gift, given freely]
 
 struct DisarmBeat: View {
     var onNext: () -> Void
@@ -59,10 +60,7 @@ struct DisarmBeat: View {
             CarveSequence(lines: [
                 .init(text: "You're not broken.",
                       font: .system(.largeTitle, design: .serif, weight: .semibold)),
-                .init(text: "You're not weak.",
-                      font: .system(.largeTitle, design: .serif, weight: .semibold)),
-                .init(text: "You're just up against something\nengineered to win.",
-                      ember: true),
+                .init(text: "You're up against something\nengineered to win.", ember: true),
             ], interlinePause: 0.7) { finished = true }
             Spacer()
             TapToContinue(visible: finished)
@@ -76,108 +74,123 @@ struct DisarmBeat: View {
     }
 }
 
-// MARK: - S3 · Recognition — the screen people screenshot
+// MARK: - S3 · Recognize [the first real work]
 
-struct RecognitionBeat: View {
+struct RecognizeBeat: View {
+    let model: OnboardingModel
     var onNext: () -> Void
-    @State private var finished = false
 
-    var body: some View {
-        VStack(spacing: Theme.Spacing.lg) {
-            Spacer()
-            CarveSequence(lines: [
-                .init(text: "The thing you reach for\nbefore you're even awake."),
-                .init(text: "The tab you open\nwhen no one is watching."),
-                .init(text: "The scroll that swallows the night\nand gives nothing back."),
-            ], dimsPrevious: true, interlinePause: 1.2) { finished = true }
-            Spacer()
-            TapToContinue(visible: finished)
-                .padding(.bottom, Theme.Spacing.lg)
-        }
-        .padding(Theme.Spacing.xl)
-        .contentShape(Rectangle())
-        .onTapGesture { if finished { onNext() } }
-        .accessibilityAddTraits(.isButton)
-        .accessibilityHint("Tap to continue")
-    }
-}
-
-// MARK: - S4 · The Cycle & Why It Didn't Hold
-
-struct CycleBeat: View {
-    var onNext: () -> Void
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var finished = false
-    @State private var ghostsGone = false
-    @State private var planeSet = false
+    @State private var selected: Set<String> = []
+    @State private var payoffShown = false
 
     var body: some View {
-        VStack(spacing: Theme.Spacing.lg) {
-            Spacer()
-            ghosts
-                .frame(height: 64)
-                .accessibilityHidden(true)
-            CarveSequence(lines: [
-                .init(text: "You've tried to stop before.\nAn app. A promise to yourself.",
-                      font: .system(.title3, design: .serif, weight: .semibold)),
-                .init(text: "And it held —\nuntil it didn't.",
-                      font: .system(.title3, design: .serif, weight: .semibold)),
-                .init(text: "Every blocker you've used\nwas built to be undone.",
-                      font: .system(.title3, design: .serif, weight: .semibold)),
-                .init(text: "Willpower against a machine that never sleeps\nwas never a fair fight.",
-                      ember: true),
-            ], spacing: Theme.Spacing.md, interlinePause: 0.6) {
-                setPlane()
-            }
-            if planeSet {
-                // The solid ground arriving under the story (Settle, .heavy).
-                RoundedRectangle(cornerRadius: Theme.Radius.md)
-                    .fill(LinearGradient(colors: [BedrockColor.slate, BedrockColor.basalt],
-                                         startPoint: .top, endPoint: .bottom))
-                    .frame(width: 200, height: 24)
-                    .overlay(RoundedRectangle(cornerRadius: Theme.Radius.md)
-                        .strokeBorder(Theme.accent.opacity(0.4)))
+        ZStack {
+            GatheringShadow(count: selected.count)
+            VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
+                Spacer(minLength: Theme.Spacing.sm)
+                Text("Be honest.")
+                    .font(.system(.title, design: .serif, weight: .semibold))
+                    .foregroundStyle(Theme.textPrimary)
                     .settleIn(reduceMotion: reduceMotion)
-                    .accessibilityHidden(true)
-            }
-            Spacer()
-            TapToContinue(visible: finished)
-                .padding(.bottom, Theme.Spacing.lg)
-        }
-        .padding(Theme.Spacing.xl)
-        .contentShape(Rectangle())
-        .onTapGesture { if finished { onNext() } }
-        .task {
-            guard !reduceMotion else { ghostsGone = true; return }
-            try? await Task.sleep(for: .seconds(2.2))
-            withAnimation(.easeIn(duration: 1.6)) { ghostsGone = true }
-        }
-        .accessibilityAddTraits(.isButton)
-        .accessibilityHint("Tap to continue")
-    }
+                Text("Which of these do you know?")
+                    .font(Theme.Typography.callout)
+                    .foregroundStyle(Theme.textSecondary)
+                    .settleIn(0.08, reduceMotion: reduceMotion)
 
-    /// Ghosted generic-blocker icons that drift and dissolve.
-    private var ghosts: some View {
-        HStack(spacing: Theme.Spacing.xl) {
-            ForEach(Array(["shield.slash", "app.dashed", "hand.raised.slash"].enumerated()), id: \.offset) { i, symbol in
-                Image(systemName: symbol)
-                    .font(.system(size: 30, weight: .light))
-                    .foregroundStyle(BedrockColor.ash.opacity(0.5))
-                    .offset(y: ghostsGone ? -14 - CGFloat(i) * 6 : 0)
-                    .opacity(ghostsGone ? 0 : 1)
-                    .blur(radius: ghostsGone ? 4 : 0)
+                RecognizeGrid(options: OnboardingModel.recognizeOptions, selected: $selected)
+
+                if payoffShown {
+                    ChiselText(
+                        text: "You just named it. Most men never do.",
+                        font: .system(.title3, design: .serif, weight: .semibold),
+                        cadence: 0.04)
+                        .frame(maxWidth: .infinity)
+                }
+
+                Spacer(minLength: 0)
+                OnboardingPrimaryButton(title: "Continue") { onNext() }
+                    .disabled(selected.isEmpty)
+                    .opacity(selected.isEmpty ? 0.45 : 1)
+            }
+            .padding(Theme.Spacing.xl)
+        }
+        .onChange(of: selected) { _, new in
+            if !new.isEmpty && !payoffShown {
+                withAnimation(.smooth(duration: 0.5)) { payoffShown = true }
             }
         }
-    }
-
-    private func setPlane() {
-        withAnimation { planeSet = true }
-        BedrockHaptics.stoneSet()
-        finished = true
     }
 }
 
-// MARK: - S5 · The Turn
+// MARK: - S4 · Reckon [the honest cost, self-set]
+
+struct ReckonBeat: View {
+    @Bindable var model: OnboardingModel
+    var onNext: () -> Void
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var payoffShown = false
+
+    private var hasReckoned: Bool { model.dayCostEstimate > 0.04 }
+
+    var body: some View {
+        VStack(spacing: Theme.Spacing.lg) {
+            Spacer(minLength: Theme.Spacing.sm)
+            Text("We won't invent a number.")
+                .font(.system(.title2, design: .serif, weight: .semibold))
+                .foregroundStyle(Theme.textPrimary)
+                .multilineTextAlignment(.center)
+                .settleIn(reduceMotion: reduceMotion)
+            Text("You tell us — how much of your day\ndoes it quietly take?")
+                .font(Theme.Typography.callout)
+                .foregroundStyle(Theme.textSecondary)
+                .multilineTextAlignment(.center)
+                .settleIn(0.08, reduceMotion: reduceMotion)
+
+            HStack(spacing: Theme.Spacing.xl) {
+                ReckonDial(value: $model.dayCostEstimate)
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("ONE DAY")
+                        .font(Theme.Typography.monoCaption)
+                        .tracking(2.5)
+                        .foregroundStyle(Theme.textSecondary.opacity(0.8))
+                    Text(hasReckoned ? model.dayCostLabel : "Drag the dial")
+                        .font(.system(.title3, design: .serif, weight: .semibold))
+                        .foregroundStyle(hasReckoned ? Theme.accent : Theme.textSecondary)
+                        .animation(.easeInOut(duration: 0.3), value: model.dayCostLabel)
+                    if hasReckoned {
+                        Text("Your estimate.\nNo one else's.")
+                            .font(Theme.Typography.caption)
+                            .foregroundStyle(Theme.textSecondary)
+                    }
+                }
+                .frame(width: 130, alignment: .leading)
+            }
+            .settleIn(0.15, reduceMotion: reduceMotion)
+
+            if payoffShown {
+                ChiselText(
+                    text: "That's what we're getting back.",
+                    font: .system(.title3, design: .serif, weight: .semibold),
+                    cadence: 0.04)
+            }
+
+            Spacer(minLength: 0)
+            OnboardingPrimaryButton(title: "Continue") { onNext() }
+                .disabled(!hasReckoned)
+                .opacity(hasReckoned ? 1 : 0.45)
+        }
+        .padding(Theme.Spacing.xl)
+        .onChange(of: hasReckoned) { _, reckoned in
+            if reckoned && !payoffShown {
+                withAnimation(.smooth(duration: 0.5)) { payoffShown = true }
+            }
+        }
+    }
+}
+
+// MARK: - S5 · The Turn [read + CTA — short]
 
 struct TurnBeat: View {
     var onNext: () -> Void
@@ -188,9 +201,9 @@ struct TurnBeat: View {
         VStack(spacing: Theme.Spacing.lg) {
             Spacer()
             CarveSequence(lines: [
-                .init(text: "Bedrock isn't another door\nyou hold shut."),
-                .init(text: "It's the ground you stand on.", ember: true),
-                .init(text: "Let's build it together.",
+                .init(text: "Every blocker you've tried\nwas built to be undone."),
+                .init(text: "This one isn't.", ember: true),
+                .init(text: "Let's build the ground you stand on.",
                       font: .system(.title3, design: .serif, weight: .medium)),
             ], interlinePause: 0.7) { finished = true }
             Spacer()
@@ -203,7 +216,7 @@ struct TurnBeat: View {
     }
 }
 
-// MARK: - S6 · Permission to Begin
+// MARK: - S6 · Permission [minimal + CTA]
 
 struct PermissionBeat: View {
     var onNext: () -> Void
@@ -214,10 +227,9 @@ struct PermissionBeat: View {
         VStack(spacing: Theme.Spacing.lg) {
             Spacer()
             CarveSequence(lines: [
-                .init(text: "Before I can hold anything steady,\nI need to understand you."),
-                .init(text: "Honest answers.\nNo one sees these but you.",
-                      font: .system(.title3, design: .serif, weight: .medium)),
-            ], interlinePause: 0.6) { finished = true }
+                .init(text: "Answer honestly.\nNo one sees these but you.",
+                      font: .system(.title2, design: .serif, weight: .semibold)),
+            ], interlinePause: 0.4) { finished = true }
             if finished {
                 Label("Stored on your device.", systemImage: "iphone.and.arrow.forward.inward")
                     .font(Theme.Typography.caption)

@@ -1,10 +1,10 @@
 import SwiftUI
 
-/// The onboarding coordinator (spec v1.0): routes the 28 beats, owns the only
+/// The onboarding coordinator (spec v2.0): routes the 29 beats, owns the only
 /// progress chrome (a thin bar across the question block, S7–13 — emotional
 /// screens carry no chrome), and persists progress so a backgrounded flow
 /// resumes, never restarts. Tempo contrast is the cinematography: slow carved
-/// beats, snappy questions.
+/// gifts, snappy interactions.
 struct OnboardingContainerView: View {
     @Environment(AppServices.self) private var services
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -50,23 +50,23 @@ struct OnboardingContainerView: View {
     @ViewBuilder private func beatView(_ beat: OnboardingBeat) -> some View {
         switch beat {
         // ACT I — THE THRESHOLD
-        case .coldOpen:    ColdOpenBeat(onNext: advance)
-        case .disarm:      DisarmBeat(onNext: advance)
-        case .recognition: RecognitionBeat(onNext: advance)
-        case .cycle:       CycleBeat(onNext: advance)
-        case .turn:        TurnBeat(onNext: advance)
+        case .coldOpen:  ColdOpenBeat(onNext: advance)
+        case .disarm:    DisarmBeat(onNext: advance)
+        case .recognize: RecognizeBeat(model: model, onNext: advance)
+        case .reckon:    ReckonBeat(model: model, onNext: advance)
+        case .turn:      TurnBeat(onNext: advance)
         // ACT II — THE MIRROR
-        case .permission:  PermissionBeat(onNext: advance)
+        case .permission: PermissionBeat(onNext: advance)
         case .question(let question):
             QuestionBeat(question: question, model: model, onNext: advance)
         case .reflectionOne: ReflectionBeat(kind: .one, model: model, onNext: advance)
         case .reflectionTwo: ReflectionBeat(kind: .two, model: model, onNext: advance)
         // ACT III — THE TRUTH
-        case .synthesis:   SynthesisBeat(model: model, onNext: advance)
-        case .reveal:      RevealBeat(model: model, onNext: advance)
-        case .loopScience: LoopScienceBeat(onNext: advance)
-        case .timeline:    TimelineBeat(model: model, onNext: advance)
-        case .frictionOverWillpower: FrictionBeat(onNext: advance)
+        case .reading:  ReadingBeat(model: model, onNext: advance)
+        case .reveal:   RevealBeat(model: model, onNext: advance)
+        case .loop:     LoopBeat(onNext: advance)
+        case .timeline: TimelineBeat(model: model, onNext: advance)
+        case .door:     DoorBeat(onNext: advance)
         // ACT IV — THE COVENANT
         case .futureSelf:  FutureSelfBeat(model: model, onNext: advance)
         case .cornerstone: CornerstoneBeat(model: model, onNext: advance)
@@ -80,7 +80,9 @@ struct OnboardingContainerView: View {
         case .bridge:      BridgeBeat(model: model, onNext: advance)
         case .paywall:
             PaywallView(
-                context: .onboarding(why: model.whyLine, bestSelfWord: model.bestSelfWord),
+                context: .onboarding(why: model.whyLine,
+                                     bestSelfWord: model.bestSelfWord,
+                                     topCost: model.topCost),
                 onContinue: advance)
         case .dayOne:      DayOneBeat(model: model, onDone: finish)
         }

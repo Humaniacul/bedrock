@@ -1,43 +1,89 @@
 import SwiftUI
 import FamilyControls
 
-// ACT IV — THE COVENANT (spec S19–S25): commitment → a configured, personal
-// foundation. The ladder: oath → name → guardrails → friction tier → rhythm →
-// the built wall → the why. Each step is one more stone the user set himself.
+// ACT IV — THE COVENANT (spec v2 S19–S25): commitment → a foundation built by
+// their hands. Choose the future, sign and forge the oath, build the wall,
+// weight it, schedule the watch, run a hand across the finished thing, and
+// carve the why.
 
-// MARK: - S19 · Future Self
+// MARK: - S19 · Future Self [Choose — co-author it]
 
 struct FutureSelfBeat: View {
-    let model: OnboardingModel
+    @Bindable var model: OnboardingModel
     var onNext: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var finished = false
+    @State private var payoffShown = false
+
+    /// Their best-self word joins the standard options.
+    private var options: [String] {
+        var list = OnboardingModel.futureReturnOptions
+        let word = model.bestSelfWord.capitalized
+        if !list.contains(word) { list.append(word) }
+        return list
+    }
 
     var body: some View {
-        VStack(spacing: Theme.Spacing.lg) {
-            Spacer()
-            CarveSequence(lines: [
-                .init(text: "Picture yourself\nninety days from now."),
-                .init(text: "You wake and reach for the day,\nnot the screen."),
-                .init(text: "You feel \(model.bestSelfWord) — like yourself.", ember: true),
-                .init(text: "That person isn't a fantasy.\nHe's you, without the noise.",
-                      font: .system(.title3, design: .serif, weight: .medium)),
-            ], interlinePause: 0.9) { finished = true }
-            .breath(finished, reduceMotion: reduceMotion)
-            Spacer()
-            TapToContinue(visible: finished)
-                .padding(.bottom, Theme.Spacing.lg)
+        ZStack {
+            // Each choice lights the dawn brighter.
+            LinearGradient(colors: [Theme.accent.opacity(0.12 * Double(model.futureReturns.count)), .clear],
+                           startPoint: .bottom, endPoint: .top)
+                .ignoresSafeArea()
+                .allowsHitTesting(false)
+                .animation(.easeInOut(duration: 0.9), value: model.futureReturns.count)
+
+            VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
+                Spacer(minLength: Theme.Spacing.sm)
+                Text("Ninety days from now —")
+                    .font(.system(.title, design: .serif, weight: .semibold))
+                    .foregroundStyle(Theme.textPrimary)
+                    .settleIn(reduceMotion: reduceMotion)
+                Text("what comes back first?")
+                    .font(.system(.title2, design: .serif, weight: .semibold))
+                    .foregroundStyle(Theme.textSecondary)
+                    .settleIn(0.06, reduceMotion: reduceMotion)
+
+                VStack(spacing: Theme.Spacing.sm) {
+                    ForEach(Array(options.enumerated()), id: \.element) { index, option in
+                        OnboardingOptionCard(
+                            label: option,
+                            isSelected: model.futureReturns.contains(option)
+                        ) {
+                            if model.futureReturns.contains(option) {
+                                model.futureReturns.remove(option)
+                            } else {
+                                model.futureReturns.insert(option)
+                            }
+                        }
+                        .strata(index, base: 0.15, reduceMotion: reduceMotion)
+                    }
+                }
+
+                if payoffShown {
+                    CarveThenEmber(
+                        text: "That person isn't a fantasy.\nHe's you, without the noise.",
+                        font: .system(.title3, design: .serif, weight: .semibold),
+                        embers: false)
+                        .frame(maxWidth: .infinity)
+                        .breath(reduceMotion: reduceMotion)
+                }
+
+                Spacer(minLength: 0)
+                OnboardingPrimaryButton(title: "Continue") { onNext() }
+                    .disabled(model.futureReturns.isEmpty)
+                    .opacity(model.futureReturns.isEmpty ? 0.45 : 1)
+            }
+            .padding(Theme.Spacing.xl)
         }
-        .padding(Theme.Spacing.xl)
-        .contentShape(Rectangle())
-        .onTapGesture { if finished { onNext() } }
-        .accessibilityAddTraits(.isButton)
-        .accessibilityHint("Tap to continue")
+        .onChange(of: model.futureReturns) { _, new in
+            if !new.isEmpty && !payoffShown {
+                withAnimation(.smooth(duration: 0.5)) { payoffShown = true }
+            }
+        }
     }
 }
 
-// MARK: - S20 · The Cornerstone (the commitment ceremony)
+// MARK: - S20 · The Cornerstone [Inscribe + Forge — peak commitment]
 
 struct CornerstoneBeat: View {
     @Bindable var model: OnboardingModel
@@ -57,12 +103,8 @@ struct CornerstoneBeat: View {
                 .padding(.top, Theme.Spacing.md)
             Spacer(minLength: 0)
             CarveSequence(lines: [
-                .init(text: "From here, two paths. One asks nothing\nand just… continues.",
-                      font: .system(.title3, design: .serif, weight: .semibold)),
-                .init(text: "The other starts with one solid decision.",
-                      font: .system(.title3, design: .serif, weight: .semibold)),
                 .init(text: "Make it real.", ember: true),
-            ], spacing: Theme.Spacing.md, interlinePause: 0.5) {
+            ], interlinePause: 0.3) {
                 withAnimation(.smooth(duration: 0.5)) { introDone = true }
             }
 
@@ -121,7 +163,7 @@ struct CornerstoneBeat: View {
     }
 }
 
-// MARK: - S21 · Build Your Guardrails (FamilyControls, in-context)
+// MARK: - S21 · Build Your Guardrails [Build + in-context permission]
 
 struct GuardrailsBeat: View {
     @Environment(AppServices.self) private var services
@@ -145,11 +187,11 @@ struct GuardrailsBeat: View {
     var body: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
             Spacer(minLength: 0)
-            Text("Now we lay the foundation.")
+            Text("Now lay the foundation.")
                 .font(.system(.title, design: .serif, weight: .semibold))
                 .foregroundStyle(Theme.textPrimary)
                 .settleIn(reduceMotion: reduceMotion)
-            Text("What should Bedrock hold the line on?")
+            Text("What does Bedrock hold the line on?")
                 .font(Theme.Typography.callout)
                 .foregroundStyle(Theme.textSecondary)
                 .settleIn(0.08, reduceMotion: reduceMotion)
@@ -182,7 +224,7 @@ struct GuardrailsBeat: View {
         .padding(Theme.Spacing.xl)
         .onAppear {
             // Pre-check late-night from Step 10 (their own pattern).
-            if model.guardrails.isEmpty, model.triggers.contains("Late at night") {
+            if model.guardrails.isEmpty, model.triggers.contains("Late night") {
                 model.guardrails.insert(.lateNight)
             }
         }
@@ -260,7 +302,7 @@ struct GuardrailsBeat: View {
     }
 }
 
-// MARK: - S22 · Make It Unbeatable
+// MARK: - S22 · Make It Unbeatable [Choose]
 
 struct UnbeatableBeat: View {
     @Bindable var model: OnboardingModel
@@ -275,7 +317,7 @@ struct UnbeatableBeat: View {
                 .font(.system(.title, design: .serif, weight: .semibold))
                 .foregroundStyle(Theme.textPrimary)
                 .settleIn(reduceMotion: reduceMotion)
-            Text("The old blockers failed because you could undo them in a weak moment. Choose how unbeatable this is.")
+            Text("The old blockers failed because you could undo them in a weak moment. How unbeatable is this?")
                 .font(Theme.Typography.callout)
                 .foregroundStyle(Theme.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -309,7 +351,7 @@ struct UnbeatableBeat: View {
     }
 }
 
-// MARK: - S23 · Your Rhythm
+// MARK: - S23 · Your Rhythm [Choose + permission]
 
 struct RhythmBeat: View {
     @Environment(AppServices.self) private var services
@@ -347,7 +389,7 @@ struct RhythmBeat: View {
                 }
             }
 
-            Text("One quiet nudge at the right time. Off anytime. No spam — ever.")
+            Text("One quiet nudge. Off anytime. No spam.")
                 .font(Theme.Typography.caption)
                 .foregroundStyle(Theme.textSecondary)
                 .settleIn(0.2, reduceMotion: reduceMotion)
@@ -367,8 +409,8 @@ struct RhythmBeat: View {
     /// Defaults from their Step-10 pattern — the app already listened.
     private func precheck() {
         guard model.preferredTimes.isEmpty else { return }
-        if model.triggers.contains("Late at night") { model.preferredTimes.insert(.lateNight) }
-        if model.triggers.contains("First thing in the morning") { model.preferredTimes.insert(.morning) }
+        if model.triggers.contains("Late night") { model.preferredTimes.insert(.lateNight) }
+        if model.triggers.contains("Mornings") { model.preferredTimes.insert(.morning) }
         if model.triggers.contains("Stressed or low") { model.preferredTimes.insert(.evening) }
     }
 
@@ -385,73 +427,109 @@ struct RhythmBeat: View {
     }
 }
 
-// MARK: - S24 · Your Foundation Is Ready (Peak 2)
+// MARK: - S24 · Your Foundation Is Ready [payoff — one touch]
 
 struct FoundationReadyBeat: View {
     let model: OnboardingModel
     var onNext: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var wallBlocks = 0
-    @State private var showCapstone = false
-    @State private var finished = false
+    @Environment(\.accessibilityVoiceOverEnabled) private var voiceOver
+    @State private var settled = false
+    @State private var sweep: CGFloat = 0
 
     var body: some View {
-        VStack(spacing: Theme.Spacing.lg) {
-            Spacer()
-            ChiselText(
-                text: "It's built.",
-                font: .system(.largeTitle, design: .serif, weight: .semibold)) {
-                Task { await buildWall() }
-            }
+        ZStack {
+            // Full dawn on the settle.
+            LinearGradient(colors: [Theme.accent.opacity(settled ? 0.28 : 0), .clear],
+                           startPoint: .bottom, endPoint: .top)
+                .ignoresSafeArea()
+                .allowsHitTesting(false)
+                .animation(.easeInOut(duration: 1.2), value: settled)
 
-            FoundationWall(blocks: wallBlocks, capstone: showCapstone ? model.bestSelfWord : nil)
-                .breath(finished, reduceMotion: reduceMotion)
+            VStack(spacing: Theme.Spacing.lg) {
+                Spacer()
+                ChiselText(
+                    text: "It's built.",
+                    font: .system(.largeTitle, design: .serif, weight: .semibold))
 
-            if finished {
-                Text(model.foundationSummary)
-                    .font(Theme.Typography.callout)
+                FoundationWall(blocks: 5, capstone: model.bestSelfWord)
+                    .breath(!settled, reduceMotion: reduceMotion)
+                    .overlay(sweepHighlight)
+                    .contentShape(Rectangle().inset(by: -30))
+                    .gesture(
+                        DragGesture()
+                            .onChanged { drag in
+                                guard !settled else { return }
+                                sweep = min(1, max(sweep, abs(drag.translation.width) / 210))
+                            }
+                            .onEnded { _ in
+                                guard !settled else { return }
+                                if sweep > 0.8 { settle() }
+                                else { withAnimation(.easeOut(duration: 0.4)) { sweep = 0 } }
+                            }
+                    )
+                    .accessibilityElement()
+                    .accessibilityLabel("Your finished foundation, cornerstone reading \(model.bestSelfWord)")
+                    .accessibilityHint(settled ? "" : "Double-tap to run your hand across it")
+                    .accessibilityAction { if !settled { settle() } }
+
+                Text(settled ? model.foundationSummary : "Run your hand across it.")
+                    .font(settled ? Theme.Typography.callout : Theme.Typography.callout.weight(.medium))
                     .foregroundStyle(Theme.textSecondary)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
+                    .animation(Theme.Motion.reduced(.easeInOut(duration: 0.5), when: reduceMotion), value: settled)
+
+                if settled {
+                    HStack(spacing: 6) {
+                        Text("On solid ground, with one destination:")
+                            .font(.system(.body, design: .serif, weight: .medium))
+                            .foregroundStyle(Theme.textPrimary)
+                        EmberPhrase(text: model.bestSelfWord,
+                                    font: .system(.body, design: .serif, weight: .semibold),
+                                    delay: 0.5)
+                    }
                     .settleIn(reduceMotion: reduceMotion)
-                HStack(spacing: 6) {
-                    Text("On solid ground, with one destination:")
-                        .font(.system(.body, design: .serif, weight: .medium))
-                        .foregroundStyle(Theme.textPrimary)
-                    EmberPhrase(text: model.bestSelfWord,
-                                font: .system(.body, design: .serif, weight: .semibold),
-                                delay: 0.5)
                 }
-                .settleIn(0.1, reduceMotion: reduceMotion)
+                Spacer()
+                TapToContinue(visible: settled)
+                    .padding(.bottom, Theme.Spacing.lg)
             }
-            Spacer()
-            TapToContinue(visible: finished)
-                .padding(.bottom, Theme.Spacing.lg)
+            .padding(Theme.Spacing.xl)
         }
-        .padding(Theme.Spacing.xl)
         .contentShape(Rectangle())
-        .onTapGesture { if finished { onNext() } }
-        .accessibilityAddTraits(.isButton)
-        .accessibilityHint("Tap to continue")
+        .onTapGesture { if settled { onNext() } }
+        .onAppear {
+            if voiceOver || reduceMotion {
+                // Nothing gated behind the gesture.
+            }
+        }
     }
 
-    /// Stones land one by one, then the capstone — engineered to crest here.
-    private func buildWall() async {
-        let pause = reduceMotion ? 60 : 280
-        for i in 1...5 {
-            try? await Task.sleep(for: .milliseconds(pause))
-            wallBlocks = i
-            if !reduceMotion { BedrockHaptics.set() }
+    /// The hand-sweep — a band of light follows their swipe across the stone.
+    private var sweepHighlight: some View {
+        GeometryReader { geo in
+            LinearGradient(colors: [.clear, BedrockColor.emberGlow.opacity(0.35), .clear],
+                           startPoint: .leading, endPoint: .trailing)
+                .frame(width: 90)
+                .offset(x: sweep * geo.size.width - 45)
+                .opacity(settled ? 0 : (sweep > 0.02 ? 1 : 0))
         }
-        try? await Task.sleep(for: .milliseconds(pause + 120))
-        showCapstone = true
-        BedrockHaptics.stoneSet()
-        withAnimation { finished = true }
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
+    }
+
+    private func settle() {
+        withAnimation(Theme.Motion.reduced(.spring(response: 0.45, dampingFraction: 0.7), when: reduceMotion)) {
+            settled = true
+            sweep = 1
+        }
+        BedrockHaptics.stoneSet() // the final settling Lock across the structure
     }
 }
 
-// MARK: - S25 · Name Your Why (the crown jewel)
+// MARK: - S25 · Name Your Why [Inscribe — the crown jewel]
 
 struct NameWhyBeat: View {
     @Bindable var model: OnboardingModel

@@ -1,20 +1,23 @@
 import SwiftUI
 
-// ACT III — THE TRUTH (spec S14–S18): honest insight, real mechanism, grounded
-// hope. The synthesis is an honest pause (their answers visibly assemble) — no
-// fake spinner, no fabricated benchmark, no numeric score. Ever.
+// ACT III — THE TRUTH (spec v2 S14–S18): understanding, discovered by doing.
+// No fake spinner, no benchmark counter, no numeric score — the user assembles
+// their own reading, uncovers it at their own pace, walks the loop with their
+// thumb, scrubs the road ahead, and feels willpower drain against a door.
 
-// MARK: - S14 · The Synthesis
+// MARK: - S14 · The Reading [Trace — they initiate]
 
-struct SynthesisBeat: View {
+struct ReadingBeat: View {
     let model: OnboardingModel
     var onNext: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var subline = "Reading your pattern…"
+    @Environment(\.accessibilityVoiceOverEnabled) private var voiceOver
+    @State private var gather: CGFloat = 0     // 0 scattered … 1 assembled
+    @State private var assembled = false
 
-    /// Their real inputs, assembling as labeled strata.
-    private var strataLabels: [String] {
+    /// Their actual answers, becoming the strata of their column.
+    private var strata: [String] {
         var labels: [String] = []
         if let first = OnboardingModel.motivationOptions.first(where: { model.motivation.contains($0) }) {
             labels.append(first)
@@ -23,9 +26,7 @@ struct SynthesisBeat: View {
         if let trigger = OnboardingModel.triggerOptions.first(where: { model.triggers.contains($0) }) {
             labels.append(trigger)
         }
-        if let cost = OnboardingModel.costOptions.first(where: { model.costs.contains($0) }) {
-            labels.append(cost)
-        }
+        if let top = model.topCost { labels.append(top) }
         labels.append(model.bestSelfWord.capitalized)
         return labels
     }
@@ -33,336 +34,263 @@ struct SynthesisBeat: View {
     var body: some View {
         VStack(spacing: Theme.Spacing.xl) {
             Spacer()
-            ChiselText(
-                text: "Give me a moment.",
-                font: .system(.title2, design: .serif, weight: .semibold),
-                cadence: 0.05)
-
-            // The column of who they are, assembling (Strata).
-            VStack(spacing: 6) {
-                ForEach(Array(strataLabels.enumerated()), id: \.offset) { index, label in
-                    Text(label)
-                        .font(Theme.Typography.monoCaption)
-                        .tracking(1.5)
-                        .foregroundStyle(index == strataLabels.count - 1 ? Theme.accent : Theme.textSecondary)
-                        .padding(.horizontal, Theme.Spacing.md)
-                        .padding(.vertical, 7)
-                        .frame(maxWidth: 260)
-                        .background(RoundedRectangle(cornerRadius: 6)
-                            .fill(BedrockColor.slate.opacity(0.4 + Double(index) * 0.12)))
-                        .overlay(RoundedRectangle(cornerRadius: 6)
-                            .strokeBorder(index == strataLabels.count - 1
-                                          ? Theme.accent.opacity(0.5) : Theme.hairline))
-                        .strata(index, base: 0.9, reduceMotion: reduceMotion)
-                }
-            }
-            .accessibilityElement()
-            .accessibilityLabel("Your answers, assembling: \(strataLabels.joined(separator: ", "))")
-
-            Text(subline)
-                .font(Theme.Typography.caption)
+            Text(assembled ? "There you are." : "Bring it together.")
+                .font(.system(.title2, design: .serif, weight: .semibold))
+                .foregroundStyle(Theme.textPrimary)
+                .animation(Theme.Motion.reduced(.easeInOut(duration: 0.4), when: reduceMotion), value: assembled)
+            Text(assembled ? "Everything you told us, in one column." : "Swipe your answers inward.")
+                .font(Theme.Typography.callout)
                 .foregroundStyle(Theme.textSecondary)
-                .contentTransition(.opacity)
+                .animation(Theme.Motion.reduced(.easeInOut(duration: 0.4), when: reduceMotion), value: assembled)
+
+            column
+                .frame(height: 300)
+
+            if voiceOver || reduceMotion, !assembled {
+                Button("Bring it together") { assemble() }
+                    .buttonStyle(.bedrockPrimary)
+            }
             Spacer()
+            if assembled {
+                OnboardingPrimaryButton(title: "Continue") { onNext() }
+                    .settleIn(reduceMotion: reduceMotion)
+            }
         }
         .padding(Theme.Spacing.xl)
-        .task {
-            // Honest duration: ~3.5s of real assembly, then move on.
-            try? await Task.sleep(for: .seconds(reduceMotion ? 1.2 : 2.1))
-            withAnimation(.easeInOut(duration: 0.4)) {
-                subline = "Finding the version of you underneath."
+        .contentShape(Rectangle())
+        .gesture(
+            DragGesture()
+                .onChanged { drag in
+                    guard !assembled else { return }
+                    let pull = (abs(drag.translation.width) + abs(drag.translation.height)) / 340
+                    gather = min(1, max(gather, pull))
+                }
+                .onEnded { _ in
+                    guard !assembled else { return }
+                    if gather > 0.75 { assemble() }
+                    else { withAnimation(.easeOut(duration: 0.5)) { gather = 0 } }
+                }
+        )
+    }
+
+    /// Fragments hover scattered, then Settle into a strata column they drive.
+    private var column: some View {
+        VStack(spacing: 7) {
+            ForEach(Array(strata.enumerated()), id: \.offset) { index, label in
+                let scatter = scatterOffset(index)
+                Text(label)
+                    .font(Theme.Typography.monoCaption)
+                    .tracking(1.5)
+                    .foregroundStyle(index == strata.count - 1 ? Theme.accent : Theme.textSecondary)
+                    .padding(.horizontal, Theme.Spacing.md)
+                    .padding(.vertical, 8)
+                    .frame(maxWidth: 250)
+                    .background(RoundedRectangle(cornerRadius: 6)
+                        .fill(BedrockColor.slate.opacity(0.4 + Double(index) * 0.12)))
+                    .overlay(RoundedRectangle(cornerRadius: 6)
+                        .strokeBorder(index == strata.count - 1 && assembled
+                                      ? Theme.accent.opacity(0.5) : Theme.hairline))
+                    .rotationEffect(.degrees(Double(scatter.rotation) * Double(1 - gather)))
+                    .offset(x: scatter.x * (1 - gather), y: scatter.y * (1 - gather))
             }
-            try? await Task.sleep(for: .seconds(reduceMotion ? 0.8 : 1.6))
-            guard !Task.isCancelled else { return } // left mid-pause — don't advance
-            BedrockHaptics.stoneSet()
-            onNext()
         }
+        .animation(Theme.Motion.reduced(.spring(response: 0.55, dampingFraction: 0.78), when: reduceMotion), value: gather)
+        .accessibilityElement()
+        .accessibilityLabel(assembled
+            ? "Your reading, assembled: \(strata.joined(separator: ", "))"
+            : "Your scattered answers: \(strata.joined(separator: ", ")). Use the button to bring them together.")
+    }
+
+    private func scatterOffset(_ i: Int) -> (x: CGFloat, y: CGFloat, rotation: CGFloat) {
+        let seed = Double(i * 7 + 3)
+        return (
+            x: CGFloat(sin(seed * 12.9898) * 120),
+            y: CGFloat(sin(seed * 78.233) * 110),
+            rotation: CGFloat(sin(seed * 5.1) * 16)
+        )
+    }
+
+    private func assemble() {
+        withAnimation(Theme.Motion.reduced(.spring(response: 0.55, dampingFraction: 0.78), when: reduceMotion)) {
+            gather = 1
+            assembled = true
+        }
+        BedrockHaptics.stoneSet()
     }
 }
 
-// MARK: - S15 · What I See (the reveal — Peak 1)
+// MARK: - S15 · What I See [paced reveal — tap to uncover]
 
 struct RevealBeat: View {
     let model: OnboardingModel
     var onNext: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var finished = false
+    @State private var uncovered = 1 // first line invites the first tap
+
+    private var lines: [String] { model.revealLines }
+    private var allShown: Bool { uncovered >= lines.count }
 
     var body: some View {
         VStack(spacing: Theme.Spacing.lg) {
+            OnboardingEyebrow(text: "WHAT I SEE")
+                .padding(.top, Theme.Spacing.md)
             Spacer()
-            CarveSequence(
-                lines: model.revealLines.enumerated().map { index, text in
-                    CarveSequence.Line(
-                        text: text,
-                        font: index == 0
-                            ? .system(.largeTitle, design: .serif, weight: .semibold)
-                            : .system(.title2, design: .serif, weight: .semibold),
-                        ember: index == model.revealLines.count - 1)
-                },
-                interlinePause: 1.0
-            ) { finished = true }
-            .breath(finished, reduceMotion: reduceMotion)
+            VStack(spacing: Theme.Spacing.lg) {
+                ForEach(0..<uncovered, id: \.self) { i in
+                    CarveThenEmber(
+                        text: lines[i],
+                        font: .system(.title2, design: .serif, weight: .semibold),
+                        embers: i == lines.count - 1)
+                }
+            }
             Spacer()
-            TapToContinue(visible: finished)
+            Text(allShown ? "Tap to continue" : "Tap to uncover")
+                .font(Theme.Typography.monoCaption)
+                .tracking(2)
+                .foregroundStyle(Theme.textSecondary.opacity(0.7))
                 .padding(.bottom, Theme.Spacing.lg)
+                .accessibilityHidden(true)
         }
         .padding(Theme.Spacing.xl)
         .contentShape(Rectangle())
-        .onTapGesture { if finished { onNext() } }
+        .onTapGesture {
+            if allShown {
+                onNext()
+            } else {
+                BedrockHaptics.set()
+                withAnimation(.smooth(duration: 0.4)) { uncovered += 1 }
+            }
+        }
+        .accessibilityElement(children: .contain)
         .accessibilityAddTraits(.isButton)
-        .accessibilityHint("Tap to continue")
+        .accessibilityLabel(lines.prefix(uncovered).joined(separator: " "))
+        .accessibilityHint(allShown ? "Tap to continue" : "Tap to uncover the next line")
     }
 }
 
-// MARK: - S16 · How It Works, and The Good News
+// MARK: - S16 · The Loop [Trace — the centerpiece]
 
-struct LoopScienceBeat: View {
+struct LoopBeat: View {
     var onNext: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var stage = 0       // 0 loop drawing, 1 crack, 2 smoothing
-    @State private var finished = false
+    @State private var completed = false
 
     var body: some View {
         VStack(spacing: Theme.Spacing.lg) {
-            Spacer()
-            loopDiagram
-                .frame(height: 130)
-                .accessibilityHidden(true)
-            CarveSequence(lines: [
-                .init(text: "It works in a loop. A trigger, a craving,\na few seconds of relief — then it's gone,\nand the loop is a little deeper.",
-                      font: .system(.title3, design: .serif, weight: .semibold)),
-                .init(text: "It's not weakness.\nIt's a groove worn by repetition.",
-                      font: .system(.title3, design: .serif, weight: .semibold)),
-                .init(text: "And a groove worn by repetition\ncan be worn smooth by repetition too.",
-                      font: .system(.title3, design: .serif, weight: .semibold), ember: true),
-                .init(text: "Every urge you don't act on, it fills in a little.\nYour brain is built to rebuild. That's biology.",
-                      font: .system(.callout, design: .serif, weight: .medium)),
-            ], spacing: Theme.Spacing.md, interlinePause: 0.7) {
-                finished = true
+            OnboardingEyebrow(text: "THE LOOP")
+                .padding(.top, Theme.Spacing.md)
+            Spacer(minLength: 0)
+
+            LoopTracer {
+                withAnimation(.smooth(duration: 0.5)) { completed = true }
             }
-            Spacer()
-            if finished {
+
+            if completed {
+                ChiselText(
+                    text: "It's not weakness. It's a groove worn by repetition — and it fills back in the same way. Your brain is built to rebuild.",
+                    font: .system(.title3, design: .serif, weight: .semibold),
+                    cadence: 0.035)
+            }
+
+            Spacer(minLength: 0)
+            if completed {
                 OnboardingPrimaryButton(title: "Continue") { onNext() }
-                    .settleIn(reduceMotion: reduceMotion)
+                    .settleIn(0.2, reduceMotion: reduceMotion)
             }
         }
         .padding(Theme.Spacing.xl)
-        .task {
-            guard !reduceMotion else { stage = 2; return }
-            try? await Task.sleep(for: .seconds(2.4))
-            withAnimation(.easeInOut(duration: 0.5)) { stage = 1 }
-            try? await Task.sleep(for: .seconds(3.4))
-            withAnimation(.easeInOut(duration: 1.6)) { stage = 2 }
-        }
-    }
-
-    /// Trigger → craving → relief, carved node by node; the relief node cracks,
-    /// then the groove smooths and dawn pours in.
-    private var loopDiagram: some View {
-        HStack(spacing: Theme.Spacing.md) {
-            node("bolt.fill", "trigger", index: 0)
-            arrow
-            node("flame.fill", "craving", index: 1)
-            arrow
-            node(stage >= 1 ? "seal" : "seal.fill", "relief", index: 2)
-                .overlay {
-                    if stage >= 1 {
-                        Image(systemName: stage >= 2 ? "leaf.fill" : "bolt.horizontal")
-                            .font(.caption)
-                            .foregroundStyle(stage >= 2 ? BedrockColor.emberGlow : BedrockColor.ash)
-                            .offset(y: -26)
-                            .transition(.opacity)
-                    }
-                }
-        }
-        .frame(maxWidth: .infinity)
-    }
-
-    private func node(_ symbol: String, _ label: String, index: Int) -> some View {
-        VStack(spacing: 6) {
-            Image(systemName: symbol)
-                .font(.title3)
-                .foregroundStyle(stage >= 2 ? BedrockColor.emberGlow : Theme.accent)
-                .frame(width: 46, height: 46)
-                .background(Circle().fill(BedrockColor.slate.opacity(0.6)))
-                .overlay(Circle().strokeBorder(stage >= 2 ? BedrockColor.emberGlow.opacity(0.5) : Theme.hairline))
-            Text(label)
-                .font(Theme.Typography.monoCaption)
-                .foregroundStyle(Theme.textSecondary)
-        }
-        .strata(index, base: 0.4, reduceMotion: reduceMotion)
-    }
-
-    private var arrow: some View {
-        Image(systemName: "arrow.right")
-            .font(.caption)
-            .foregroundStyle(Theme.textSecondary.opacity(0.6))
     }
 }
 
-// MARK: - S17 · Your Timeline
+// MARK: - S17 · The Timeline [scrub to explore]
 
 struct TimelineBeat: View {
     let model: OnboardingModel
     var onNext: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var appeared = false
+    @Environment(\.accessibilityVoiceOverEnabled) private var voiceOver
+    @State private var progress: Double = 0
 
-    private var milestones: [(label: String, detail: String)] {
+    private var stages: [TimelineScrubber.Stage] {
         [
-            ("Days 1–3", "the decision is loudest"),
-            ("Days 4–10", "the hardest stretch — urges spike, then loosen"),
-            ("Weeks 2–4", "clarity returns"),
-            ("Beyond", "it stops running your life"),
+            .init(label: "Days 1–3", detail: "loudest"),
+            .init(label: "Days 4–10", detail: "hardest — then it loosens"),
+            .init(label: "Weeks 2–4", detail: "clarity comes back"),
+            .init(label: "Beyond", detail: "it stops running you"),
         ]
     }
+
+    private var explored: Bool { voiceOver || reduceMotion || progress >= 0.9 }
 
     var body: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
             Spacer(minLength: Theme.Spacing.sm)
-            ChiselText(
-                text: "Here's what's ahead — honestly.",
-                font: .system(.title, design: .serif, weight: .semibold),
-                alignment: .leading)
-
-            VStack(alignment: .leading, spacing: Theme.Spacing.md) {
-                ForEach(Array(milestones.enumerated()), id: \.offset) { index, milestone in
-                    HStack(alignment: .firstTextBaseline, spacing: Theme.Spacing.md) {
-                        Text(milestone.label)
-                            .font(Theme.Typography.monoCaption.weight(.bold))
-                            .tracking(1)
-                            .foregroundStyle(index == model.timelineEmphasis ? Theme.accent : Theme.textSecondary)
-                            .frame(width: 86, alignment: .leading)
-                        Text(milestone.detail)
-                            .font(index == model.timelineEmphasis
-                                  ? Theme.Typography.callout.weight(.semibold)
-                                  : Theme.Typography.callout)
-                            .foregroundStyle(index == model.timelineEmphasis ? Theme.textPrimary : Theme.textSecondary)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                    .padding(Theme.Spacing.md)
-                    .background(RoundedRectangle(cornerRadius: Theme.Radius.md)
-                        .fill(BedrockColor.slate.opacity(index == model.timelineEmphasis ? 0.7 : 0.35)))
-                    .overlay(RoundedRectangle(cornerRadius: Theme.Radius.md)
-                        .strokeBorder(index == model.timelineEmphasis ? Theme.accent.opacity(0.5) : Theme.hairline))
-                    .strata(index, base: 0.5, reduceMotion: reduceMotion)
-                }
-            }
-
-            if appeared {
-                HStack(spacing: 6) {
-                    Text("Destination:")
-                        .font(Theme.Typography.caption)
-                        .foregroundStyle(Theme.textSecondary)
-                    EmberPhrase(text: model.bestSelfWord, font: .system(.body, design: .serif, weight: .semibold), delay: 0.3)
-                }
-                .frame(maxWidth: .infinity)
+            Text("Drag ahead — see what's coming.")
+                .font(.system(.title, design: .serif, weight: .semibold))
+                .foregroundStyle(Theme.textPrimary)
+                .fixedSize(horizontal: false, vertical: true)
                 .settleIn(reduceMotion: reduceMotion)
 
-                Text("Slip-ups aren't failure. They're data.\nBedrock holds the line either way.")
+            TimelineScrubber(
+                stages: stages,
+                emphasisIndex: model.timelineEmphasis,
+                destinationWord: model.bestSelfWord,
+                progress: $progress)
+
+            if explored {
+                Text("Slip-ups aren't failure. They're data.\nBedrock holds either way.")
                     .font(Theme.Typography.caption)
                     .foregroundStyle(Theme.textSecondary)
                     .multilineTextAlignment(.center)
                     .frame(maxWidth: .infinity)
-                    .settleIn(0.1, reduceMotion: reduceMotion)
+                    .settleIn(reduceMotion: reduceMotion)
             }
 
             Spacer(minLength: 0)
-            if appeared {
-                OnboardingPrimaryButton(title: "Continue") { onNext() }
-                    .settleIn(0.15, reduceMotion: reduceMotion)
-                StrugglingLink()
-                    .frame(maxWidth: .infinity)
-                    .settleIn(0.25, reduceMotion: reduceMotion)
-            }
+            OnboardingPrimaryButton(title: "Continue") { onNext() }
+                .disabled(!explored)
+                .opacity(explored ? 1 : 0.45)
+            StrugglingLink()
+                .frame(maxWidth: .infinity)
         }
         .padding(Theme.Spacing.xl)
-        .task {
-            try? await Task.sleep(for: .seconds(reduceMotion ? 0.3 : 1.6))
-            withAnimation { appeared = true }
-        }
     }
 }
 
-// MARK: - S18 · Why Friction Beats Willpower
+// MARK: - S18 · The Door [hold — willpower demonstrated as futile]
 
-struct FrictionBeat: View {
+struct DoorBeat: View {
     var onNext: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var doorDown = false
-    @State private var wallSet = false
-    @State private var finished = false
-    @State private var flickerTask: Task<Void, Never>?
-    @State private var doorOpacity: Double = 1
+    @State private var completed = false
 
     var body: some View {
         VStack(spacing: Theme.Spacing.lg) {
-            Spacer()
-            doorVsWall
-                .frame(height: 110)
-                .accessibilityHidden(true)
-            CarveSequence(lines: [
-                .init(text: "You already know willpower runs out.\nYou've tested it.",
-                      font: .system(.title3, design: .serif, weight: .semibold)),
-                .init(text: "So Bedrock doesn't ask for more of it.",
-                      font: .system(.title3, design: .serif, weight: .semibold)),
-                .init(text: "It changes the architecture — so the door\nstays shut even when you'd open it.",
-                      font: .system(.title3, design: .serif, weight: .semibold)),
-                .init(text: "Not a door you hold.\nA wall you don't think about.", ember: true),
-            ], spacing: Theme.Spacing.md, interlinePause: 0.6) {
-                landWall()
+            OnboardingEyebrow(text: "YOUR LAST BLOCKER")
+                .padding(.top, Theme.Spacing.md)
+            Spacer(minLength: 0)
+
+            HoldTheDoor {
+                withAnimation(.smooth(duration: 0.5)) { completed = true }
             }
-            Spacer()
-            if finished {
+
+            if completed {
+                CarveThenEmber(
+                    text: "Not a door you hold.\nA wall you don't think about.",
+                    font: .system(.title3, design: .serif, weight: .semibold),
+                    embers: true)
+            }
+
+            Spacer(minLength: 0)
+            if completed {
                 OnboardingPrimaryButton(title: "Continue") { onNext() }
-                    .settleIn(reduceMotion: reduceMotion)
+                    .settleIn(0.15, reduceMotion: reduceMotion)
             }
         }
         .padding(Theme.Spacing.xl)
-        .onAppear { startFlicker() }
-        .onDisappear { flickerTask?.cancel() }
-    }
-
-    private var doorVsWall: some View {
-        ZStack {
-            // The fragile held door — flickering, then settling down and away.
-            RoundedRectangle(cornerRadius: Theme.Radius.md)
-                .strokeBorder(BedrockColor.ash.opacity(0.6), style: StrokeStyle(lineWidth: 1.5, dash: [6, 4]))
-                .frame(width: 84, height: 104)
-                .opacity(doorDown ? 0 : doorOpacity)
-                .offset(y: doorDown ? 30 : 0)
-                .blur(radius: doorDown ? 3 : 0)
-            // The wall that Locks into its place.
-            if wallSet {
-                FoundationWall(blocks: 5)
-                    .transition(.scale(scale: 0.94).combined(with: .opacity))
-            }
-        }
-        .animation(Theme.Motion.reduced(.easeInOut(duration: 0.8), when: reduceMotion), value: doorDown)
-    }
-
-    private func startFlicker() {
-        guard !reduceMotion else { return }
-        flickerTask = Task { @MainActor in
-            while !Task.isCancelled && !doorDown {
-                doorOpacity = Double.random(in: 0.35...1)
-                try? await Task.sleep(for: .milliseconds(Int.random(in: 180...420)))
-            }
-        }
-    }
-
-    private func landWall() {
-        flickerTask?.cancel()
-        withAnimation { doorDown = true }
-        withAnimation(Theme.Motion.reduced(.spring(response: 0.45, dampingFraction: 0.7).delay(0.5), when: reduceMotion)) {
-            wallSet = true
-        }
-        BedrockHaptics.stoneSet() // the Lock
-        finished = true
     }
 }

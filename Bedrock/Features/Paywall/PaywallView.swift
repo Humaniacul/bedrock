@@ -23,8 +23,9 @@ enum PremiumFeature {
 }
 
 enum PaywallContext {
-    /// Onboarding S27 — the ask as the conclusion of the commitment ladder.
-    case onboarding(why: String, bestSelfWord: String)
+    /// Onboarding S28 — the ask as the conclusion of the commitment ladder.
+    /// `topCost` is the cost the user ranked as hurting most (S11's Weigh).
+    case onboarding(why: String, bestSelfWord: String, topCost: String?)
     case gate(PremiumFeature)
 }
 
@@ -80,8 +81,8 @@ struct PaywallView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: Theme.Spacing.xl) {
                         switch context {
-                        case .onboarding(let why, let word):
-                            crossingHeader(why: why, bestSelfWord: word)
+                        case .onboarding(let why, let word, let topCost):
+                            crossingHeader(why: why, bestSelfWord: word, topCost: topCost)
                             outcomeList
                             trustList
                             statPills
@@ -116,7 +117,7 @@ struct PaywallView: View {
 
     // MARK: - S27 header — the finished foundation, crowned
 
-    private func crossingHeader(why: String, bestSelfWord: String) -> some View {
+    private func crossingHeader(why: String, bestSelfWord: String, topCost: String?) -> some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
             FoundationWall(blocks: 5, capstone: bestSelfWord)
                 .frame(maxWidth: .infinity)
@@ -128,7 +129,13 @@ struct PaywallView: View {
                     .fixedSize(horizontal: false, vertical: true)
                 if !why.trimmingCharacters(in: .whitespaces).isEmpty,
                    let firstLine = why.split(separator: "\n").first {
-                    Text("“\(firstLine)” — your words, carved this morning. Here's what keeps them standing.")
+                    Text("“\(firstLine)” — your words, carved just now. Here's what keeps them standing.")
+                        .font(Theme.Typography.callout)
+                        .foregroundStyle(Theme.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                } else if let topCost {
+                    // Their own ranking (S11) — the price they said hurts most.
+                    Text("You said it costs you most: \(topCost.lowercased()). That's what you're buying back.")
                         .font(Theme.Typography.callout)
                         .foregroundStyle(Theme.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
@@ -416,7 +423,7 @@ struct PaywallLegalFooter: View {
 }
 
 #Preview("Onboarding") {
-    PaywallView(context: .onboarding(why: "To be present for my kids.", bestSelfWord: "present"))
+    PaywallView(context: .onboarding(why: "To be present for my kids.", bestSelfWord: "present", topCost: "Being present"))
         .environment(AppServices.makeStub())
 }
 

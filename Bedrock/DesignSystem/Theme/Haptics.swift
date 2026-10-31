@@ -7,8 +7,12 @@ import CoreHaptics
 // the cheaper feedback generators. Everything routes through here — screens
 // never touch generators or the engine directly. Falls back gracefully where
 // haptics are unsupported (e.g. the Simulator).
+//
+// `BedrockHaptics` itself is declared in Bedrock/Onboarding/Design/BedrockHaptics.swift
+// (the onboarding haptic map). These are the pre-onboarding patterns the rest of
+// the app still uses; none of the names overlap.
 @MainActor
-enum BedrockHaptics {
+extension BedrockHaptics {
     // MARK: - Light feedback (generators)
 
     /// Light tick for option selection during the quiz / pickers.

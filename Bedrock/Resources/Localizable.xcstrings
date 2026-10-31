@@ -1,0 +1,3534 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "onb.b2.body": {
+      "comment": "B2 · Screen Time is managed · Body.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A parent, school or company controls Screen Time here, so Bedrock can’t put up a wall. Your urge button and your foundation still work."
+          }
+        }
+      }
+    },
+    "onb.b2.eyebrow": {
+      "comment": "B2 · Screen Time is managed · Eyebrow.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "THE WALL"
+          }
+        }
+      }
+    },
+    "onb.b2.headline": {
+      "comment": "B2 · Screen Time is managed · Headline.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Screen Time is managed on this iPhone."
+          }
+        }
+      }
+    },
+    "onb.b2.primary": {
+      "comment": "B2 · Screen Time is managed · Primary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue"
+          }
+        }
+      }
+    },
+    "onb.b9.body": {
+      "comment": "B9 · Screen Time isn’t available here · Body.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This build can’t block anything. You can still walk through every screen in preview mode."
+          }
+        }
+      }
+    },
+    "onb.b9.eyebrow": {
+      "comment": "B9 · Screen Time isn’t available here · Eyebrow.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "THE WALL"
+          }
+        }
+      }
+    },
+    "onb.b9.headline": {
+      "comment": "B9 · Screen Time isn’t available here · Headline.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Screen Time isn’t available here."
+          }
+        }
+      }
+    },
+    "onb.b9.primary": {
+      "comment": "B9 · Screen Time isn’t available here · Primary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue in preview"
+          }
+        }
+      }
+    },
+    "onb.b9.tag": {
+      "comment": "B9 · Screen Time isn’t available here · Tag.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preview"
+          }
+        }
+      }
+    },
+    "onb.common.back": {
+      "comment": "Back button · VoiceOver label. Verbatim from COMPONENTS.md (GlassCircleButton). Added at build time: not in the handoff catalog.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back"
+          }
+        }
+      }
+    },
+    "onb.common.chapter_a11y": {
+      "comment": "Chapter bar · VoiceOver. From COMPONENTS.md: “Chapter 2 of 4, You.” Args: chapter number, chapter count, chapter name. Added at build time: not in the handoff catalog.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chapter %1$lld of %2$lld, %3$@."
+          }
+        }
+      }
+    },
+    "onb.common.chapter_begin": {
+      "comment": "Chapter bar · segment label. Verbatim from COMPONENTS.md (ChapterBar). Shown uppercase. Added at build time: not in the handoff catalog.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Begin"
+          }
+        }
+      }
+    },
+    "onb.common.chapter_lock": {
+      "comment": "Chapter bar · segment label. Verbatim from COMPONENTS.md (ChapterBar). Shown uppercase. Added at build time: not in the handoff catalog.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lock"
+          }
+        }
+      }
+    },
+    "onb.common.chapter_wall": {
+      "comment": "Chapter bar · segment label. Verbatim from COMPONENTS.md (ChapterBar). Shown uppercase. Added at build time: not in the handoff catalog.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wall"
+          }
+        }
+      }
+    },
+    "onb.common.chapter_you": {
+      "comment": "Chapter bar · segment label. Verbatim from COMPONENTS.md (ChapterBar). Shown uppercase. Added at build time: not in the handoff catalog.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You"
+          }
+        }
+      }
+    },
+    "onb.common.finish_later_a11y": {
+      "comment": "Finish later button · VoiceOver label. Verbatim from SPEC.md S4 VoiceOver. Added at build time: not in the handoff catalog.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish later. Your wall stays up."
+          }
+        }
+      }
+    },
+    "onb.common.pick_at_least_one": {
+      "comment": "PrimaryButton · disabled hint (VoiceOver), e.g. S5–S7 Continue. Verbatim from COMPONENTS.md (PrimaryButton) and SPEC.md S5 VoiceOver. Added at build time: not in the handoff catalog.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pick at least one."
+          }
+        }
+      }
+    },
+    "onb.fl.home_card": {
+      "comment": "FL · Finish later · Home card. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish setting up · About 2 minutes"
+          }
+        }
+      }
+    },
+    "onb.fl.primary": {
+      "comment": "FL · Finish later · Primary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Go to my wall"
+          }
+        }
+      }
+    },
+    "onb.fl.secondary": {
+      "comment": "FL · Finish later · Secondary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep going"
+          }
+        }
+      }
+    },
+    "onb.fl.sheet_body": {
+      "comment": "FL · Finish later · Sheet body.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your wall is up. Bedrock will pick this up the next time you open it."
+          }
+        }
+      }
+    },
+    "onb.fl.sheet_title": {
+      "comment": "FL · Finish later · Sheet title.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish later?"
+          }
+        }
+      }
+    },
+    "onb.home.card_free": {
+      "comment": "Home · Day 1. The wall is standing. · Card: free. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove the door · Strict Mode, whenever you’re ready"
+          }
+        }
+      }
+    },
+    "onb.home.card_heads_up": {
+      "comment": "Home · Day 1. The wall is standing. · Card: heads-up. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "First heads-up · Tonight at 9:45 PM"
+          }
+        }
+      }
+    },
+    "onb.home.card_later": {
+      "comment": "Home · Day 1. The wall is standing. · Card: later. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish setting up · About 2 minutes"
+          }
+        }
+      }
+    },
+    "onb.home.card_no_wall": {
+      "comment": "Home · Day 1. The wall is standing. · Card: no wall.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The wall isn’t up yet. It needs Screen Time access."
+          }
+        }
+      }
+    },
+    "onb.home.card_partner": {
+      "comment": "Home · Day 1. The wall is standing. · Card: partner. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for your person · Until they join, your steps work on their own"
+          }
+        }
+      }
+    },
+    "onb.home.card_trial": {
+      "comment": "Home · Day 1. The wall is standing. · Card: trial. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your trial ends tomorrow · Manage in Settings"
+          }
+        }
+      }
+    },
+    "onb.home.first_headline": {
+      "comment": "Home · Day 1. The wall is standing. · First headline.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Day 1. The wall is standing."
+          }
+        }
+      }
+    },
+    "onb.home.headline_no_wall": {
+      "comment": "Home · Day 1. The wall is standing. · Headline, no wall.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Day 1."
+          }
+        }
+      }
+    },
+    "onb.home.intercept": {
+      "comment": "Home · Day 1. The wall is standing. · Intercept.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The urge is here"
+          }
+        }
+      }
+    },
+    "onb.home.status_free": {
+      "comment": "Home · Day 1. The wall is standing. · Status, free. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wall up · Strict Mode off"
+          }
+        }
+      }
+    },
+    "onb.home.status_no_wall": {
+      "comment": "Home · Day 1. The wall is standing. · Status, no wall.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wall not up"
+          }
+        }
+      }
+    },
+    "onb.home.status_pro": {
+      "comment": "Home · Day 1. The wall is standing. · Status, Pro. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wall up · Strict Mode on"
+          }
+        }
+      }
+    },
+    "onb.resume.toast": {
+      "comment": "RESUME · Picking up where you left off · Toast.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Picking up where you left off."
+          }
+        }
+      }
+    },
+    "onb.s1.body": {
+      "comment": "S1 · Arrival · Body.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In the next minute, most adult sites stop opening on this phone. Then we make it hard to undo."
+          }
+        }
+      }
+    },
+    "onb.s1.eyebrow": {
+      "comment": "S1 · Arrival · Eyebrow.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "BEDROCK"
+          }
+        }
+      }
+    },
+    "onb.s1.headline": {
+      "comment": "S1 · Arrival · Headline.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Build it now, while you mean it."
+          }
+        }
+      }
+    },
+    "onb.s1.link": {
+      "comment": "S1 · Arrival · Link.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I’m here to support someone"
+          }
+        }
+      }
+    },
+    "onb.s1.primary": {
+      "comment": "S1 · Arrival · Primary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Build my wall"
+          }
+        }
+      }
+    },
+    "onb.s1.r1_body": {
+      "comment": "S1 · Arrival · R1 body.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your plan is still active. Let’s put the wall back up."
+          }
+        }
+      }
+    },
+    "onb.s1.r1_headline": {
+      "comment": "S1 · Arrival · R1 headline.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Welcome back."
+          }
+        }
+      }
+    },
+    "onb.s1.r1_primary": {
+      "comment": "S1 · Arrival · R1 primary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Put it back up"
+          }
+        }
+      }
+    },
+    "onb.s10.eyebrow": {
+      "comment": "S10 · What 2am you will face · Eyebrow.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "STRICT MODE"
+          }
+        }
+      }
+    },
+    "onb.s10.footer": {
+      "comment": "S10 · What 2am you will face · Footer.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not impossible to undo. Just impossible to undo at 2am."
+          }
+        }
+      }
+    },
+    "onb.s10.headline": {
+      "comment": "S10 · What 2am you will face · Headline.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Here’s what turning it off takes."
+          }
+        }
+      }
+    },
+    "onb.s10.headline_2": {
+      "comment": "S10 · What 2am you will face · Headline 2.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "At 2am."
+          }
+        }
+      }
+    },
+    "onb.s10.limits_sheet": {
+      "comment": "S10 · What 2am you will face · Limits sheet. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What Strict Mode can’t stop · Erasing this iPhone. That removes everything, Bedrock included. · Anyone who knows your Screen Time passcode. · Other phones, tablets and computers. · Versions of iOS where the lock isn’t reliable. Bedrock tells you if yours is one. · Better you hear it now than at 2am. · Got it"
+          }
+        }
+      }
+    },
+    "onb.s10.link": {
+      "comment": "S10 · What 2am you will face · Link.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What it can’t stop"
+          }
+        }
+      }
+    },
+    "onb.s10.primary": {
+      "comment": "S10 · What 2am you will face · Primary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose who holds the key"
+          }
+        }
+      }
+    },
+    "onb.s10.step_1": {
+      "comment": "S10 · What 2am you will face · Step 1. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read the letter you write today · You write it during setup. It stays on screen before you can go on."
+          }
+        }
+      }
+    },
+    "onb.s10.step_2": {
+      "comment": "S10 · What 2am you will face · Step 2. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Breathe, then rate the urge · A slow breath first. Urges tend to rise, peak and pass."
+          }
+        }
+      }
+    },
+    "onb.s10.step_3": {
+      "comment": "S10 · What 2am you will face · Step 3. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Type your commitment, word for word · Pasting is blocked. One typo starts it over."
+          }
+        }
+      }
+    },
+    "onb.s10.step_4": {
+      "comment": "S10 · What 2am you will face · Step 4. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your person hears about it · If someone holds your key, they’re told you’re asking."
+          }
+        }
+      }
+    },
+    "onb.s10.step_5": {
+      "comment": "S10 · What 2am you will face · Step 5. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wait thirty minutes · Leave the app and the clock restarts."
+          }
+        }
+      }
+    },
+    "onb.s10.step_6": {
+      "comment": "S10 · What 2am you will face · Step 6. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only then does it open · Your person approves, or Bedrock releases the code. Try again the same night and it takes longer."
+          }
+        }
+      }
+    },
+    "onb.s11.body": {
+      "comment": "S11 · Who holds the key · Body.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strict Mode locks Screen Time with a passcode you won’t know. Someone has to decide when it opens."
+          }
+        }
+      }
+    },
+    "onb.s11.eyebrow": {
+      "comment": "S11 · Who holds the key · Eyebrow.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "STRICT MODE"
+          }
+        }
+      }
+    },
+    "onb.s11.headline": {
+      "comment": "S11 · Who holds the key · Headline.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Who should hold the key?"
+          }
+        }
+      }
+    },
+    "onb.s11.link": {
+      "comment": "S11 · Who holds the key · Link.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I already have a Screen Time passcode"
+          }
+        }
+      }
+    },
+    "onb.s11.option_a": {
+      "comment": "S11 · Who holds the key · Option A. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bedrock keeps it · You type a code you never see whole. It’s released only after the steps. · Works tonight, on your own"
+          }
+        }
+      }
+    },
+    "onb.s11.option_b": {
+      "comment": "S11 · Who holds the key · Option B. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Someone I trust · Bedrock holds the code. They approve any way out and see whether the wall is up, never what you browse. · Works tonight, wherever they are"
+          }
+        }
+      }
+    },
+    "onb.s11.primary": {
+      "comment": "S11 · Who holds the key · Primary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue"
+          }
+        }
+      }
+    },
+    "onb.s11.sheet": {
+      "comment": "S11 · Who holds the key · Sheet. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You already have one · Then you know it, and so would the 2am you. During setup you’ll change it to one you don’t know, using your current code once. · Got it"
+          }
+        }
+      }
+    },
+    "onb.s11.version_banner": {
+      "comment": "S11 · Who holds the key · Version banner.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strict Mode needs a newer version of iOS on this iPhone. Your free wall works now."
+          }
+        }
+      }
+    },
+    "onb.s12.cta": {
+      "comment": "S12 · Remove the door · CTA. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot. Prices are examples: build this with StoreKit’s localized price, never the literal.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start 3 days free · Continue · $69.99 a year · Pay $149 once · Continue · $5.99 a week"
+          }
+        }
+      }
+    },
+    "onb.s12.errors": {
+      "comment": "S12 · Remove the door · Errors. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "That didn’t go through. You haven’t been charged. (Try again) · Waiting for approval. Your free wall stays on meanwhile. · Can’t reach the App Store right now. Your free wall stays on. · No purchases found for this Apple Account. · Restored. Welcome back."
+          }
+        }
+      }
+    },
+    "onb.s12.eyebrow": {
+      "comment": "S12 · Remove the door · Eyebrow.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "STRICT MODE"
+          }
+        }
+      }
+    },
+    "onb.s12.free_path": {
+      "comment": "S12 · Remove the door · Free path.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep the free wall"
+          }
+        }
+      }
+    },
+    "onb.s12.headline": {
+      "comment": "S12 · Remove the door · Headline.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove the door."
+          }
+        }
+      }
+    },
+    "onb.s12.late_night": {
+      "comment": "S12 · Remove the door · Late night. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It’s late. You don’t have to decide tonight. · Remind me tomorrow at noon"
+          }
+        }
+      }
+    },
+    "onb.s12.legal_lifetime": {
+      "comment": "S12 · Remove the door · Legal, lifetime. Prices are examples: build this with StoreKit’s localized price, never the literal.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One-time purchase of $149. No subscription, nothing renews."
+          }
+        }
+      }
+    },
+    "onb.s12.legal_trial": {
+      "comment": "S12 · Remove the door · Legal, trial. Prices are examples: build this with StoreKit’s localized price, never the literal.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3 days free, then $69.99 a year. Renews automatically unless cancelled at least 24 hours before the trial or current period ends. Manage or cancel in Settings › your name › Subscriptions. Payment is charged to your Apple Account."
+          }
+        }
+      }
+    },
+    "onb.s12.legal_weekly": {
+      "comment": "S12 · Remove the door · Legal, weekly. Prices are examples: build this with StoreKit’s localized price, never the literal.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "$5.99 a week. Renews automatically unless cancelled at least 24 hours before the current period ends. Manage or cancel in Settings › your name › Subscriptions."
+          }
+        }
+      }
+    },
+    "onb.s12.lifetime_card": {
+      "comment": "S12 · Remove the door · Lifetime card. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot. Prices are examples: build this with StoreKit’s localized price, never the literal.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lifetime · $149 · Pay once. Keep it for good. · tag: Your last blocker"
+          }
+        }
+      }
+    },
+    "onb.s12.link": {
+      "comment": "S12 · Remove the door · Link.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Other plans"
+          }
+        }
+      }
+    },
+    "onb.s12.links": {
+      "comment": "S12 · Remove the door · Links. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore purchases · Terms · Privacy"
+          }
+        }
+      }
+    },
+    "onb.s12.other_plans_sheet": {
+      "comment": "S12 · Remove the door · Other plans sheet. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot. Prices are examples: build this with StoreKit’s localized price, never the literal.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Other plans · Weekly · $5.99 a week · Renews weekly until you cancel. · Choose weekly · Close"
+          }
+        }
+      }
+    },
+    "onb.s12.outcome_1": {
+      "comment": "S12 · Remove the door · Outcome 1.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turning Bedrock off goes through your steps, not a switch."
+          }
+        }
+      }
+    },
+    "onb.s12.outcome_2": {
+      "comment": "S12 · Remove the door · Outcome 2.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bedrock can’t be deleted on a whim."
+          }
+        }
+      }
+    },
+    "onb.s12.outcome_3_a": {
+      "comment": "S12 · Remove the door · Outcome 3 A.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The code stays sealed until the steps are done."
+          }
+        }
+      }
+    },
+    "onb.s12.outcome_3_b": {
+      "comment": "S12 · Remove the door · Outcome 3 B.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your person approves any way out."
+          }
+        }
+      }
+    },
+    "onb.s12.outcome_4": {
+      "comment": "S12 · Remove the door · Outcome 4.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See your hardest hours coming."
+          }
+        }
+      }
+    },
+    "onb.s12.statement_line": {
+      "comment": "S12 · Remove the door · Statement line.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your bank statement shows Apple."
+          }
+        }
+      }
+    },
+    "onb.s12.subhead_a": {
+      "comment": "S12 · Remove the door · Subhead A.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bedrock keeps the key. You keep the wall."
+          }
+        }
+      }
+    },
+    "onb.s12.subhead_b": {
+      "comment": "S12 · Remove the door · Subhead B.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your person keeps the key. You keep the wall."
+          }
+        }
+      }
+    },
+    "onb.s12.success": {
+      "comment": "S12 · Remove the door · Success.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You’re in."
+          }
+        }
+      }
+    },
+    "onb.s12.timeline": {
+      "comment": "S12 · Remove the door · Timeline. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot. Prices are examples: build this with StoreKit’s localized price, never the literal.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today · Strict Mode goes on / In 2 days · We send a reminder / In 3 days · $69.99 for the year, unless you cancel"
+          }
+        }
+      }
+    },
+    "onb.s12.toast": {
+      "comment": "S12 · Remove the door · Toast.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We’ll remind you tomorrow at noon."
+          }
+        }
+      }
+    },
+    "onb.s12.trust_line": {
+      "comment": "S12 · Remove the door · Trust line. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No account · No ad tracking · Your answers stay on this iPhone"
+          }
+        }
+      }
+    },
+    "onb.s12.under_cta": {
+      "comment": "S12 · Remove the door · Under CTA.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel anytime. If you do, your steps still open the lock."
+          }
+        }
+      }
+    },
+    "onb.s12.weekly_selected": {
+      "comment": "S12 · Remove the door · Weekly, selected. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot. Prices are examples: build this with StoreKit’s localized price, never the literal.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weekly · $5.99 a week (a selected row under the two cards; both cards show unselected)"
+          }
+        }
+      }
+    },
+    "onb.s12.yearly_card": {
+      "comment": "S12 · Remove the door · Yearly card. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot. Prices are examples: build this with StoreKit’s localized price, never the literal.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yearly · $69.99 a year · 3 days free, then $5.83 a month, billed yearly · tag: 3 days free"
+          }
+        }
+      }
+    },
+    "onb.s12.yearly_no_trial": {
+      "comment": "S12 · Remove the door · Yearly, no trial. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot. Prices are examples: build this with StoreKit’s localized price, never the literal.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yearly · $69.99 a year · $5.83 a month, billed yearly"
+          }
+        }
+      }
+    },
+    "onb.s12u.body": {
+      "comment": "S12U · Not ready on this iPhone · Body.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It needs a newer iOS to lock reliably. Update in Settings › General › Software Update. Your free wall works now."
+          }
+        }
+      }
+    },
+    "onb.s12u.eyebrow": {
+      "comment": "S12U · Not ready on this iPhone · Eyebrow.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "STRICT MODE"
+          }
+        }
+      }
+    },
+    "onb.s12u.headline": {
+      "comment": "S12U · Not ready on this iPhone · Headline.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strict Mode isn’t ready on this iPhone yet."
+          }
+        }
+      }
+    },
+    "onb.s12u.home_card_later": {
+      "comment": "S12U · Not ready on this iPhone · Home card later.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your iPhone is ready for Strict Mode."
+          }
+        }
+      }
+    },
+    "onb.s12u.primary": {
+      "comment": "S12U · Not ready on this iPhone · Primary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remind me after I update"
+          }
+        }
+      }
+    },
+    "onb.s12u.secondary": {
+      "comment": "S12U · Not ready on this iPhone · Secondary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep the free wall"
+          }
+        }
+      }
+    },
+    "onb.s13_1.body": {
+      "comment": "S13.1 · Write the letter · Body.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You’ll read it first if you ever try to turn Strict Mode off. Write it while you mean it."
+          }
+        }
+      }
+    },
+    "onb.s13_1.default_letter": {
+      "comment": "S13.1 · Write the letter · Default letter. Braces mark a variable or a set of variants.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You set this up because you want to be {word}. Read this slowly. The urge will pass. You don’t have to act on it."
+          }
+        }
+      }
+    },
+    "onb.s13_1.eyebrow": {
+      "comment": "S13.1 · Write the letter · Eyebrow. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "STRICT MODE · 1 OF 3"
+          }
+        }
+      }
+    },
+    "onb.s13_1.headline": {
+      "comment": "S13.1 · Write the letter · Headline.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Write to the you who’ll want out."
+          }
+        }
+      }
+    },
+    "onb.s13_1.helper": {
+      "comment": "S13.1 · Write the letter · Helper.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "At least 40 characters."
+          }
+        }
+      }
+    },
+    "onb.s13_1.placeholder": {
+      "comment": "S13.1 · Write the letter · Placeholder.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You’re reading this because…"
+          }
+        }
+      }
+    },
+    "onb.s13_1.primary": {
+      "comment": "S13.1 · Write the letter · Primary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save the letter"
+          }
+        }
+      }
+    },
+    "onb.s13_1.privacy": {
+      "comment": "S13.1 · Write the letter · Privacy.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stays on this iPhone."
+          }
+        }
+      }
+    },
+    "onb.s13_1.secondary": {
+      "comment": "S13.1 · Write the letter · Secondary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use a short one for now"
+          }
+        }
+      }
+    },
+    "onb.s13_1.starters": {
+      "comment": "S13.1 · Write the letter · Starters. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remember why you started. · Tomorrow you’ll be glad you waited. · Call someone before you decide."
+          }
+        }
+      }
+    },
+    "onb.s13_2b.eyebrow": {
+      "comment": "S13.2B · How blind entry works · Eyebrow. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "STRICT MODE · 2 OF 3"
+          }
+        }
+      }
+    },
+    "onb.s13_2b.headline": {
+      "comment": "S13.2B · How blind entry works · Headline.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You’ll type a code you never see whole."
+          }
+        }
+      }
+    },
+    "onb.s13_2b.note": {
+      "comment": "S13.2B · How blind entry works · Note.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About three minutes. Seeing one digit at a time makes remembering the code unlikely, not impossible. A digit typed wrong twice becomes the code, so you’ll practice first and check at the end."
+          }
+        }
+      }
+    },
+    "onb.s13_2b.primary": {
+      "comment": "S13.2B · How blind entry works · Primary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Practice first"
+          }
+        }
+      }
+    },
+    "onb.s13_2b.secondary": {
+      "comment": "S13.2B · How blind entry works · Secondary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I’ve done this before"
+          }
+        }
+      }
+    },
+    "onb.s13_2b.step_1": {
+      "comment": "S13.2B · How blind entry works · Step 1.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bedrock shows one digit at a time in a small window over Settings."
+          }
+        }
+      }
+    },
+    "onb.s13_2b.step_2": {
+      "comment": "S13.2B · How blind entry works · Step 2.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You type each digit into Screen Time, then all four again to confirm."
+          }
+        }
+      }
+    },
+    "onb.s13_2b.step_3": {
+      "comment": "S13.2B · How blind entry works · Step 3.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When iOS offers passcode recovery, skip it. That’s what keeps the code from you."
+          }
+        }
+      }
+    },
+    "onb.s13_2p.body": {
+      "comment": "S13.2P · Invite your person · Body.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "They’ll see whether your wall is up and approve any way out. Never what you browse, block or write."
+          }
+        }
+      }
+    },
+    "onb.s13_2p.card": {
+      "comment": "S13.2P · Invite your person · Card. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invite code · 7K2Q-M9 · thebedrock.app/join/7K2Q"
+          }
+        }
+      }
+    },
+    "onb.s13_2p.eyebrow": {
+      "comment": "S13.2P · Invite your person · Eyebrow. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "STRICT MODE · YOUR PERSON"
+          }
+        }
+      }
+    },
+    "onb.s13_2p.headline": {
+      "comment": "S13.2P · Invite your person · Headline.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invite your person."
+          }
+        }
+      }
+    },
+    "onb.s13_2p.note": {
+      "comment": "S13.2P · Invite your person · Note.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If they don’t answer a request within 3 days, Bedrock opens it and tells them. Nobody gets stuck."
+          }
+        }
+      }
+    },
+    "onb.s13_2p.primary": {
+      "comment": "S13.2P · Invite your person · Primary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send the invite"
+          }
+        }
+      }
+    },
+    "onb.s13_2p.secondary": {
+      "comment": "S13.2P · Invite your person · Secondary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy link"
+          }
+        }
+      }
+    },
+    "onb.s13_2p.share_message": {
+      "comment": "S13.2P · Invite your person · Share message.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I’m using Bedrock and I’d like you to be my support person. You’d see whether my wall is up, and okay it if I ask to turn it off. Join here: thebedrock.app/join/7K2Q"
+          }
+        }
+      }
+    },
+    "onb.s13_2p.toast": {
+      "comment": "S13.2P · Invite your person · Toast.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link copied."
+          }
+        }
+      }
+    },
+    "onb.s13_3b.confirm_phase": {
+      "comment": "S13.3B · Practice run · Confirm phase. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot. Braces mark a variable or a set of variants.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Again · {digit}"
+          }
+        }
+      }
+    },
+    "onb.s13_3b.done_headline": {
+      "comment": "S13.3B · Practice run · Done headline.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "That’s all it is."
+          }
+        }
+      }
+    },
+    "onb.s13_3b.headline": {
+      "comment": "S13.3B · Practice run · Headline.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Practice run. This code isn’t real."
+          }
+        }
+      }
+    },
+    "onb.s13_3b.primary": {
+      "comment": "S13.3B · Practice run · Primary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Do the real one"
+          }
+        }
+      }
+    },
+    "onb.s13_3b.window": {
+      "comment": "S13.3B · Practice run · Window. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot. Braces mark a variable or a set of variants.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Type · {digit} · Digit {n} of 4"
+          }
+        }
+      }
+    },
+    "onb.s13_3b.wrong": {
+      "comment": "S13.3B · Practice run · Wrong.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "That’s a different digit. Try again."
+          }
+        }
+      }
+    },
+    "onb.s13_4b.body": {
+      "comment": "S13.4B · The real run · Body.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leave this open. Bedrock’s window stays on top while you’re in Settings."
+          }
+        }
+      }
+    },
+    "onb.s13_4b.headline": {
+      "comment": "S13.4B · The real run · Headline.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Now the real one."
+          }
+        }
+      }
+    },
+    "onb.s13_4b.note": {
+      "comment": "S13.4B · The real run · Note.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Labels may differ slightly between iOS versions."
+          }
+        }
+      }
+    },
+    "onb.s13_4b.primary": {
+      "comment": "S13.4B · The real run · Primary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Settings"
+          }
+        }
+      }
+    },
+    "onb.s13_4b.step_1": {
+      "comment": "S13.4B · The real run · Step 1.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Go back to the main Settings list."
+          }
+        }
+      }
+    },
+    "onb.s13_4b.step_2": {
+      "comment": "S13.4B · The real run · Step 2.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Screen Time."
+          }
+        }
+      }
+    },
+    "onb.s13_4b.step_3": {
+      "comment": "S13.4B · The real run · Step 3.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap Lock Screen Time Settings. Already have a passcode? Tap Change Screen Time Passcode and type your current one first."
+          }
+        }
+      }
+    },
+    "onb.s13_4b.step_4": {
+      "comment": "S13.4B · The real run · Step 4.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap the floating window to start, then type each digit it shows."
+          }
+        }
+      }
+    },
+    "onb.s13_4b.step_5": {
+      "comment": "S13.4B · The real run · Step 5.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Type all four again when iOS asks."
+          }
+        }
+      }
+    },
+    "onb.s13_4b.step_6": {
+      "comment": "S13.4B · The real run · Step 6.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If iOS asks about passcode recovery, tap Cancel."
+          }
+        }
+      }
+    },
+    "onb.s13_4b.step_7": {
+      "comment": "S13.4B · The real run · Step 7.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Come back to Bedrock."
+          }
+        }
+      }
+    },
+    "onb.s13_4b.window": {
+      "comment": "S13.4B · The real run · Window. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot. Braces mark a variable or a set of variants.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Type · {digit} · {n} of 4"
+          }
+        }
+      }
+    },
+    "onb.s13_4b.window_confirm": {
+      "comment": "S13.4B · The real run · Window confirm. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot. Braces mark a variable or a set of variants.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Again · {digit}"
+          }
+        }
+      }
+    },
+    "onb.s13_4b.window_end": {
+      "comment": "S13.4B · The real run · Window end.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done. Head back to Bedrock."
+          }
+        }
+      }
+    },
+    "onb.s13_4b.window_recording": {
+      "comment": "S13.4B · The real run · Window, recording.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stop screen recording to continue."
+          }
+        }
+      }
+    },
+    "onb.s13_4b.window_start": {
+      "comment": "S13.4B · The real run · Window start.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap to start"
+          }
+        }
+      }
+    },
+    "onb.s13_5a.body": {
+      "comment": "S13.5A · Check the code · Body.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In Screen Time, tap Change Screen Time Passcode and type the digits from the window. If iOS accepts them, tap Cancel."
+          }
+        }
+      }
+    },
+    "onb.s13_5a.eyebrow": {
+      "comment": "S13.5A · Check the code · Eyebrow. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "STRICT MODE · 3 OF 3"
+          }
+        }
+      }
+    },
+    "onb.s13_5a.headline": {
+      "comment": "S13.5A · Check the code · Headline.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "First, check the code works."
+          }
+        }
+      }
+    },
+    "onb.s13_5a.primary": {
+      "comment": "S13.5A · Check the code · Primary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iOS accepted it"
+          }
+        }
+      }
+    },
+    "onb.s13_5a.secondary": {
+      "comment": "S13.5A · Check the code · Secondary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It didn’t accept it"
+          }
+        }
+      }
+    },
+    "onb.s13_5b.body": {
+      "comment": "S13.5B · Try to switch it off · Body.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In Screen Time › Apps with Screen Time Access, try turning Bedrock off. It should ask for a passcode you don’t know."
+          }
+        }
+      }
+    },
+    "onb.s13_5b.headline": {
+      "comment": "S13.5B · Try to switch it off · Headline.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Now try to switch it off."
+          }
+        }
+      }
+    },
+    "onb.s13_5b.link": {
+      "comment": "S13.5B · Try to switch it off · Link.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I got stuck"
+          }
+        }
+      }
+    },
+    "onb.s13_5b.primary": {
+      "comment": "S13.5B · Try to switch it off · Primary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It asked for a passcode"
+          }
+        }
+      }
+    },
+    "onb.s13_5b.secondary": {
+      "comment": "S13.5B · Try to switch it off · Secondary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It switched off"
+          }
+        }
+      }
+    },
+    "onb.s13_5b.stuck_sheet": {
+      "comment": "S13.5B · Try to switch it off · Stuck sheet. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lost your place? Run it again with a fresh code. · iOS didn’t ask about recovery? That’s fine on some versions. · Paid and it still won’t lock? Apple handles refunds at reportaproblem.apple.com. · Something else? Write to us at help@thebedrock.app. · Close"
+          }
+        }
+      }
+    },
+    "onb.s13_6.body_a": {
+      "comment": "S13.6 · Sealed · Body A.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strict Mode is on, and Bedrock holds the key. If you ever want out, your steps and your letter are waiting."
+          }
+        }
+      }
+    },
+    "onb.s13_6.body_b": {
+      "comment": "S13.6 · Sealed · Body B.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strict Mode is on, and your person holds the key. If you ever want out, they’ll hear from you first."
+          }
+        }
+      }
+    },
+    "onb.s13_6.eyebrow": {
+      "comment": "S13.6 · Sealed · Eyebrow.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "STRICT MODE"
+          }
+        }
+      }
+    },
+    "onb.s13_6.headline": {
+      "comment": "S13.6 · Sealed · Headline.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sealed."
+          }
+        }
+      }
+    },
+    "onb.s13_6.primary": {
+      "comment": "S13.6 · Sealed · Primary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue"
+          }
+        }
+      }
+    },
+    "onb.s13_7a.body": {
+      "comment": "S13.7A · The code didn’t match · Body.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A digit probably went in wrong twice. Bedrock will show the digits again, slower."
+          }
+        }
+      }
+    },
+    "onb.s13_7a.headline": {
+      "comment": "S13.7A · The code didn’t match · Headline.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The code didn’t match."
+          }
+        }
+      }
+    },
+    "onb.s13_7a.primary": {
+      "comment": "S13.7A · The code didn’t match · Primary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show the digits again"
+          }
+        }
+      }
+    },
+    "onb.s13_7a.secondary": {
+      "comment": "S13.7A · The code didn’t match · Secondary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get help"
+          }
+        }
+      }
+    },
+    "onb.s13_7b.body": {
+      "comment": "S13.7B · The lock didn’t save · Body.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No harm done. Turn Bedrock’s access back on and run it again with a fresh code."
+          }
+        }
+      }
+    },
+    "onb.s13_7b.headline": {
+      "comment": "S13.7B · The lock didn’t save · Headline.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The lock didn’t save."
+          }
+        }
+      }
+    },
+    "onb.s13_7b.primary": {
+      "comment": "S13.7B · The lock didn’t save · Primary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Run it again"
+          }
+        }
+      }
+    },
+    "onb.s14.body": {
+      "comment": "S14 · Quiet heads-ups · Body.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A few minutes ahead of them. Here’s how it looks on your lock screen."
+          }
+        }
+      }
+    },
+    "onb.s14.body_no_pattern": {
+      "comment": "S14 · Quiet heads-ups · Body, no pattern.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Once they show up. Here’s how it looks on your lock screen."
+          }
+        }
+      }
+    },
+    "onb.s14.caption": {
+      "comment": "S14 · Quiet heads-ups · Caption.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing on it says what Bedrock is for."
+          }
+        }
+      }
+    },
+    "onb.s14.eyebrow": {
+      "comment": "S14 · Quiet heads-ups · Eyebrow.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "BEGIN"
+          }
+        }
+      }
+    },
+    "onb.s14.headline": {
+      "comment": "S14 · Quiet heads-ups · Headline.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Want a quiet heads-up before your hard hours?"
+          }
+        }
+      }
+    },
+    "onb.s14.preview": {
+      "comment": "S14 · Quiet heads-ups · Preview. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bedrock · now · A good moment to plan the next hour. (The lock-screen time in the preview is a few minutes before their first S5 window: the S5 payoff.)"
+          }
+        }
+      }
+    },
+    "onb.s14.primary": {
+      "comment": "S14 · Quiet heads-ups · Primary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue"
+          }
+        }
+      }
+    },
+    "onb.s15.body": {
+      "comment": "S15 · Press it once · Body.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your button for when the urge is here. Press it now, so the real time isn’t the first."
+          }
+        }
+      }
+    },
+    "onb.s15.breathe": {
+      "comment": "S15 · Press it once · Breathe. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Breathe in… · …and out."
+          }
+        }
+      }
+    },
+    "onb.s15.button": {
+      "comment": "S15 · Press it once · Button.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The urge is here"
+          }
+        }
+      }
+    },
+    "onb.s15.closing": {
+      "comment": "S15 · Press it once · Closing.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "That’s how it starts. Next time it carries on, starting with what’s underneath."
+          }
+        }
+      }
+    },
+    "onb.s15.eyebrow": {
+      "comment": "S15 · Press it once · Eyebrow.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "BEGIN"
+          }
+        }
+      }
+    },
+    "onb.s15.headline": {
+      "comment": "S15 · Press it once · Headline.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One last thing. Press it once."
+          }
+        }
+      }
+    },
+    "onb.s15.primary": {
+      "comment": "S15 · Press it once · Primary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Go to my wall"
+          }
+        }
+      }
+    },
+    "onb.s2.body": {
+      "comment": "S2 · Before the Screen Time sheet · Body.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It lets Bedrock block sites and apps on this iPhone. What you browse stays private, even from us."
+          }
+        }
+      }
+    },
+    "onb.s2.caption": {
+      "comment": "S2 · Before the Screen Time sheet · Caption.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iOS will ask you to confirm."
+          }
+        }
+      }
+    },
+    "onb.s2.eyebrow": {
+      "comment": "S2 · Before the Screen Time sheet · Eyebrow.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "THE WALL"
+          }
+        }
+      }
+    },
+    "onb.s2.headline": {
+      "comment": "S2 · Before the Screen Time sheet · Headline.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "First, Bedrock needs Screen Time."
+          }
+        }
+      }
+    },
+    "onb.s2.primary": {
+      "comment": "S2 · Before the Screen Time sheet · Primary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue"
+          }
+        }
+      }
+    },
+    "onb.s2_d.body": {
+      "comment": "S2-D · Screen Time declined · Body.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Without it, Bedrock can’t block anything here. Allow it now, or any time later."
+          }
+        }
+      }
+    },
+    "onb.s2_d.eyebrow": {
+      "comment": "S2-D · Screen Time declined · Eyebrow.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "THE WALL"
+          }
+        }
+      }
+    },
+    "onb.s2_d.headline": {
+      "comment": "S2-D · Screen Time declined · Headline.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The wall needs Screen Time."
+          }
+        }
+      }
+    },
+    "onb.s2_d.home_card": {
+      "comment": "S2-D · Screen Time declined · Home card.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The wall isn’t up yet. It needs Screen Time access."
+          }
+        }
+      }
+    },
+    "onb.s2_d.primary": {
+      "comment": "S2-D · Screen Time declined · Primary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try again"
+          }
+        }
+      }
+    },
+    "onb.s2_d.secondary": {
+      "comment": "S2-D · Screen Time declined · Secondary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue without the wall"
+          }
+        }
+      }
+    },
+    "onb.s2_d.settings_body": {
+      "comment": "S2-D · Screen Time declined · Settings body.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iOS won’t ask again from here. In Settings, open Bedrock and switch on Screen Time access. Then come back."
+          }
+        }
+      }
+    },
+    "onb.s2_d.settings_headline": {
+      "comment": "S2-D · Screen Time declined · Settings headline.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn it on in Settings."
+          }
+        }
+      }
+    },
+    "onb.s2_d.settings_primary": {
+      "comment": "S2-D · Screen Time declined · Settings primary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Settings"
+          }
+        }
+      }
+    },
+    "onb.s3.building": {
+      "comment": "S3 · The wall goes up · Building.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Putting the wall up."
+          }
+        }
+      }
+    },
+    "onb.s3.error_body": {
+      "comment": "S3 · The wall goes up · Error body.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing was blocked yet. Try once more. If it fails again, restart your iPhone and come back."
+          }
+        }
+      }
+    },
+    "onb.s3.error_headline": {
+      "comment": "S3 · The wall goes up · Error headline.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Something stopped the wall."
+          }
+        }
+      }
+    },
+    "onb.s3.error_primary": {
+      "comment": "S3 · The wall goes up · Error primary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try again"
+          }
+        }
+      }
+    },
+    "onb.s3.error_secondary": {
+      "comment": "S3 · The wall goes up · Error secondary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get help"
+          }
+        }
+      }
+    },
+    "onb.s3.eyebrow": {
+      "comment": "S3 · The wall goes up · Eyebrow.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "THE WALL"
+          }
+        }
+      }
+    },
+    "onb.s3.headline": {
+      "comment": "S3 · The wall goes up · Headline.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose what goes behind the wall."
+          }
+        }
+      }
+    },
+    "onb.s3.primary": {
+      "comment": "S3 · The wall goes up · Primary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Put the wall up"
+          }
+        }
+      }
+    },
+    "onb.s3.row_1": {
+      "comment": "S3 · The wall goes up · Row 1. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adult websites · Safari and other browsers · Always on"
+          }
+        }
+      }
+    },
+    "onb.s3.row_2": {
+      "comment": "S3 · The wall goes up · Row 2. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apps that pull you in · Optional · Add"
+          }
+        }
+      }
+    },
+    "onb.s3.row_2_after": {
+      "comment": "S3 · The wall goes up · Row 2, after. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3 apps · Their names never leave this iPhone · Edit"
+          }
+        }
+      }
+    },
+    "onb.s3.row_3": {
+      "comment": "S3 · The wall goes up · Row 3. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Checked every day · Bedrock puts the wall back daily, in case anything resets it · Included"
+          }
+        }
+      }
+    },
+    "onb.s3.row_error": {
+      "comment": "S3 · The wall goes up · Row error.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Didn’t apply"
+          }
+        }
+      }
+    },
+    "onb.s3.up": {
+      "comment": "S3 · The wall goes up · Up.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The wall is up."
+          }
+        }
+      }
+    },
+    "onb.s3.up_primary": {
+      "comment": "S3 · The wall goes up · Up primary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue"
+          }
+        }
+      }
+    },
+    "onb.s4.body": {
+      "comment": "S4 · Try it · Body.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open a blocked test page and see what stops it. You won’t leave Bedrock."
+          }
+        }
+      }
+    },
+    "onb.s4.checking": {
+      "comment": "S4 · Try it · Checking.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One moment"
+          }
+        }
+      }
+    },
+    "onb.s4.eyebrow": {
+      "comment": "S4 · Try it · Eyebrow.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "THE WALL"
+          }
+        }
+      }
+    },
+    "onb.s4.finish_later_sheet": {
+      "comment": "S4 · Try it · Finish later sheet. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish later? · Your wall is up. Bedrock will pick this up the next time you open it. · Go to my wall · Keep going"
+          }
+        }
+      }
+    },
+    "onb.s4.headline": {
+      "comment": "S4 · Try it · Headline.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Go ahead. Try it."
+          }
+        }
+      }
+    },
+    "onb.s4.held_body": {
+      "comment": "S4 · Try it · Held body.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "That page is Apple’s, and that’s the point. The block lives in iOS, not in this app."
+          }
+        }
+      }
+    },
+    "onb.s4.held_headline": {
+      "comment": "S4 · Try it · Held headline.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Held."
+          }
+        }
+      }
+    },
+    "onb.s4.held_primary": {
+      "comment": "S4 · Try it · Held primary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue"
+          }
+        }
+      }
+    },
+    "onb.s4.opened_body": {
+      "comment": "S4 · Try it · Opened body.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The wall isn’t holding yet. Let’s put it back up."
+          }
+        }
+      }
+    },
+    "onb.s4.opened_headline": {
+      "comment": "S4 · Try it · Opened headline.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "That page opened."
+          }
+        }
+      }
+    },
+    "onb.s4.opened_primary": {
+      "comment": "S4 · Try it · Opened primary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Put it back up"
+          }
+        }
+      }
+    },
+    "onb.s4.primary": {
+      "comment": "S4 · Try it · Primary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the test page"
+          }
+        }
+      }
+    },
+    "onb.s4.secondary": {
+      "comment": "S4 · Try it · Secondary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip"
+          }
+        }
+      }
+    },
+    "onb.s4.top_right": {
+      "comment": "S4 · Try it · Top right.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish later"
+          }
+        }
+      }
+    },
+    "onb.s4.unverified_body": {
+      "comment": "S4 · Try it · Unverified body.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The wall is set. Bedrock will check again in the background."
+          }
+        }
+      }
+    },
+    "onb.s4.unverified_headline": {
+      "comment": "S4 · Try it · Unverified headline.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t check just now."
+          }
+        }
+      }
+    },
+    "onb.s5.body": {
+      "comment": "S5 · Hard hours · Body.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pick any that fit. Bedrock uses this to time quiet heads-ups."
+          }
+        }
+      }
+    },
+    "onb.s5.chips": {
+      "comment": "S5 · Hard hours · Chips. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Late at night · Early morning · Middle of the day · After work · Weekends · No pattern yet"
+          }
+        }
+      }
+    },
+    "onb.s5.eyebrow": {
+      "comment": "S5 · Hard hours · Eyebrow.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YOU"
+          }
+        }
+      }
+    },
+    "onb.s5.headline": {
+      "comment": "S5 · Hard hours · Headline.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When does it usually get hard?"
+          }
+        }
+      }
+    },
+    "onb.s5.primary": {
+      "comment": "S5 · Hard hours · Primary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue"
+          }
+        }
+      }
+    },
+    "onb.s5.privacy": {
+      "comment": "S5 · Hard hours · Privacy.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stays on this iPhone"
+          }
+        }
+      }
+    },
+    "onb.s6.body": {
+      "comment": "S6 · Underneath · Body.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pick what’s there most often. When an urge hits, Bedrock starts here."
+          }
+        }
+      }
+    },
+    "onb.s6.chips": {
+      "comment": "S6 · Underneath · Chips. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bored · Stressed · Lonely · Tired · Anxious · Not sure"
+          }
+        }
+      }
+    },
+    "onb.s6.eyebrow": {
+      "comment": "S6 · Underneath · Eyebrow.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YOU"
+          }
+        }
+      }
+    },
+    "onb.s6.headline": {
+      "comment": "S6 · Underneath · Headline.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What’s usually underneath it?"
+          }
+        }
+      }
+    },
+    "onb.s6.primary": {
+      "comment": "S6 · Underneath · Primary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue"
+          }
+        }
+      }
+    },
+    "onb.s6.privacy": {
+      "comment": "S6 · Underneath · Privacy.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stays on this iPhone"
+          }
+        }
+      }
+    },
+    "onb.s7.body": {
+      "comment": "S7 · Your word · Body.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One word. You’ll see it whenever something’s blocked."
+          }
+        }
+      }
+    },
+    "onb.s7.chips": {
+      "comment": "S7 · Your word · Chips. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steady · Present · Honest · Free · Kind · Focused · My own word"
+          }
+        }
+      }
+    },
+    "onb.s7.error": {
+      "comment": "S7 · Your word · Error.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One word, letters only."
+          }
+        }
+      }
+    },
+    "onb.s7.eyebrow": {
+      "comment": "S7 · Your word · Eyebrow.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YOU"
+          }
+        }
+      }
+    },
+    "onb.s7.field": {
+      "comment": "S7 · Your word · Field.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One word"
+          }
+        }
+      }
+    },
+    "onb.s7.headline": {
+      "comment": "S7 · Your word · Headline.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Who are you at your best?"
+          }
+        }
+      }
+    },
+    "onb.s7.helper": {
+      "comment": "S7 · Your word · Helper.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anyone glancing at your phone could see it."
+          }
+        }
+      }
+    },
+    "onb.s7.primary": {
+      "comment": "S7 · Your word · Primary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue"
+          }
+        }
+      }
+    },
+    "onb.s7.privacy": {
+      "comment": "S7 · Your word · Privacy.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stays on this iPhone"
+          }
+        }
+      }
+    },
+    "onb.s8.after": {
+      "comment": "S8 · Your stone · After.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It counts every day you build. A slip cracks the stone. It never takes a day away."
+          }
+        }
+      }
+    },
+    "onb.s8.caption": {
+      "comment": "S8 · Your stone · Caption.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This is your foundation."
+          }
+        }
+      }
+    },
+    "onb.s8.crisis_link": {
+      "comment": "S8 · Your stone · Crisis link.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If you’re really struggling, you’re not alone."
+          }
+        }
+      }
+    },
+    "onb.s8.crisis_sheet": {
+      "comment": "S8 · Your stone · Crisis sheet. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You don’t have to carry this alone. · If you’re in a dark place right now, talk to someone today. · Call or text 988 (Suicide & Crisis Lifeline, US) · Find a helpline in your country (findahelpline.com) · In immediate danger? Call your local emergency number. · Close"
+          }
+        }
+      }
+    },
+    "onb.s8.eyebrow": {
+      "comment": "S8 · Your stone · Eyebrow.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YOUR FOUNDATION"
+          }
+        }
+      }
+    },
+    "onb.s8.fallback": {
+      "comment": "S8 · Your stone · Fallback.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set it"
+          }
+        }
+      }
+    },
+    "onb.s8.hold_label": {
+      "comment": "S8 · Your stone · Hold label.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hold to set your first stone"
+          }
+        }
+      }
+    },
+    "onb.s8.line_1": {
+      "comment": "S8 · Your stone · Line 1. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From S5: “Late at night.” · “Early in the morning.” · “In the middle of the day.” · “After work.” · “On weekends.” · “At no set time.” Two picked: “Late at night, and on weekends.” Three or more: “Late at night, and a few other times.”"
+          }
+        }
+      }
+    },
+    "onb.s8.line_2": {
+      "comment": "S8 · Your stone · Line 2.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From S6: “Usually when you’re tired.” Two: “Usually when you’re tired or stressed.” Three or more: “Usually when you’re tired, stressed, or lonely.” Not sure: “Even when you can’t say why.”"
+          }
+        }
+      }
+    },
+    "onb.s8.line_3": {
+      "comment": "S8 · Your stone · Line 3. Braces mark a variable or a set of variants.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You want to be {word}."
+          }
+        }
+      }
+    },
+    "onb.s8.primary": {
+      "comment": "S8 · Your stone · Primary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue"
+          }
+        }
+      }
+    },
+    "onb.s8.stone": {
+      "comment": "S8 · Your stone · Stone. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot. Braces mark a variable or a set of variants.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{WORD} · DAY 1"
+          }
+        }
+      }
+    },
+    "onb.s8.tap_hint": {
+      "comment": "S8 · Your stone · Tap hint.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep holding"
+          }
+        }
+      }
+    },
+    "onb.s9.body": {
+      "comment": "S9 · The door · Body.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anyone holding this phone can switch Bedrock off in Settings in about ten seconds. That’s why most blockers don’t last."
+          }
+        }
+      }
+    },
+    "onb.s9.caption": {
+      "comment": "S9 · The door · Caption.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The free wall, today"
+          }
+        }
+      }
+    },
+    "onb.s9.eyebrow": {
+      "comment": "S9 · The door · Eyebrow.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ONE HONEST THING"
+          }
+        }
+      }
+    },
+    "onb.s9.headline": {
+      "comment": "S9 · The door · Headline.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Right now, this wall has a door."
+          }
+        }
+      }
+    },
+    "onb.s9.primary": {
+      "comment": "S9 · The door · Primary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close the door"
+          }
+        }
+      }
+    },
+    "onb.siwa.body": {
+      "comment": "SIWA · Keep it if you change phones · Body.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign in with Apple to bring your plan to a new iPhone. Your answers stay on this one."
+          }
+        }
+      }
+    },
+    "onb.siwa.eyebrow": {
+      "comment": "SIWA · Keep it if you change phones · Eyebrow.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YOU’RE IN"
+          }
+        }
+      }
+    },
+    "onb.siwa.headline": {
+      "comment": "SIWA · Keep it if you change phones · Headline.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep it if you change phones."
+          }
+        }
+      }
+    },
+    "onb.siwa.primary": {
+      "comment": "SIWA · Keep it if you change phones · Primary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign in with Apple (system button)"
+          }
+        }
+      }
+    },
+    "onb.siwa.secondary": {
+      "comment": "SIWA · Keep it if you change phones · Secondary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not now"
+          }
+        }
+      }
+    },
+    "onb.sp1.bad_code": {
+      "comment": "SP1 · Someone asked you · Bad code.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "That code didn’t work. Check it with them and try again."
+          }
+        }
+      }
+    },
+    "onb.sp1.body": {
+      "comment": "SP1 · Someone asked you · Body.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It means holding a key, not watching. Here’s exactly what you’ll see."
+          }
+        }
+      }
+    },
+    "onb.sp1.code_field_from_s1": {
+      "comment": "SP1 · Someone asked you · Code field (from S1). Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invite code · Enter the code they sent you · Continue"
+          }
+        }
+      }
+    },
+    "onb.sp1.eyebrow": {
+      "comment": "SP1 · Someone asked you · Eyebrow.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "BEDROCK"
+          }
+        }
+      }
+    },
+    "onb.sp1.headline": {
+      "comment": "SP1 · Someone asked you · Headline.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Someone asked you to be their person."
+          }
+        }
+      }
+    },
+    "onb.sp1.primary": {
+      "comment": "SP1 · Someone asked you · Primary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show me"
+          }
+        }
+      }
+    },
+    "onb.sp2.headline": {
+      "comment": "SP2 · What you’ll see, and won’t · Headline.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What you’ll see, and what you won’t."
+          }
+        }
+      }
+    },
+    "onb.sp2.primary": {
+      "comment": "SP2 · What you’ll see, and won’t · Primary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I’m in"
+          }
+        }
+      }
+    },
+    "onb.sp2.you_wont_see": {
+      "comment": "SP2 · What you’ll see, and won’t · You won’t see. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What they browse or block · Their answers or their letter · Anything they type"
+          }
+        }
+      }
+    },
+    "onb.sp2.youll_see": {
+      "comment": "SP2 · What you’ll see, and won’t · You’ll see. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Whether their wall is up · When they ask to turn it off · If their Bedrock goes quiet for a while"
+          }
+        }
+      }
+    },
+    "onb.sp3.body": {
+      "comment": "SP3 · Alerts · Body.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on notifications so a request doesn’t sit unseen. Nothing on them says what Bedrock is for."
+          }
+        }
+      }
+    },
+    "onb.sp3.headline": {
+      "comment": "SP3 · Alerts · Headline.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We’ll only reach you when it matters."
+          }
+        }
+      }
+    },
+    "onb.sp3.primary": {
+      "comment": "SP3 · Alerts · Primary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue"
+          }
+        }
+      }
+    },
+    "onb.sp4.alert_later": {
+      "comment": "SP4 · You’re their person · Alert later.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haven’t heard from their Bedrock in a while. Might be worth a check-in."
+          }
+        }
+      }
+    },
+    "onb.sp4.body": {
+      "comment": "SP4 · You’re their person · Body.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If they ask to turn it off, you’ll see it here first. Without your answer, it opens after 3 days, and you’re told."
+          }
+        }
+      }
+    },
+    "onb.sp4.headline": {
+      "comment": "SP4 · You’re their person · Headline.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You’re their person."
+          }
+        }
+      }
+    },
+    "onb.sp4.primary": {
+      "comment": "SP4 · You’re their person · Primary.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
+          }
+        }
+      }
+    },
+    "onb.sp4.quiet_note": {
+      "comment": "SP4 · You’re their person · Quiet note.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If their Bedrock goes quiet, you’ll hear within a few hours, not instantly."
+          }
+        }
+      }
+    },
+    "onb.sp4.status_card": {
+      "comment": "SP4 · You’re their person · Status card. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wall up · Checked in 2 hours ago"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

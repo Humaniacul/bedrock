@@ -24,6 +24,13 @@
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 	</array>
+	<!-- Instrument Serif (SIL OFL 1.1, Resources/Fonts/OFL.txt). Onboarding serif;
+	     BedrockFont falls back to New York if these fail to load. -->
+	<key>UIAppFonts</key>
+	<array>
+		<string>InstrumentSerif-Regular.ttf</string>
+		<string>InstrumentSerif-Italic.ttf</string>
+	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

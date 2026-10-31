@@ -4,10 +4,10 @@ import Foundation
 /// each question its own ornament without forking the interaction pattern.
 struct OnboardingQuestion {
     enum Variant {
-        case tiles       // Q1 — stone tiles
+        case tiles       // Q1 — stone tiles, fragments drop as you choose
         case sediment    // Q2 — deeper = longer, auto-advance
-        case clockArc    // Q3 — 24-hour arc dims to night
-        case vignette    // Q4 — each pick removes a sliver of dawn
+        case clockRing   // Q3 — 24-hour ring dims to night
+        case vignette    // Q4 — each pick removes a sliver of dawn (then Weigh)
         case dawn        // Q5 — brightest screen, optional free text
     }
 
@@ -22,39 +22,39 @@ struct OnboardingQuestion {
     let apply: @MainActor (OnboardingModel, Set<String>) -> Void
 }
 
-/// Every screen in the flow. Bespoke beats are enum cases; the five questions
-/// share one data-driven case.
+/// Every screen in the flow (spec v2.0). Each has a verb; reading is reserved
+/// for four gift moments (S2, S5, S27 and the payoff lines inside beats).
 enum OnboardingBeat {
     // ACT I — THE THRESHOLD
-    case coldOpen            // 1  — wordmark carves, horizon breathes
-    case disarm              // 2  — "You're not broken."
-    case recognition         // 3  — the lines people screenshot
-    case cycle               // 4  — why past blockers didn't hold
-    case turn                // 5  — "the ground you stand on"
+    case coldOpen            // 1  — [watch] wordmark carves, horizon breathes
+    case disarm              // 2  — [read — a gift] "You're not broken."
+    case recognize           // 3  — [Recognize] tap what's true; shadow gathers
+    case reckon              // 4  — [Reckon] drag their own honest cost
+    case turn                // 5  — [read + CTA] "Let's build the ground"
     // ACT II — THE MIRROR
-    case permission          // 6  — consent framing + privacy line
+    case permission          // 6  — consent + privacy line
     case question(OnboardingQuestion) // 7, 8, 10, 11, 13
-    case reflectionOne       // 9
-    case reflectionTwo       // 12
+    case reflectionOne       // 9  — [read → Affirm]
+    case reflectionTwo       // 12 — [read → Affirm]
     // ACT III — THE TRUTH
-    case synthesis           // 14 — honest assembly pause
-    case reveal              // 15 — what I see (Peak 1)
-    case loopScience         // 16 — the groove fills back in
-    case timeline            // 17 — what's ahead, honestly
-    case frictionOverWillpower // 18 — architecture, not willpower
+    case reading             // 14 — [Trace] swipe fragments into their column
+    case reveal              // 15 — [tap to uncover] what I see, stratum by stratum
+    case loop                // 16 — [Trace] walk the loop, then hold "Let it pass"
+    case timeline            // 17 — [scrub] drag ahead to see what's coming
+    case door                // 18 — [hold] willpower drains; the wall doesn't
     // ACT IV — THE COVENANT
-    case futureSelf          // 19 — ninety days from now
-    case cornerstone         // 20 — name + press-and-hold (Peak commit)
-    case guardrails          // 21 — FamilyControls, in-context
-    case unbeatable          // 22 — friction tier
-    case rhythm              // 23 — notification windows
-    case foundationReady     // 24 — Peak 2
-    case nameWhy             // 25 — the crown jewel
+    case futureSelf          // 19 — [Choose] what comes back first
+    case cornerstone         // 20 — [Inscribe + Forge] name + press-and-hold
+    case guardrails          // 21 — [Build] FamilyControls, in-context
+    case unbeatable          // 22 — [Choose] friction tier
+    case rhythm              // 23 — [Choose] notification windows
+    case foundationReady     // 24 — [one touch] run your hand across it
+    case nameWhy             // 25 — [Inscribe] the crown jewel
     // ACT V — THE CROSSING
-    case socialProof         // 25.5 — quiet, not loud
-    case bridge              // 26 — no price yet
-    case paywall             // 27 — the ask as conclusion
-    case dayOne              // 28 — grounded, not euphoric
+    case socialProof         // 26 — quiet, not loud
+    case bridge              // 27 — [short read] no price yet
+    case paywall             // 28 — the decision
+    case dayOne              // 29 — hand them the lifeline
 }
 
 struct OnboardingStep {
@@ -80,11 +80,11 @@ enum OnboardingFlow {
     // MARK: ACT I — THE THRESHOLD
 
     private static let actOne: [OnboardingStep] = [
-        OnboardingStep(act: 1, beat: .coldOpen,    glow: 0.05),
-        OnboardingStep(act: 1, beat: .disarm,      glow: 0.07),
-        OnboardingStep(act: 1, beat: .recognition, glow: 0.07),
-        OnboardingStep(act: 1, beat: .cycle,       glow: 0.08),
-        OnboardingStep(act: 1, beat: .turn,        glow: 0.12),
+        OnboardingStep(act: 1, beat: .coldOpen,  glow: 0.05),
+        OnboardingStep(act: 1, beat: .disarm,    glow: 0.07),
+        OnboardingStep(act: 1, beat: .recognize, glow: 0.07),
+        OnboardingStep(act: 1, beat: .reckon,    glow: 0.08),
+        OnboardingStep(act: 1, beat: .turn,      glow: 0.12),
     ]
 
     // MARK: ACT II — THE MIRROR
@@ -94,7 +94,7 @@ enum OnboardingFlow {
         OnboardingStep(act: 2, beat: .question(OnboardingQuestion(
             id: "motivation", eyebrow: "QUESTION 01",
             prompt: "What brought you here?",
-            sub: "There's no wrong answer. Your reason shapes everything.",
+            sub: "Your reason shapes everything.",
             options: OnboardingModel.motivationOptions, multi: true, variant: .tiles,
             read: { $0.motivation },
             apply: { $0.motivation = $1 })), inQuestionBlock: true, glow: 0.09),
@@ -114,7 +114,7 @@ enum OnboardingFlow {
             id: "triggers", eyebrow: "QUESTION 03",
             prompt: "When does it pull hardest?",
             sub: "Noticing the pattern is half the work.",
-            options: OnboardingModel.triggerOptions, multi: true, variant: .clockArc,
+            options: OnboardingModel.triggerOptions, multi: true, variant: .clockRing,
             read: { $0.triggers },
             apply: { $0.triggers = $1 })), inQuestionBlock: true, glow: 0.10),
         OnboardingStep(act: 2, beat: .question(OnboardingQuestion(
@@ -137,11 +137,11 @@ enum OnboardingFlow {
     // MARK: ACT III — THE TRUTH
 
     private static let actThree: [OnboardingStep] = [
-        OnboardingStep(act: 3, beat: .synthesis, glow: 0.12),
-        OnboardingStep(act: 3, beat: .reveal,    glow: 0.2),
-        OnboardingStep(act: 3, beat: .loopScience, glow: 0.14),
-        OnboardingStep(act: 3, beat: .timeline,  glow: 0.16),
-        OnboardingStep(act: 3, beat: .frictionOverWillpower, glow: 0.16),
+        OnboardingStep(act: 3, beat: .reading,  glow: 0.12),
+        OnboardingStep(act: 3, beat: .reveal,   glow: 0.2),
+        OnboardingStep(act: 3, beat: .loop,     glow: 0.14),
+        OnboardingStep(act: 3, beat: .timeline, glow: 0.16),
+        OnboardingStep(act: 3, beat: .door,     glow: 0.16),
     ]
 
     // MARK: ACT IV — THE COVENANT

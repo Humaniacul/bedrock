@@ -15,6 +15,19 @@ struct RootView: View {
     @State private var onboardingDone = RootView.startsOnboarded
 
     var body: some View {
+        #if DEBUG
+        // Full-screen component previews for screenshots: SIMCTL_CHILD_BEDROCK_GALLERY=<page>.
+        if let gallery = ComponentGallery.requested {
+            gallery
+        } else {
+            app
+        }
+        #else
+        app
+        #endif
+    }
+
+    @ViewBuilder private var app: some View {
         if onboardingDone {
             mainTabs
         } else {
