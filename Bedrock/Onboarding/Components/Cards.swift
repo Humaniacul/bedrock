@@ -138,9 +138,10 @@ extension PlanCard {
         guard let emphasis = priceEmphasis, let range = price.range(of: emphasis) else {
             return Text(price).font(BedrockFont.planPrice)
         }
-        return Text(String(price[..<range.lowerBound])).font(BedrockFont.subhead.weight(.medium))
-            + Text(emphasis).font(BedrockFont.planPrice)
-            + Text(String(price[range.upperBound...])).font(BedrockFont.subhead.weight(.medium))
+        let before = Text(verbatim: String(price[..<range.lowerBound])).font(BedrockFont.subhead.weight(.medium))
+        let amount = Text(verbatim: emphasis).font(BedrockFont.planPrice)
+        let after = Text(verbatim: String(price[range.upperBound...])).font(BedrockFont.subhead.weight(.medium))
+        return Text("\(before)\(amount)\(after)")
     }
 }
 

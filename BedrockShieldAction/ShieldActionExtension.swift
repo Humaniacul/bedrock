@@ -30,7 +30,9 @@ final class ShieldActionExtension: ShieldActionDelegate {
             completionHandler(.close)
         case .secondaryButtonPressed:
             count(AppGroup.Key.shieldMinutes)
-            sendMinuteNotification { completionHandler(.close) }
+            // Answer once the notification is queued (the extension may end after).
+            nonisolated(unsafe) let finish = completionHandler
+            sendMinuteNotification { finish(.close) }
         default:
             completionHandler(.none)
         }
@@ -42,7 +44,7 @@ final class ShieldActionExtension: ShieldActionDelegate {
     }
 
     /// “Take a minute. · Tap to breathe it through.” Opens the urge flow.
-    private func sendMinuteNotification(then done: @escaping () -> Void) {
+    private func sendMinuteNotification(then done: @escaping @Sendable () -> Void) {
         let parts = Bundle.main.localizedString(forKey: "onb.shield.minute_notification", value: nil, table: nil)
             .components(separatedBy: " · ")
         let content = UNMutableNotificationContent()

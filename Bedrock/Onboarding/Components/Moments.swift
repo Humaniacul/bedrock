@@ -58,8 +58,8 @@ struct NotificationPreview: View {
     }
 }
 
-/// The app icon, drawn: the stone mark on obsidian (the notification preview,
-/// the shield). Matches the icon asset.
+/// The app icon, drawn: the cut stone on obsidian with a low ember horizon
+/// (the notification preview). Matches the AppIcon asset.
 struct AppIconMark: View {
     var size: CGFloat
 
@@ -67,14 +67,42 @@ struct AppIconMark: View {
         RoundedRectangle(cornerRadius: size * 0.225, style: .continuous)
             .fill(LinearGradient(colors: [BedrockColor.bgRaised, BedrockColor.bgBase],
                                  startPoint: .top, endPoint: .bottom))
-            .overlay {
-                StoneMark()
-                    .fill(LinearGradient(colors: [BedrockColor.emberGlow, BedrockColor.ember],
-                                         startPoint: .top, endPoint: .bottom))
-                    .frame(width: size * 0.42, height: size * 0.6)
+            .overlay(alignment: .bottom) {
+                Ellipse()
+                    .fill(RadialGradient(colors: [BedrockColor.ember.opacity(0.4), .clear],
+                                         center: .center, startRadius: 0, endRadius: size * 0.6))
+                    .frame(width: size * 1.2, height: size * 0.6)
+                    .offset(y: size * 0.3)
             }
+            .overlay {
+                ZStack {
+                    StoneMark()
+                        .fill(LinearGradient(colors: [BedrockColor.emberHot, BedrockColor.emberGlow, BedrockColor.ember],
+                                             startPoint: .topLeading, endPoint: .bottomTrailing))
+                    StoneFacet(points: StoneFacet.lit).fill(BedrockColor.inkPrimary.opacity(0.18))
+                    StoneFacet(points: StoneFacet.shade).fill(BedrockColor.emberDeep.opacity(0.4))
+                }
+                .frame(width: size * 0.40, height: size * 0.57)
+                .shadow(color: BedrockColor.emberGlow.opacity(0.45), radius: size * 0.08)
+            }
+            .clipShape(RoundedRectangle(cornerRadius: size * 0.225, style: .continuous))
             .frame(width: size, height: size)
             .accessibilityHidden(true)
+    }
+}
+
+/// One plane of the cut stone (the icon's lit top face and shaded lower face).
+private struct StoneFacet: Shape {
+    let points: [CGPoint]
+
+    static let lit = [CGPoint(x: 0.24, y: 0.00), CGPoint(x: 0.86, y: 0.08), CGPoint(x: 0.52, y: 0.40), CGPoint(x: 0.00, y: 0.76)]
+    static let shade = [CGPoint(x: 0.52, y: 0.40), CGPoint(x: 1.00, y: 0.64), CGPoint(x: 0.58, y: 1.00)]
+
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.addLines(points.map { CGPoint(x: rect.minX + $0.x * rect.width, y: rect.minY + $0.y * rect.height) })
+        path.closeSubpath()
+        return path
     }
 }
 

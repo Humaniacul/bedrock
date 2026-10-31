@@ -602,8 +602,9 @@ struct WarmLastWord: View {
         let words = text.split(separator: " ", omittingEmptySubsequences: false)
         let head = words.dropLast().joined(separator: " ")
         let last = String(words.last ?? "")
-        (Text(head.isEmpty ? "" : head + " ").foregroundStyle(BedrockColor.inkPrimary)
-         + Text(last).foregroundStyle(warm ? BedrockColor.emberGlow : BedrockColor.inkPrimary))
+        let lead = Text(verbatim: head.isEmpty ? "" : head + " ").foregroundStyle(BedrockColor.inkPrimary)
+        let end = Text(verbatim: last).foregroundStyle(warm ? BedrockColor.emberGlow : BedrockColor.inkPrimary)
+        Text("\(lead)\(end)")
             .font(font)
             .tracking(BedrockLine.title.tracking)
             .lineSpacing(BedrockLine.title.lineSpacing)
@@ -775,8 +776,6 @@ struct SafariView: UIViewControllerRepresentable {
         let configuration = SFSafariViewController.Configuration()
         configuration.entersReaderIfAvailable = false
         let controller = SFSafariViewController(url: url, configuration: configuration)
-        controller.preferredControlTintColor = UIColor(BedrockColor.emberGlow)
-        controller.preferredBarTintColor = UIColor(BedrockColor.bgBase)
         controller.dismissButtonStyle = .done
         controller.delegate = context.coordinator
         return controller
