@@ -1,4 +1,6 @@
+import Combine
 import SwiftUI
+import UIKit
 
 /// The frame every onboarding screen sits in (COMPONENTS.md).
 ///
@@ -37,8 +39,12 @@ struct OnboardingScaffold<Content: View, Footer: View, Accessory: View>: View {
     /// router so the horizon and the bar's fill move between screens instead of
     /// fading with them. The scaffold keeps their space.
     @Environment(\.sharedOnboardingChrome) private var sharedChrome
+    @Environment(\.onboardingFillsHeight) private var fillsHeight
+    @Environment(\.onboardingScrollAnchor) private var scrollAnchor
     @State private var contentUnderFooter = false
     @State private var viewportHeight: CGFloat = 0
+    @State private var keyboardHeight: CGFloat = 0
+    @State private var scrollPosition = ScrollPosition(edge: .top)
 
     init(screen: ScreenID,
          chapter: Chapter? = nil,
@@ -78,13 +84,22 @@ struct OnboardingScaffold<Content: View, Footer: View, Accessory: View>: View {
                 VStack(spacing: 0) {
                     Color.clear.frame(height: contentTop + shift)
                     scrollingContent
-                    footerArea(bottomInset: insets.bottom)
+                    footerArea(bottomInset: max(insets.bottom, keyboardHeight))
                 }
 
                 chrome(shift: shift)
             }
         }
-        .ignoresSafeArea(.container)
+        // Laid out over the whole screen, keyboard included: the footer's bottom
+        // padding is the safe area or the keyboard, whichever is taller, so the
+        // primary rides just above the keyboard and nothing is subtracted twice.
+        .ignoresSafeArea()
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillChangeFrameNotification)) { note in
+            keyboardChanged(note)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { note in
+            keyboardChanged(note, hiding: true)
+        }
         .privacyCover(screen.usesPrivacyCover)
     }
 
@@ -97,15 +112,18 @@ struct OnboardingScaffold<Content: View, Footer: View, Accessory: View>: View {
     private var contentTop: CGFloat {
         if showsBackRow { return Space.contentTopWithBack }
         if showsChapterBar { return Space.contentTopWithChapter }
-        return BedrockSize.referenceTopInset
+        // S1 places its own stone mark from the top; every other screen without
+        // chrome starts where the chapter bar's screens do.
+        if screen == .s1 || screen == .r1 { return BedrockSize.referenceTopInset }
+        return Space.contentTopWithChapter
     }
 
     private var scrollingContent: some View {
         ScrollView {
-            // At least the visible height, so a screen can push part of its
-            // content down with a Spacer (S1's lower-half text) and still scroll
-            // once it outgrows the screen.
-            FillHeight(minHeight: viewportHeight) {
+            // With `onboardingFillsHeight`, at least the visible height, so a
+            // screen can push part of its content down with a Spacer (S1's
+            // lower-half text) and still scroll once it outgrows the screen.
+            FillHeight(minHeight: fillsHeight ? viewportHeight : 0) {
                 content
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, Space.s6)
@@ -114,6 +132,10 @@ struct OnboardingScaffold<Content: View, Footer: View, Accessory: View>: View {
         }
         .scrollBounceBehavior(.basedOnSize)
         .scrollDismissesKeyboard(.interactively)
+        // A screen with a field low in its content (S7, S13.1, SP1) keeps the
+        // bottom in view when the keyboard shrinks the visible area.
+        .defaultScrollAnchor(scrollAnchor, for: .sizeChanges)
+        .scrollPosition($scrollPosition)
         .onScrollGeometryChange(for: Bool.self) { geometry in
             geometry.visibleRect.maxY < geometry.contentSize.height - 1
         } action: { _, isUnder in
@@ -129,9 +151,10 @@ struct OnboardingScaffold<Content: View, Footer: View, Accessory: View>: View {
             footer
                 .padding(.horizontal, Space.s6)
             // A container, so the 46pt band holds even when there's no accessory
-            // (a frame on EmptyView lays out as nothing).
-            ZStack { footerAccessory }
-                .frame(maxWidth: .infinity, minHeight: Space.primaryBottom)
+            // (a frame on EmptyView lays out as nothing). Over the keyboard the
+            // primary sits just above it, without the band.
+            ZStack { if keyboardHeight == 0 { footerAccessory } }
+                .frame(maxWidth: .infinity, minHeight: keyboardHeight > 0 ? Space.s3 : Space.primaryBottom)
                 .padding(.horizontal, Space.s6)
         }
         .padding(.top, Space.s3)
@@ -171,6 +194,23 @@ struct OnboardingScaffold<Content: View, Footer: View, Accessory: View>: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .top)
+    }
+
+    // MARK: Keyboard
+
+    private func keyboardChanged(_ note: Notification, hiding: Bool = false) {
+        let end = (note.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue ?? .zero
+        let duration = (note.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double) ?? 0.25
+        let screenHeight = UIApplication.shared.connectedScenes
+            .compactMap { ($0 as? UIWindowScene)?.screen.bounds.height }.first ?? end.maxY
+        let height = hiding ? 0 : max(0, screenHeight - end.minY)
+        withAnimation(.easeOut(duration: duration)) { keyboardHeight = height }
+        // Bring the field and what's under it into view once the keyboard settles.
+        guard height > 0, scrollAnchor == .bottom else { return }
+        Task { @MainActor in
+            try? await Task.sleep(for: .seconds(duration))
+            withAnimation(BedrockMotion.expand) { scrollPosition.scrollTo(edge: .bottom) }
+        }
     }
 
     // MARK: Insets
@@ -233,6 +273,11 @@ struct OnboardingBackdrop: View {
 extension EnvironmentValues {
     /// Set by `FirstLightView`: the backdrop and chapter bar are drawn above the screens.
     @Entry var sharedOnboardingChrome = false
+    /// S1: the content is at least the screen's height, so a Spacer can push the
+    /// text into the lower half. Off elsewhere, where content sits from the top.
+    @Entry var onboardingFillsHeight = false
+    /// Where the content stays pinned when the visible area changes size.
+    @Entry var onboardingScrollAnchor: UnitPoint? = nil
 }
 
 extension OnboardingScaffold where Accessory == EmptyView {

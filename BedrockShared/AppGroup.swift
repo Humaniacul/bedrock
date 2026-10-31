@@ -30,7 +30,8 @@ enum AppGroup {
         static let nudgesEnabled = "triggers.nudgesEnabled"      // Bool — opt-in to local danger-window check-ins
         static let onboardingComplete = "onboarding.complete"   // Bool — first-run flow finished
         static let onboardingProgress = "onboarding.progress"   // Data — encoded resume snapshot (cleared on complete)
-        static let firstLight = "onboarding.firstLight"         // Data — encoded FirstLightState (written on every screen change)
+        static let firstLight = "onboarding.firstLight"
+        static let homeHeadlineShown = "home.headlineShown"     // Bool — Home's first headline carved once         // Data — encoded FirstLightState (written on every screen change)
         static let userWord = "user.word"                        // String — the S7 word; Home, Intercept and the shield show it
         static let shieldCloses = "shield.closes"                // Int — shield “Close” taps, sent on the next app open (count only)
         static let premiumEntitlement = "paywall.premium"       // Bool — premium active (mirrors StoreKit; §8)

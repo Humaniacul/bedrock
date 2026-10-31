@@ -149,6 +149,7 @@ struct WordScreen: View {
             PrimaryButton(title: OnbCopy.string("onb.s7.primary"), isEnabled: word != nil,
                           disabledHint: OnbCopy.string("onb.s7.error")) { save() }
         }
+        .environment(\.onboardingScrollAnchor, choosingOwn ? .bottom : nil)
         .onAppear(perform: restore)
         .onChange(of: selection) { _, _ in fieldFocused = choosingOwn }
     }

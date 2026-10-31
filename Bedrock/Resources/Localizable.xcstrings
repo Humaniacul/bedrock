@@ -397,6 +397,18 @@
         }
       }
     },
+    "onb.home.crack": {
+      "comment": "Home under a cracked stone: note · link.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A slip cracked the stone. It never took a day away. · Repair it"
+          }
+        }
+      }
+    },
     "onb.home.first_headline": {
       "comment": "Home · Day 1. The wall is standing. · First headline.",
       "extractionState": "manual",
@@ -4201,6 +4213,18 @@
         }
       }
     },
+    "onb.sp1.offline": {
+      "comment": "SP1: the server couldn't be reached.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Can’t reach Bedrock right now. Check your connection and try again."
+          }
+        }
+      }
+    },
     "onb.sp1.primary": {
       "comment": "SP1 · Someone asked you · Primary.",
       "extractionState": "manual",
@@ -4473,6 +4497,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Supporting someone else? · Enter their code"
+          }
+        }
+      }
+    },
+    "onb.sp_home.own_wall": {
+      "comment": "Supporter home, for a supporter without their own wall: hint · link.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Want a wall of your own? · Build my wall"
           }
         }
       }

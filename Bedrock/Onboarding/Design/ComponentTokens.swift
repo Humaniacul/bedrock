@@ -19,6 +19,8 @@ extension BedrockColor {
     /// HorizonGlow core · ASSUMED: ember at 55%, fading to clear. Replaced by the
     /// `HorizonGlow` image asset when one is added (ASSETS.md).
     static let horizonCore = ember.opacity(0.55)
+    /// The carved word once it cools: chalk in the cut · ASSUMED.
+    static let engraving = Color(hex: 0xD9D1C5, opacity: 0.82)
 }
 
 // MARK: - Size
@@ -122,7 +124,7 @@ enum BedrockSize {
     static let digitRing: CGFloat = 76
     /// Pixel scale for the Picture in Picture frames.
     static let digitWindowScale: CGFloat = 3
-    static let keypadKey: CGFloat = 72
+    static let keypadKey: CGFloat = 68
 
     // Screens
     /// S7: one word, up to 14 characters.
@@ -265,6 +267,8 @@ extension BedrockTiming {
     /// S12: the late-night block shows from 22:00 to 04:59.
     static let lateNightStart = 22
     static let lateNightEnd = 5
+    /// S13.3B: a beat before the first practice digit's clock starts · ASSUMED.
+    static let practiceLeadIn: Double = 1.2
     /// Wall test: give up on the background check after this long.
     static let wallTestTimeout: Double = 12
 }

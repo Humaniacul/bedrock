@@ -38,30 +38,24 @@ struct WallView: View {
 
     var body: some View {
         VStack(spacing: BedrockSize.wallGap * scale) {
-            ZStack(alignment: .top) {
-                Color.clear.frame(height: keystone == .none ? 0 : BedrockSize.wallStone.height * scale)
-                if keystone != .none {
-                    KeystoneShape()
-                        .fill(LinearGradient(colors: [BedrockColor.emberGlow, BedrockColor.ember],
-                                             startPoint: .top, endPoint: .bottom))
-                        .frame(width: BedrockSize.wallHalf * scale, height: BedrockSize.wallStone.height * scale)
-                        .offset(y: keystone == .hovering ? -BedrockSize.keystoneDrop * scale : BedrockSize.wallGap * scale)
-                        .animation(Theme.Motion.reduced(BedrockMotion.lock, when: reduceMotion), value: keystone)
-                }
-            }
-            ForEach(courses, id: \.id) { course in
-                CourseRow(state: course.state, offset: course.offset, scale: scale)
+            ForEach(Array(courses.enumerated()), id: \.element.id) { position, course in
+                // S13.6: the keystone is the top course's centre stone. It hovers
+                // 40pt above its slot, then drops in and Locks.
+                CourseRow(state: course.state, offset: course.offset, scale: scale,
+                          keystone: position == 0 ? keystone : .none)
             }
             Capsule()
                 .fill(BedrockColor.lineStrong)
                 .frame(height: 1)
-                .overlay {
-                    Ellipse()
-                        .fill(RadialGradient(colors: [BedrockColor.emberGlow.opacity(0.55), .clear],
-                                             center: .center, startRadius: 0, endRadius: 140 * scale))
-                        .frame(height: 40 * scale)
-                        .opacity(bloom ? 1 : 0)
-                }
+        }
+        // Ember blooms at the base, behind the stones.
+        .background(alignment: .bottom) {
+            Ellipse()
+                .fill(RadialGradient(colors: [BedrockColor.emberGlow.opacity(0.55), .clear],
+                                     center: .center, startRadius: 0, endRadius: 160 * scale))
+                .frame(height: 56 * scale)
+                .offset(y: 20 * scale)
+                .opacity(bloom ? 1 : 0)
         }
         .frame(width: BedrockSize.wallWidth * scale)
         .offset(y: dip)
@@ -91,6 +85,7 @@ private struct CourseRow: View {
     let state: WallView.Course
     let offset: Bool
     let scale: CGFloat
+    var keystone: WallView.Keystone = .none
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var landed = false
@@ -119,6 +114,10 @@ private struct CourseRow: View {
                         .animation(stoneAnimation(index), value: landed)
                 }
                 .frame(width: width * scale, height: BedrockSize.wallStone.height * scale)
+                .opacity(isKeystoneSlot(index) ? 0 : 1)
+                .overlay {
+                    if isKeystoneSlot(index) { keystoneStone }
+                }
             }
         }
         .onAppear { landed = state == .landed }
@@ -134,6 +133,26 @@ private struct CourseRow: View {
                 }
             }
             landed = landing
+        }
+    }
+
+    private var keystoneIndex: Int { widths.count / 2 }
+
+    private func isKeystoneSlot(_ index: Int) -> Bool {
+        keystone != .none && index == keystoneIndex
+    }
+
+    /// The keystone: ember, a wedge wider at the top, with its empty slot outlined below.
+    private var keystoneStone: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: Radius.sm * scale, style: .continuous)
+                .strokeBorder(BedrockColor.emberDeep, style: StrokeStyle(lineWidth: 1, dash: [3, 3]))
+            KeystoneShape()
+                .fill(LinearGradient(colors: [BedrockColor.emberHot, BedrockColor.emberGlow, BedrockColor.ember],
+                                     startPoint: .top, endPoint: .bottom))
+                .shadow(color: BedrockColor.emberGlow.opacity(keystone == .set ? 0.6 : 0.3), radius: 8 * scale)
+                .offset(y: keystone == .hovering ? -BedrockSize.keystoneDrop * scale : 0)
+                .animation(reduceMotion ? nil : BedrockMotion.lock, value: keystone)
         }
     }
 

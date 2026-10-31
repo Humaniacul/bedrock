@@ -64,6 +64,7 @@ struct ArrivalScreen: View {
                 .bedrockAppear(.rise, delay: 1.35)
             }
         }
+        .environment(\.onboardingFillsHeight, true)
     }
 
     private func start() {
@@ -84,7 +85,7 @@ struct ScreenTimeScreen: View {
     @State private var approved = false
 
     var body: some View {
-        OnboardingScaffold(.s2, flow: flow) {
+        OnboardingScaffold(.s2, flow: flow, back: false) {
             VStack(alignment: .leading, spacing: Space.s8) {
                 ScreenHeading(eyebrow: OnbCopy.string("onb.s2.eyebrow"),
                               headline: OnbCopy.string("onb.s2.headline"),
@@ -196,7 +197,7 @@ struct ScreenTimeDeclinedScreen: View {
     @State private var approved = false
 
     var body: some View {
-        OnboardingScaffold(.s2_d, flow: flow) {
+        OnboardingScaffold(.s2_d, flow: flow, back: false) {
             VStack(alignment: .leading, spacing: Space.s8) {
                 ScreenHeading(eyebrow: OnbCopy.string("onb.s2_d.eyebrow"),
                               headline: OnbCopy.string(settingsState ? "onb.s2_d.settings_headline" : "onb.s2_d.headline"),
@@ -327,7 +328,7 @@ struct WallUpScreen: View {
     private var stages: [WallStage] { hasApps ? [.web, .apps, .schedule] : [.web, .schedule] }
 
     var body: some View {
-        OnboardingScaffold(.s3, flow: flow) {
+        OnboardingScaffold(.s3, flow: flow, back: false) {
             VStack(alignment: .leading, spacing: Space.s7) {
                 heading
                 WallView(web: web, apps: hasApps ? apps : nil, schedule: schedule)
@@ -626,7 +627,7 @@ struct WallTestScreen: View {
     @State private var flash = false
 
     var body: some View {
-        OnboardingScaffold(.s4, flow: flow) {
+        OnboardingScaffold(.s4, flow: flow, back: false) {
             VStack(alignment: .leading, spacing: 0) {
                 heading
                     .id(result == .checking || result == .rebuilding ? Result.ready : result)

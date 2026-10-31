@@ -12,6 +12,8 @@ final class FirstLightFlow {
         case firstRun
         /// From Home's status chip or a premium feature: S10 → S12, then setup.
         case upgrade
+        /// The “decide tomorrow” reminder: straight to S12, then setup.
+        case paywall
         /// After a purchase whose setup isn't finished: S13.1 (or S13.5A).
         case finishSetup
         /// The person who holds the key: SP1 → SP4.
@@ -24,6 +26,9 @@ final class FirstLightFlow {
 
     let mode: Mode
     private let onFinish: (Ending) -> Void
+    /// Side runs (upgrade, setup, supporter, rebuild) borrow the saved state and
+    /// hand the person's own place in first run back when they end.
+    private let firstRunPlace: (screen: String, history: [String])?
 
     private(set) var state: FirstLightState {
         didSet { if state != oldValue { state.save() } }
@@ -44,6 +49,7 @@ final class FirstLightFlow {
         self.onFinish = onFinish
         var loaded = FirstLightState.load() ?? FirstLightState()
         let now = Date.now
+        firstRunPlace = mode == .firstRun ? nil : (loaded.screen, loaded.history)
 
         switch mode {
         case .firstRun:
@@ -65,6 +71,9 @@ final class FirstLightFlow {
         case .upgrade:
             loaded.history = []
             loaded.screen = ScreenID.s10.rawValue
+        case .paywall:
+            loaded.history = []
+            loaded.screen = (RemoteConfig.strictModeSupported ? ScreenID.s12 : .s12u).rawValue
         case .finishSetup:
             loaded.history = []
             loaded.screen = (loaded.realRunStarted ? ScreenID.s13_5a : .s13_1).rawValue
@@ -76,6 +85,14 @@ final class FirstLightFlow {
             loaded.history = []
             loaded.screen = ScreenID.s2.rawValue
         }
+        #if DEBUG
+        // Open at one screen for testing: SIMCTL_CHILD_BEDROCK_DEBUG_SCREEN=s13_6.
+        if let raw = ProcessInfo.processInfo.environment["BEDROCK_DEBUG_SCREEN"], ScreenID(rawValue: raw) != nil {
+            unsetenv("BEDROCK_DEBUG_SCREEN")
+            loaded.screen = raw
+            toast = nil
+        }
+        #endif
         loaded.lastActiveAt = now
         state = loaded
         state.save()
@@ -99,12 +116,20 @@ final class FirstLightFlow {
     /// supporter run, back leaves the flow.
     func back() {
         guard let previous = state.history.popLast() else {
-            if mode != .firstRun { onFinish(.cancelled) }
+            if mode != .firstRun { end(.cancelled) }
             return
         }
         goingForward = false
         dawnOverride = nil
         state.screen = previous
+    }
+
+    private func end(_ ending: Ending) {
+        if let firstRunPlace {
+            state.screen = firstRunPlace.screen
+            state.history = firstRunPlace.history
+        }
+        onFinish(ending)
     }
 
     func update(_ change: (inout FirstLightState) -> Void) {
@@ -113,12 +138,12 @@ final class FirstLightFlow {
 
     /// After S4: on to the You chapter, or Home when only the wall was being rebuilt.
     func afterWallTest() {
-        if mode == .rebuildWall { onFinish(.home) } else { go(.s5) }
+        if mode == .rebuildWall { end(.home) } else { go(.s5) }
     }
 
     /// After S2-D's “Continue without the wall” or B2.
     func withoutWall() {
-        if mode == .rebuildWall { onFinish(.cancelled) } else { go(.s5) }
+        if mode == .rebuildWall { end(.cancelled) } else { go(.s5) }
     }
 
     /// Where the person goes after S8: the Lock chapter, or straight Home when
@@ -134,14 +159,14 @@ final class FirstLightFlow {
 
     /// After the paywall's free path (S12 or S12U).
     func afterFreeChoice() {
-        if mode == .upgrade { onFinish(.home); return }
+        if mode == .upgrade || mode == .paywall { end(.home); return }
         toNotificationsOrRehearsal()
     }
 
     /// After setup is sealed (S13.6).
     func afterSealed() {
         switch mode {
-        case .upgrade, .finishSetup: onFinish(.home)
+        case .upgrade, .paywall, .finishSetup: end(.home)
         default: toNotificationsOrRehearsal()
         }
     }
@@ -164,7 +189,7 @@ final class FirstLightFlow {
         state.history = []
         state.screen = ScreenID.home.rawValue
         AppGroup.defaults.set(true, forKey: AppGroup.Key.onboardingComplete)
-        onFinish(.home)
+        end(.home)
     }
 
     /// Finish later (S4–S11): save the place and go Home with a card to come back.
@@ -172,17 +197,17 @@ final class FirstLightFlow {
         track(.finishLater)
         state.finishedLater = true
         state.lastActiveAt = .now
-        onFinish(.home)
+        end(.home)
     }
 
     func endSupporter() {
         state.supporterPaired = true
-        onFinish(.supporterHome)
+        end(.supporterHome)
     }
 
     /// Leave an upgrade, setup or supporter run without finishing it (close, or back from its first screen).
     func leave() {
-        onFinish(mode == .firstRun ? .home : .cancelled)
+        end(mode == .firstRun ? .home : .cancelled)
     }
 
     // MARK: Analytics
@@ -252,6 +277,7 @@ extension ScreenID {
         case .s11: (.lock, 1)
         case .s13_1: (.begin, 0.25)
         case .s14: (.begin, 0.75)
+        case .s15: (.begin, 1)
         default: nil
         }
     }

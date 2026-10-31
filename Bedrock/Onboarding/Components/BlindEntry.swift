@@ -435,7 +435,7 @@ struct PracticeKeypad: View {
     private let rows: [[Character?]] = [["1", "2", "3"], ["4", "5", "6"], ["7", "8", "9"], [nil, "0", nil]]
 
     var body: some View {
-        VStack(spacing: Space.s3) {
+        VStack(spacing: Space.s2) {
             ForEach(rows.indices, id: \.self) { row in
                 HStack(spacing: Space.s5) {
                     ForEach(rows[row].indices, id: \.self) { column in

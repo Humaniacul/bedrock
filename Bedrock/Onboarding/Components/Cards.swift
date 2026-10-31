@@ -72,6 +72,9 @@ struct OptionCard: View {
 struct PlanCard: View {
     let title: String
     let price: String
+    /// The StoreKit price inside `price` (“$69.99” in “$69.99 a year”), set
+    /// large; the period around it stays small so the line fits the card.
+    var priceEmphasis: String? = nil
     let subline: String
     let badge: String?
     let isSelected: Bool
@@ -87,9 +90,10 @@ struct PlanCard: View {
                 Text(title)
                     .font(BedrockFont.headline)
                     .foregroundStyle(BedrockColor.inkPrimary)
-                Text(price)
-                    .font(BedrockFont.planPrice)
+                priceText
                     .foregroundStyle(BedrockColor.inkPrimary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
                     .transaction { $0.animation = nil } // prices never animate
                 Text(subline)
                     .font(BedrockFont.footnote)
@@ -129,6 +133,17 @@ struct PlanCard: View {
     }
 }
 
+extension PlanCard {
+    private var priceText: Text {
+        guard let emphasis = priceEmphasis, let range = price.range(of: emphasis) else {
+            return Text(price).font(BedrockFont.planPrice)
+        }
+        return Text(String(price[..<range.lowerBound])).font(BedrockFont.subhead.weight(.medium))
+            + Text(emphasis).font(BedrockFont.planPrice)
+            + Text(String(price[range.upperBound...])).font(BedrockFont.subhead.weight(.medium))
+    }
+}
+
 // MARK: - HomeCard
 
 /// Home (COMPONENTS.md): title + subtitle, a chevron when tappable, × to dismiss
@@ -149,10 +164,13 @@ struct HomeCard: View {
                         Text(title)
                             .font(BedrockFont.headline)
                             .foregroundStyle(BedrockColor.inkPrimary)
-                        Text(subtitle)
-                            .font(BedrockFont.subhead)
-                            .foregroundStyle(BedrockColor.inkSecondary)
+                        if !subtitle.isEmpty {
+                            Text(subtitle)
+                                .font(BedrockFont.subhead)
+                                .foregroundStyle(BedrockColor.inkSecondary)
+                        }
                     }
+                    .fixedSize(horizontal: false, vertical: true)
                     .multilineTextAlignment(.leading)
                     Spacer(minLength: 0)
                     if action != nil {

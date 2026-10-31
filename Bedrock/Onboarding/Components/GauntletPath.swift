@@ -49,6 +49,7 @@ struct GauntletPath: View {
                         .foregroundStyle(BedrockColor.inkPrimary)
                         .opacity(isLit ? 1 : BedrockSize.pathLabelDim)
                         .multilineTextAlignment(.leading)
+                        .fixedSize(horizontal: false, vertical: true)
                     if isOpen {
                         Text(steps[index].detail)
                             .font(BedrockFont.subhead)

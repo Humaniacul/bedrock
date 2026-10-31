@@ -114,6 +114,8 @@ struct ChoiceChipGrid: View {
                 }
             }
         }
+        // Each row is as tall as its tallest chip, and no taller.
+        .fixedSize(horizontal: false, vertical: true)
     }
 
     /// Option indices, chunked into grid rows.

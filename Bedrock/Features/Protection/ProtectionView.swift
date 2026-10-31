@@ -26,6 +26,8 @@ struct ProtectionView: View {
                             authPrompt
                         case .denied:
                             authDenied
+                        case .restricted:
+                            authRestricted
                         case .unavailable:
                             authUnavailable
                         }
@@ -173,6 +175,17 @@ struct ProtectionView: View {
                 UIApplication.shared.open(url)
             }
         }
+    }
+
+    /// B2: a parent, school or company manages Screen Time on this iPhone.
+    private var authRestricted: some View {
+        gateCard(
+            icon: "lock.shield",
+            title: OnbCopy.string("onb.b2.headline"),
+            body: OnbCopy.string("onb.b2.body"),
+            actionTitle: nil,
+            action: nil
+        )
     }
 
     private var authUnavailable: some View {

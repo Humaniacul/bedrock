@@ -92,8 +92,10 @@ struct StoneView: View {
                 ForEach(Array(word.uppercased().enumerated()), id: \.offset) { index, letter in
                     let local = elapsed - Double(index) * BedrockMotion.carveStaggerWord
                     let cool = min(max(local / BedrockTiming.carveCool, 0), 1)
+                    // Glows ember, then cools to a chalked engraving: pale letters with
+                    // a dark lip above, so the word stays readable on the stone.
                     Text(String(letter))
-                        .foregroundStyle(cool >= 1 ? AnyShapeStyle(BedrockColor.stoneDark) : AnyShapeStyle(BedrockColor.emberHot.mix(with: BedrockColor.stoneDark, by: cool)))
+                        .foregroundStyle(BedrockColor.emberHot.mix(with: BedrockColor.engraving, by: cool))
                         .shadow(color: BedrockColor.emberGlow.opacity((1 - cool) * 0.8), radius: (1 - cool) * 6)
                         .opacity(local >= 0 ? 1 : 0)
                 }
@@ -102,8 +104,8 @@ struct StoneView: View {
             .tracking(BedrockLine.stoneWord.tracking)
             .lineLimit(1)
             .minimumScaleFactor(0.4)
-            // Engraved: a light lower edge under dark letters reads as cut into stone.
-            .shadow(color: BedrockColor.inkPrimary.opacity(0.22), radius: 0, x: 0, y: 1)
+            // Cut into the stone: a dark upper lip over the chalked letters.
+            .shadow(color: BedrockColor.stoneDark.opacity(0.9), radius: 0, x: 0, y: -1)
             .padding(.horizontal, size.width * 0.14)
         }
         .offset(y: -size.height * 0.08)
@@ -122,8 +124,8 @@ struct StoneView: View {
         StoneSeam()
             .trim(from: 0, to: seamDrawn)
             .stroke(seamLit ? AnyShapeStyle(BedrockColor.ember) : AnyShapeStyle(BedrockColor.stoneDark),
-                    style: StrokeStyle(lineWidth: seamLit ? 1.6 : 1.2, lineCap: .round, lineJoin: .round))
-            .shadow(color: seamLit ? BedrockColor.emberGlow.opacity(0.6) : .clear, radius: 3)
+                    style: StrokeStyle(lineWidth: seamLit ? 1.3 : 1.1, lineCap: .round, lineJoin: .miter))
+            .shadow(color: seamLit ? BedrockColor.emberGlow.opacity(0.5) : .clear, radius: 2.5)
             .accessibilityHidden(true)
     }
 
@@ -196,10 +198,13 @@ struct StoneOutline: Shape {
 /// The hairline crack across the base (S8's demo seam, Home after a slip).
 private struct StoneSeam: Shape {
     func path(in rect: CGRect) -> Path {
+        // A real crack: it starts at the left edge, wanders right with small,
+        // uneven turns, and dies out before the far side.
         let points: [CGPoint] = [
-            CGPoint(x: 0.05, y: 0.80), CGPoint(x: 0.22, y: 0.77), CGPoint(x: 0.31, y: 0.83),
-            CGPoint(x: 0.47, y: 0.79), CGPoint(x: 0.58, y: 0.85), CGPoint(x: 0.74, y: 0.81),
-            CGPoint(x: 0.94, y: 0.86),
+            CGPoint(x: 0.04, y: 0.84), CGPoint(x: 0.13, y: 0.835), CGPoint(x: 0.19, y: 0.855),
+            CGPoint(x: 0.27, y: 0.848), CGPoint(x: 0.33, y: 0.87), CGPoint(x: 0.41, y: 0.862),
+            CGPoint(x: 0.46, y: 0.878), CGPoint(x: 0.55, y: 0.874), CGPoint(x: 0.61, y: 0.888),
+            CGPoint(x: 0.70, y: 0.884),
         ]
         var path = Path()
         path.addLines(points.map { CGPoint(x: rect.minX + $0.x * rect.width, y: rect.minY + $0.y * rect.height) })

@@ -2,6 +2,13 @@ import SwiftUI
 
 @main
 struct BedrockApp: App {
+    init() {
+        // Before the first scene: tapped notifications route through here, and
+        // analytics is on only when a PostHog key is configured.
+        NotificationRouter.shared.install()
+        Analytics.configureIfPossible()
+    }
+
     @State private var services = AppServices.makeLive()
     // Bumped after an account wipe to rebuild the whole view tree from a fresh
     // (empty) service graph — which lands the user back in onboarding.

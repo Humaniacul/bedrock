@@ -22,7 +22,7 @@ struct LetterScreen: View {
     private var canSave: Bool { text.trimmingCharacters(in: .whitespacesAndNewlines).count >= Self.minimum }
 
     var body: some View {
-        OnboardingScaffold(.s13_1, flow: flow, back: false) {
+        OnboardingScaffold(.s13_1, flow: flow, back: flow.mode != .firstRun) {
             VStack(alignment: .leading, spacing: Space.s6) {
                 ScreenHeading(eyebrow: OnbCopy.string("onb.s13_1.eyebrow"),
                               headline: OnbCopy.string("onb.s13_1.headline"),
@@ -59,6 +59,7 @@ struct LetterScreen: View {
             }
         }
         .onChange(of: text) { _, new in flow.update { $0.letterDraft = new } }
+        .environment(\.onboardingScrollAnchor, focused ? .bottom : nil)
     }
 
     private var starters: some View {
@@ -267,7 +268,7 @@ struct PracticeScreen: View {
 
     var body: some View {
         OnboardingScaffold(.s13_3b, flow: flow) {
-            VStack(spacing: Space.s7) {
+            VStack(spacing: Space.s5) {
                 Group {
                     if done {
                         VStack(spacing: Space.s4) {
@@ -325,6 +326,12 @@ struct PracticeScreen: View {
     /// counts as an error and shows again.
     private func showDigit() async {
         guard !done else { return }
+        if step == 0 && errors == 0 && progress == 0 {
+            // A beat to read the screen before the first digit's clock starts.
+            digitVisible = false
+            try? await Task.sleep(for: .seconds(BedrockTiming.practiceLeadIn))
+            guard !Task.isCancelled else { return }
+        }
         digitVisible = true
         progress = 0
         let index = step % code.count
@@ -338,7 +345,10 @@ struct PracticeScreen: View {
             try? await Task.sleep(for: .milliseconds(50))
         }
         guard !Task.isCancelled else { return }
-        miss()
+        // Not typed in time: it counts toward slowing the real run, and the
+        // same digit shows again. No error copy: nothing was typed wrong.
+        errors += 1
+        progress = 0
         // Show the same digit again.
         try? await Task.sleep(for: .milliseconds(400))
         guard !Task.isCancelled else { return }
@@ -402,7 +412,7 @@ struct RealRunScreen: View {
                 ScreenHeading(headline: OnbCopy.string("onb.s13_4b.headline"),
                               text: OnbCopy.string(runner?.style == .appSwitching
                                                    ? "onb.s13_4b.fallback_body" : "onb.s13_4b.body"))
-                if let runner { DigitWindowStage(runner: runner, reduceMotion: reduceMotion) }
+                if let runner { DigitWindowStage(runner: runner, reduceMotion: reduceMotion, start: begin) }
                 NumberedSteps(keys: (1...7).map { "onb.s13_4b.step_\($0)" }, bold: iOSLabels)
                 Text(OnbCopy.string("onb.s13_4b.note"))
                     .font(BedrockFont.footnote)
@@ -464,6 +474,7 @@ struct RealRunScreen: View {
 private struct DigitWindowStage: View {
     let runner: BlindEntryRunner
     let reduceMotion: Bool
+    let start: () -> Void
 
     var body: some View {
         ZStack {
@@ -477,6 +488,9 @@ private struct DigitWindowStage: View {
                             reduceMotion: reduceMotion)
         }
         .frame(maxWidth: .infinity)
+        .contentShape(Rectangle())
+        // “Tap to start” in Bedrock does what the button does.
+        .onTapGesture { if runner.phase == .ready && !runner.session.hasStarted { start() } }
         .accessibilityHidden(true)
     }
 }
@@ -485,16 +499,30 @@ private struct DigitWindowStage: View {
 private struct BlindEntryFooter: View {
     let runner: BlindEntryRunner
     let primary: String
+    /// S13.5A already has its ember action (“iOS accepted it”): this one is quiet.
+    var secondary = false
     let begin: () -> Void
+
+    private var busy: Bool {
+        runner.phase == .starting || (runner.session.isRunning && runner.style != .pictureInPicture)
+    }
 
     var body: some View {
         if runner.style == .appSwitching && runner.session.state == .between {
-            PrimaryButton(title: OnbCopy.string("onb.s13_4b.fallback_switch")) { runner.switchToSettings() }
+            button(OnbCopy.string("onb.s13_4b.fallback_switch")) { runner.switchToSettings() }
         } else {
-            PrimaryButton(title: primary,
-                          isLoading: runner.phase == .starting || (runner.session.isRunning && runner.style != .pictureInPicture)) {
-                begin()
-            }
+            button(primary) { begin() }
+                .disabled(busy)
+                .opacity(busy && secondary ? BedrockMotion.pressedOpacity : 1)
+        }
+    }
+
+    @ViewBuilder private func button(_ title: String, action: @escaping () -> Void) -> some View {
+        if secondary {
+            TextButton(title: title, fullWidth: true, action: action)
+                .overlay(Capsule().strokeBorder(BedrockColor.lineStrong))
+        } else {
+            PrimaryButton(title: title, isLoading: busy, action: action)
         }
     }
 }
@@ -510,14 +538,15 @@ struct CodeCheckScreen: View {
     @State private var runner: BlindEntryRunner?
 
     var body: some View {
-        OnboardingScaffold(.s13_5a, flow: flow, back: false) {
+        OnboardingScaffold(.s13_5a, flow: flow, back: flow.mode != .firstRun) {
             VStack(alignment: .leading, spacing: Space.s6) {
                 ScreenHeading(eyebrow: OnbCopy.string("onb.s13_5a.eyebrow"),
                               headline: OnbCopy.string("onb.s13_5a.headline"),
                               text: OnbCopy.string("onb.s13_5a.body"))
                 if let runner {
-                    DigitWindowStage(runner: runner, reduceMotion: reduceMotion)
-                    BlindEntryFooter(runner: runner, primary: OnbCopy.string("onb.s13_4b.show_digits")) { runner.open() }
+                    DigitWindowStage(runner: runner, reduceMotion: reduceMotion) { runner.open() }
+                    BlindEntryFooter(runner: runner, primary: OnbCopy.string("onb.s13_4b.show_digits"),
+                                     secondary: true) { runner.open() }
                 }
             }
         } footer: {
@@ -644,9 +673,9 @@ struct SealedScreen: View {
     var body: some View {
         OnboardingScaffold(.s13_6, flow: flow, back: false) {
             VStack(alignment: .leading, spacing: Space.s8) {
+                Spacer(minLength: 0)
                 WallView(web: .landed, apps: nil, schedule: .landed, keystone: keystone)
                     .frame(maxWidth: .infinity)
-                    .padding(.top, Space.s6)
                 VStack(alignment: .leading, spacing: 0) {
                     Text(OnbCopy.string("onb.s13_6.eyebrow"))
                         .bedrockEyebrow()
@@ -668,10 +697,12 @@ struct SealedScreen: View {
                         .fixedSize(horizontal: false, vertical: true)
                         .padding(.top, Space.s4)
                 }
+                Spacer(minLength: 0)
             }
         } footer: {
             PrimaryButton(title: OnbCopy.string("onb.s13_6.primary")) { flow.afterSealed() }
         }
+        .environment(\.onboardingFillsHeight, true)
         .task {
             flow.track(.strictSealed((flow.state.keyHolder ?? .bedrock).analytics))
             try? await Task.sleep(for: .seconds(0.25))

@@ -29,7 +29,8 @@ final class BlindEntryRunner {
 
     init(code: String, slow: Bool, passes: Int, preview: Bool) {
         let pip = !preview && RemoteConfig.blindEntryUsesPictureInPicture && DigitPictureInPicture.isSupported
-        style = preview ? .inApp : (pip ? .pictureInPicture : .appSwitching)
+        let style: Style = preview ? .inApp : (pip ? .pictureInPicture : .appSwitching)
+        self.style = style
         session = BlindEntrySession(code: code, slow: slow, passes: passes,
                                     pausesBetweenDigits: style == .appSwitching)
         if pip { setUpPictureInPicture() }

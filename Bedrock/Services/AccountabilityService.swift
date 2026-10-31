@@ -26,6 +26,14 @@ struct InviteInfo {
     let url: String
 }
 
+/// What happened when a supporter entered an invite code (SP1).
+enum InviteAcceptance: Equatable {
+    case accepted
+    case alreadyUsed
+    case invalid
+    case unreachable
+}
+
 enum ApprovalOutcome {
     case pending, approved, denied
 }
@@ -49,7 +57,7 @@ protocol AccountabilityService: AnyObject {
 
     func refresh() async
     func createInvite() async -> InviteInfo?
-    func acceptInvite(code: String) async -> Bool
+    func accept(code: String) async -> InviteAcceptance
     func sendDisableReason(_ message: String)
     func reportTamper(_ kind: TamperKind)
 
@@ -67,6 +75,12 @@ protocol AccountabilityService: AnyObject {
     func deleteAccount() async
 }
 
+extension AccountabilityService {
+    func acceptInvite(code: String) async -> Bool {
+        await accept(code: code) == .accepted
+    }
+}
+
 /// No-backend stub — keeps the app running solo. No partner, no network.
 @MainActor
 @Observable
@@ -79,7 +93,7 @@ final class StubAccountabilityService: AccountabilityService {
 
     func refresh() async {}
     func createInvite() async -> InviteInfo? { nil }
-    func acceptInvite(code: String) async -> Bool { false }
+    func accept(code: String) async -> InviteAcceptance { .unreachable }
     func sendDisableReason(_ message: String) {}
     func reportTamper(_ kind: TamperKind) {}
     func requestApproval() async -> [String] { [] }
@@ -135,13 +149,21 @@ final class LiveAccountabilityService: AccountabilityService {
         } catch { return nil }
     }
 
-    func acceptInvite(code: String) async -> Bool {
+    func accept(code: String) async -> InviteAcceptance {
         do {
             try await api.ensureRegistered(displayName: nil)
             _ = try await api.acceptInvite(code: code)
             await refresh()
-            return true
-        } catch { return false }
+            return .accepted
+        } catch APIClient.APIError.http(let status, _) {
+            switch status {
+            case 409: return .alreadyUsed
+            case 400, 404, 410: return .invalid
+            default: return .unreachable
+            }
+        } catch {
+            return .unreachable
+        }
     }
 
     func sendDisableReason(_ message: String) {

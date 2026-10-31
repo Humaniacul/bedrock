@@ -16,5 +16,11 @@
 	<array>
 		<string>Default</string>
 	</array>
+	<!-- Universal links: thebedrock.app/join/CODE opens SP1 (needs the
+	     apple-app-site-association file on the site, website/.well-known/). -->
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>applinks:thebedrock.app</string>
+	</array>
 </dict>
 </plist>

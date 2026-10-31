@@ -9,13 +9,13 @@ struct SettingsView: View {
 
     @State private var editingLetter = false
     @State private var editingContact = false
-    @State private var showPaywall = false
+    @State private var launch: FlowLaunch?
     @State private var restoring = false
     @State private var showDeleteConfirm = false
     @State private var deleting = false
 
     private let manageSubscriptionsURL = URL(string: "https://apps.apple.com/account/subscriptions")!
-    private let supportURL = URL(string: "mailto:support@thebedrock.app")!
+    private let supportURL = URL(string: "mailto:\(Support.email)")!
     private let privacyURL = URL(string: "https://thebedrock.app/privacy")!
     private let termsURL = URL(string: "https://thebedrock.app/terms")!
 
@@ -42,7 +42,10 @@ struct SettingsView: View {
             .navigationTitle("Settings")
             .sheet(isPresented: $editingLetter) { LetterEditor(text: letterBinding) }
             .sheet(isPresented: $editingContact) { SupportContactSheet() }
-            .sheet(isPresented: $showPaywall) { PaywallView(context: .gate(.general)) }
+            .fullScreenCover(item: $launch) { launch in
+                FirstLightView(mode: launch.mode) { _ in self.launch = nil }
+                    .environment(services)
+            }
             .alert("Delete everything?", isPresented: $showDeleteConfirm) {
                 Button("Delete", role: .destructive) { deleteAccount() }
                 Button("Cancel", role: .cancel) {}
@@ -145,7 +148,7 @@ struct SettingsView: View {
                     Divider().overlay(Theme.hairline)
                     actionRow("creditcard", "Manage subscription") { openURL(manageSubscriptionsURL) }
                 } else {
-                    Button("Unlock Premium") { showPaywall = true }
+                    Button("See Strict Mode") { launch = FlowLaunch(mode: .upgrade) }
                         .buttonStyle(.bedrockPrimary)
                 }
                 Divider().overlay(Theme.hairline)
@@ -277,7 +280,7 @@ struct SettingsView: View {
         guard !restoring else { return }
         restoring = true
         Task {
-            _ = await services.paywall.restore()
+            _ = await services.paywall.restorePurchases()
             restoring = false
         }
     }
@@ -305,7 +308,12 @@ struct SettingsView: View {
                     services.paywall.debugSetPremium(!services.paywall.isPremium)
                 }
                 Divider().overlay(Theme.hairline)
-                actionRow("arrow.counterclockwise", "Replay onboarding") { OnboardingModel.debugReset() }
+                actionRow("arrow.counterclockwise", "Replay onboarding") {
+                    FirstLightState.clear()
+                    AppGroup.defaults.set(false, forKey: AppGroup.Key.onboardingComplete)
+                    AppGroup.defaults.set(false, forKey: AppGroup.Key.homeHeadlineShown)
+                    services.onWipe?()
+                }
                 Divider().overlay(Theme.hairline)
                 actionRow("chart.bar", "Seed trigger samples") { services.triggers.debugSeedSamples() }
             }

@@ -28,15 +28,18 @@ enum PremiumFeature {
 struct PremiumGate: ViewModifier {
     @Environment(AppServices.self) private var services
     let feature: PremiumFeature
-    @State private var showPaywall = false
+    @State private var launch: FlowLaunch?
 
     func body(content: Content) -> some View {
         if services.paywall.isPremium {
             content
         } else {
-            PremiumLocked(feature: feature) { showPaywall = true }
-                .sheet(isPresented: $showPaywall) {
-                    PaywallView(context: .gate(feature))
+            // Never a paywall pop-up: the way in is the same road as Home's
+            // status chip (S10 → S11 → S12, then setup).
+            PremiumLocked(feature: feature) { launch = FlowLaunch(mode: .upgrade) }
+                .fullScreenCover(item: $launch) { launch in
+                    FirstLightView(mode: launch.mode) { _ in self.launch = nil }
+                        .environment(services)
                 }
         }
     }
@@ -69,7 +72,7 @@ struct PremiumLocked: View {
                     .font(Theme.Typography.callout)
                     .foregroundStyle(Theme.textSecondary)
                     .multilineTextAlignment(.center)
-                Button("Unlock with Premium") { onUnlock() }
+                Button("See how Strict Mode works") { onUnlock() }
                     .buttonStyle(.bedrockPrimary)
                     .padding(.top, Theme.Spacing.sm)
                 Text("Basic blocking stays free, always.")

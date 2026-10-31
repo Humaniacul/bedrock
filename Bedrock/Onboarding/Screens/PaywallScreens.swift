@@ -143,7 +143,7 @@ struct PaywallScreen: View {
         let subline = offer.trialDays != nil ? fill("onb.s12.yearly_trial", offer) : fill("onb.s12.yearly_plain", offer)
         let badge = offer.trialDays != nil ? fill("onb.s12.yearly_badge", offer) : nil
         let title = OnbCopy.string("onb.s12.yearly_title")
-        return PlanCard(title: title, price: price, subline: subline, badge: badge,
+        return PlanCard(title: title, price: price, priceEmphasis: offer.price, subline: subline, badge: badge,
                         isSelected: plan == .yearly,
                         accessibilityText: planLabel(title, price, badge ?? subline)) { select(.yearly) }
     }

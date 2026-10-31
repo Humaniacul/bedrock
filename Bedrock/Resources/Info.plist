@@ -18,8 +18,30 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<!-- Obsidian from the first frame: no white flash before S1. -->
 	<key>UILaunchScreen</key>
-	<dict/>
+	<dict>
+		<key>UIColorName</key>
+		<string>LaunchBackground</string>
+	</dict>
+	<!-- S13.4B: the floating digit window over Settings is Picture in Picture,
+	     which needs the "Audio, AirPlay, and Picture in Picture" mode. No audio plays. -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>audio</string>
+	</array>
+	<!-- bedrock://join/CODE, the fallback for thebedrock.app/join/CODE (SP1). -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.thebedrock.app</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>bedrock</string>
+			</array>
+		</dict>
+	</array>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
@@ -50,6 +72,15 @@
 	     Get it from RevenueCat → Project → API keys → Apple App Store. -->
 	<key>REVENUECAT_API_KEY</key>
 	<string>appl_kwXBLpuSYnbSZTIqBrpYxQsCepK</string>
+	<!-- S4's test page. Its domain goes behind the web filter on S3, and its
+	     <title> carries "Bedrock wall test" so the background check can tell it
+	     opened (website/test/index.html). -->
+	<key>BEDROCK_WALL_TEST_URL</key>
+	<string>https://test.thebedrock.app</string>
+	<!-- PostHog project key (EU). Empty = analytics off; nothing leaves the phone.
+	     The project key is public by design (like the RevenueCat SDK key). -->
+	<key>POSTHOG_API_KEY</key>
+	<string></string>
 	<!-- Allow http to localhost for local backend development. Production uses
 	     https (Railway), so this affects only on-device/simulator dev. -->
 	<key>NSAppTransportSecurity</key>

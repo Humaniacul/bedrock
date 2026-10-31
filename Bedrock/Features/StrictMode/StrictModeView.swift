@@ -5,11 +5,12 @@ import SwiftUI
 struct StrictModeView: View {
     @Environment(AppServices.self) private var services
 
-    @State private var pendingModel: PasscodeModel?
     @State private var gauntlet: GauntletCoordinator?
     @State private var showSleepBlocked = false
     @State private var editingLetter = false
-    @State private var showPaywall = false
+    /// Strict Mode is set up through First Light: the path, who holds the key,
+    /// the paywall if needed, then blind entry (S10 → S11 → S12 → S13).
+    @State private var launch: FlowLaunch?
 
     private var strict: StrictModeService { services.strictMode }
 
@@ -31,19 +32,15 @@ struct StrictModeView: View {
         }
         .navigationTitle("Strict Mode")
         .navigationBarTitleDisplayMode(.large)
-        .sheet(item: $pendingModel) { model in
-            PasscodeSetupView(model: model) {
-                strict.enable(model: model)
-            }
-        }
         .sheet(isPresented: $editingLetter) {
             LetterEditor(text: letterBinding)
         }
         .fullScreenCover(item: $gauntlet) { coordinator in
             DisableGauntletView(coordinator: coordinator)
         }
-        .sheet(isPresented: $showPaywall) {
-            PaywallView(context: .gate(.strictMode))
+        .fullScreenCover(item: $launch) { launch in
+            FirstLightView(mode: launch.mode) { _ in self.launch = nil }
+                .environment(services)
         }
         .alert("Not during the night", isPresented: $showSleepBlocked) {
             Button("OK", role: .cancel) {}
@@ -67,7 +64,7 @@ struct StrictModeView: View {
                     .font(Theme.Typography.callout)
                     .foregroundStyle(Theme.textSecondary)
                     .multilineTextAlignment(.center)
-                Button("Unlock with Premium") { showPaywall = true }
+                Button("See how it works") { launch = FlowLaunch(mode: .upgrade) }
                     .buttonStyle(.bedrockPrimary)
                     .padding(.top, Theme.Spacing.xs)
                 Text("Basic blocking stays free, always.")
@@ -98,52 +95,9 @@ struct StrictModeView: View {
                 }
             }
 
-            Text("Who holds the key?")
-                .font(Theme.Typography.headline)
-                .foregroundStyle(Theme.textPrimary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-
-            modelOption(
-                .partnerHeld,
-                icon: "person.2.fill",
-                title: "A partner holds it",
-                detail: "Someone you trust sets the passcode. Strongest lock."
-            )
-            modelOption(
-                .appHeld,
-                icon: "lock.rotation",
-                title: "Bedrock holds it",
-                detail: "The app generates a code you won't remember. Good for going solo."
-            )
+            Button("Set up Strict Mode") { launch = FlowLaunch(mode: .upgrade) }
+                .buttonStyle(.bedrockPrimary)
         }
-    }
-
-    private func modelOption(_ model: PasscodeModel, icon: String, title: String, detail: String) -> some View {
-        Button {
-            pendingModel = model
-        } label: {
-            GlassCard {
-                HStack(spacing: Theme.Spacing.lg) {
-                    Image(systemName: icon)
-                        .font(.system(size: 24))
-                        .foregroundStyle(Theme.accent)
-                        .frame(width: 32)
-                    VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
-                        Text(title)
-                            .font(Theme.Typography.body)
-                            .foregroundStyle(Theme.textPrimary)
-                        Text(detail)
-                            .font(Theme.Typography.caption)
-                            .foregroundStyle(Theme.textSecondary)
-                    }
-                    Spacer(minLength: 0)
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(Theme.textSecondary)
-                }
-            }
-        }
-        .buttonStyle(.plain)
     }
 
     // MARK: - Enabled

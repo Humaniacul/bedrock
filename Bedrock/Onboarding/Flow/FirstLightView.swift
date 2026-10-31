@@ -99,24 +99,25 @@ private struct FirstLightStage: View {
         }
     }
 
-    /// The chapter bar at 58pt, moved with the safe area like the scaffold's chrome.
+    /// The chapter bar at 58pt on the reference: 4pt above the top safe-area
+    /// edge, so it keeps its place under the Dynamic Island on every iPhone.
     private var chapterBar: some View {
-        GeometryReader { proxy in
+        ZStack(alignment: .top) {
             if let bar = flow.current.chapterBar {
                 ChapterBar(current: bar.chapter, progress: bar.progress)
                     .padding(.horizontal, Space.s6)
-                    .padding(.top, BedrockSize.chapterBarTop + proxy.safeAreaInsets.top - BedrockSize.referenceTopInset)
+                    .offset(y: BedrockSize.chapterBarTop - BedrockSize.referenceTopInset)
                     .transition(.opacity)
             }
         }
-        .ignoresSafeArea(.container)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .animation(BedrockMotion.reducedFade, value: flow.current.chapterBar == nil)
         .allowsHitTesting(false)
     }
 
     /// B9: “Preview” under the Dynamic Island for the rest of the flow.
     @ViewBuilder private var previewTag: some View {
-        if flow.state.previewMode {
+        if flow.state.previewMode && flow.current.chapter != .supporter {
             PreviewTag()
                 .offset(y: -BedrockSize.previewTagLift)
                 .allowsHitTesting(false)
