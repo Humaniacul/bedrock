@@ -64,7 +64,6 @@ struct ArrivalScreen: View {
                 .bedrockAppear(.rise, delay: 1.35)
             }
         }
-        .environment(\.onboardingFillsHeight, true)
     }
 
     private func start() {
@@ -678,8 +677,7 @@ struct WallTestScreen: View {
         case .held:
             ScreenHeading(eyebrow: OnbCopy.string("onb.s4.eyebrow"),
                           headline: OnbCopy.string("onb.s4.held_headline"),
-                          headlineFont: BedrockFont.displayXL,
-                          line: BedrockLine.displayXL,
+                          headlineType: .held,
                           text: OnbCopy.string("onb.s4.held_body"))
                 .scaleEffect(heldScale, anchor: .leading)
         case .opened:

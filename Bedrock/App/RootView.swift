@@ -23,16 +23,7 @@ struct RootView: View {
     enum Route: Equatable { case onboarding, supporter, app }
 
     var body: some View {
-        #if DEBUG
-        // Full-screen component previews for screenshots: SIMCTL_CHILD_BEDROCK_GALLERY=<page>.
-        if let gallery = ComponentGallery.requested {
-            gallery
-        } else {
-            app
-        }
-        #else
         app
-        #endif
     }
 
     private var app: some View {

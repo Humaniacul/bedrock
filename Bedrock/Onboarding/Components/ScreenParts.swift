@@ -1,66 +1,77 @@
 import SwiftUI
 
-// Small, repeated pieces of onboarding screens: the heading block, the privacy
-// chip, the crisis link and sheet, the preview tag, the custom-word field.
+// Small, repeated pieces of onboarding screens, as the prototype draws them.
 
 // MARK: - Heading
 
-/// Eyebrow, headline and body in the spec's type styles (most screens).
+/// Eyebrow (12pt under it), headline (16pt under it), body. Most screens.
 struct ScreenHeading: View {
     var eyebrow: String?
+    var eyebrowColor: Color = BedrockColor.inkTertiary
     let headline: String
-    var headlineFont: Font = BedrockFont.title
-    var line: LineSpec = BedrockLine.title
+    var headlineType: PType = .title
+    var headlineGap: CGFloat = Space.s4
     var text: String?
-    /// Carve the headline in (only where the spec asks: S1, “You're in.”, S13.6, Home, SP1).
+    var textType: PType = .body
+    /// Carve the headline in (S1, “You're in.”, S13.6, Home, SP1).
     var carves = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             if let eyebrow {
-                Text(eyebrow)
-                    .bedrockEyebrow()
+                Eyebrow(text: eyebrow, color: eyebrowColor)
                     .padding(.bottom, Space.s3)
             }
             Group {
                 if carves {
-                    CarveText(headline, font: headlineFont)
+                    CarveText(headline, font: .body).ptype(headlineType)
                 } else {
-                    Text(headline).font(headlineFont)
+                    Text(headline).ptype(headlineType)
                 }
             }
-            .tracking(line.tracking)
-            .lineSpacing(line.lineSpacing)
             .foregroundStyle(BedrockColor.inkPrimary)
+            .fixedSize(horizontal: false, vertical: true)
             .accessibilityAddTraits(.isHeader)
             if let text {
                 Text(text)
-                    .font(BedrockFont.body)
-                    .lineSpacing(BedrockLine.body.lineSpacing)
+                    .ptype(textType)
                     .foregroundStyle(BedrockColor.inkSecondary)
-                    .padding(.top, Space.s4)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.top, headlineGap)
             }
         }
-        .fixedSize(horizontal: false, vertical: true)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
-// MARK: - Privacy chip
+/// Mono 11pt medium, +2, uppercase.
+struct Eyebrow: View {
+    let text: String
+    var color: Color = BedrockColor.inkTertiary
 
-/// “Stays on this iPhone” under the S5–S7 grids.
+    var body: some View {
+        Text(text)
+            .ptype(.eyebrow)
+            .textCase(.uppercase)
+            .foregroundStyle(color)
+            .fixedSize(horizontal: false, vertical: true)
+    }
+}
+
+// MARK: - Privacy note
+
+/// “Stays on this iPhone” with an outlined lock: 14pt Ash, 8pt gap.
 struct PrivacyChip: View {
     let text: String
     var accessibilityText: String?
 
     var body: some View {
-        Label {
+        HStack(spacing: Space.s2) {
+            LockOutline()
             Text(text)
-        } icon: {
-            Image(systemName: "lock.fill")
+                .ptype(.notePlain)
+                .foregroundStyle(BedrockColor.inkTertiary)
         }
-        .font(BedrockFont.footnote)
-        .foregroundStyle(BedrockColor.inkTertiary)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(accessibilityText ?? text)
     }
@@ -68,20 +79,22 @@ struct PrivacyChip: View {
 
 // MARK: - Crisis
 
-/// The quiet link to support resources (S8, S12, S15 and elsewhere).
+/// The quiet link to support resources (S8 after setting, S12, S15).
 struct CrisisLink: View {
+    var type: PType = .notePlain
+    var height: CGFloat = BedrockSize.linkHitHeight
     let action: () -> Void
 
     var body: some View {
-        LinkButton(title: OnbCopy.string("onb.s8.crisis_link"), action: action)
+        LinkButton(title: OnbCopy.string("onb.s8.crisis_link"), tone: .tertiary, type: type, height: height, action: action)
+            .frame(maxWidth: .infinity)
             .accessibilityLabel(OnbCopy.string("onb.s8.a11y_crisis_link"))
     }
 }
 
-/// Region-aware support resources (COMPONENTS.md › BedrockSheet). 988 only where
-/// it works — the US (Suicide & Crisis Lifeline) and Canada (Suicide Crisis
-/// Helpline). Elsewhere, “Find a helpline in your country” comes first. Always
-/// ends with the emergency line.
+/// Region-aware support resources. 988 only where it works (US, Canada);
+/// elsewhere “Find a helpline in your country” comes first. Rows in a raised
+/// group, then the emergency line, then Close.
 struct CrisisSheetContent: View {
     let close: () -> Void
 
@@ -89,61 +102,77 @@ struct CrisisSheetContent: View {
 
     /// onb.s8.crisis_sheet: title · body · 988 (US) · helpline · emergency · Close
     private var parts: [String] { OnbCopy.parts("onb.s8.crisis_sheet") }
-
     private var region: String? { Locale.current.region?.identifier }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Space.s4) {
+        VStack(alignment: .leading, spacing: 0) {
             Text(part(1))
-                .font(BedrockFont.body)
+                .ptype(.body)
                 .foregroundStyle(BedrockColor.inkSecondary)
                 .fixedSize(horizontal: false, vertical: true)
-            VStack(spacing: Space.s2) {
-                if let line = lifelineRow {
-                    row(line, systemImage: "phone.fill") { openURL(URL(string: "tel:988")!) }
+                .padding(.bottom, Space.s5)
+            VStack(spacing: 0) {
+                if let lifeline {
+                    row(lifeline) { openURL(URL(string: "tel:988")!) }
+                    Rectangle().fill(BedrockColor.lineStrong).frame(height: 1)
                 }
-                row(part(3), systemImage: "globe") { openURL(URL(string: "https://findahelpline.com")!) }
+                row(split(part(3))) { openURL(URL(string: "https://findahelpline.com")!) }
             }
+            .background(RoundedRectangle(cornerRadius: 18, style: .continuous).fill(BedrockColor.bgRaised))
+            .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).strokeBorder(BedrockColor.lineStrong, lineWidth: 1))
+            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
             Text(part(4))
-                .font(BedrockFont.subhead)
+                .ptype(PType(face: .sans, size: 15, line: 21, relativeTo: .subheadline))
                 .foregroundStyle(BedrockColor.inkPrimary)
                 .fixedSize(horizontal: false, vertical: true)
-            TextButton(title: part(5), fullWidth: true, action: close)
+                .padding(.top, Space.s4)
+                .padding(.bottom, 22)
+            SheetButton(title: part(5), action: close)
         }
     }
 
-    private var lifelineRow: String? {
+    /// “Call or text 988 (Suicide & Crisis Lifeline, US)” → title and detail.
+    private var lifeline: (String, String)? {
         switch region {
-        case "US": part(2)
-        case "CA": OnbCopy.string("onb.s8.crisis_988_canada")
+        case "US": split(part(2))
+        case "CA": split(OnbCopy.string("onb.s8.crisis_988_canada"))
         default: nil
         }
+    }
+
+    private func split(_ line: String) -> (String, String) {
+        guard let open = line.firstIndex(of: "("), let close = line.lastIndex(of: ")"), open < close else { return (line, "") }
+        return (String(line[..<open]).trimmingCharacters(in: .whitespaces),
+                String(line[line.index(after: open)..<close]))
     }
 
     private func part(_ index: Int) -> String {
         parts.indices.contains(index) ? parts[index] : ""
     }
 
-    private func row(_ title: String, systemImage: String, action: @escaping () -> Void) -> some View {
+    private func row(_ text: (String, String), action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack(spacing: Space.s3) {
-                Image(systemName: systemImage)
-                    .foregroundStyle(BedrockColor.emberGlow)
-                    .accessibilityHidden(true)
-                Text(title)
-                    .font(BedrockFont.subhead.weight(.medium))
-                    .foregroundStyle(BedrockColor.inkPrimary)
-                    .multilineTextAlignment(.leading)
-                    .fixedSize(horizontal: false, vertical: true)
-                Spacer(minLength: 0)
-                Image(systemName: "chevron.right")
-                    .font(BedrockFont.footnote.weight(.semibold))
-                    .foregroundStyle(BedrockColor.inkTertiary)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(text.0)
+                        .ptype(.rowTitle)
+                        .foregroundStyle(BedrockColor.inkPrimary)
+                    if !text.1.isEmpty {
+                        Text(text.1)
+                            .ptype(.notePlain)
+                            .foregroundStyle(BedrockColor.inkSecondary)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                ProtoIcon.chevronRight
+                    .stroke(BedrockColor.inkTertiary, style: StrokeStyle(lineWidth: 1.8, lineCap: .round, lineJoin: .round))
+                    .frame(width: 8, height: 14)
                     .accessibilityHidden(true)
             }
-            .padding(Space.s4)
-            .frame(minHeight: BedrockSize.textButtonHeight)
-            .background(RoundedRectangle(cornerRadius: Radius.md, style: .continuous).fill(BedrockColor.bgRaised))
+            .padding(.horizontal, Space.s4)
+            .padding(.vertical, 10)
+            .frame(minHeight: 64)
+            .contentShape(Rectangle())
         }
         .buttonStyle(PressOpacityStyle())
     }
@@ -153,26 +182,25 @@ struct CrisisSheetContent: View {
 
 // MARK: - Preview tag
 
-/// B9: “Preview” pinned under the Dynamic Island for the rest of the flow.
+/// B9: “PREVIEW” under the Dynamic Island for the rest of the flow.
 struct PreviewTag: View {
     var body: some View {
         Text(OnbCopy.string("onb.b9.tag"))
-            .bedrockEyebrow(color: BedrockColor.emberGlow)
-            .padding(.horizontal, Space.s3)
-            .padding(.vertical, Space.s1)
-            .background(Capsule().fill(BedrockColor.bgBase))
-            .background(Capsule().fill(BedrockColor.emberWash))
-            .overlay(Capsule().strokeBorder(BedrockColor.emberDeep))
-            .dynamicTypeSize(...DynamicTypeSize.large) // chrome under the Dynamic Island
+            .ptype(.previewTag)
+            .textCase(.uppercase)
+            .foregroundStyle(BedrockColor.inkPrimary)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 3)
+            .background(Capsule().fill(BedrockColor.emberDeep))
+            .dynamicTypeSize(...DynamicTypeSize.large)
             .accessibilityLabel(OnbCopy.string("onb.b9.a11y_tag"))
     }
 }
 
 // MARK: - Custom word field
 
-/// S7's “My own word”: one word, letters only (any script), 14 characters,
-/// trimmed and lower-cased for display. Pasting a phrase keeps the first word
-/// and shows the error until it's one word.
+/// S7's “My own word”: 52pt, ember edge, raised fill, 17pt. One word, letters
+/// only (any script), 14 characters, trimmed and lower-cased for display.
 struct CustomWordField: View {
     @Binding var text: String
     let placeholder: String
@@ -183,10 +211,10 @@ struct CustomWordField: View {
     var isValid: Bool { Self.validate(text) != nil }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Space.s2) {
-            TextField(placeholder, text: $text)
+        VStack(alignment: .leading, spacing: 6) {
+            TextField("", text: $text, prompt: Text(placeholder).foregroundStyle(BedrockColor.inkTertiary))
                 .focused(focused)
-                .font(BedrockFont.body)
+                .ptype(PType(face: .sans, size: 17, line: nil))
                 .foregroundStyle(BedrockColor.inkPrimary)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
@@ -195,18 +223,18 @@ struct CustomWordField: View {
                 .frame(minHeight: BedrockSize.chipMinHeight)
                 .background(RoundedRectangle(cornerRadius: Radius.md, style: .continuous).fill(BedrockColor.bgRaised))
                 .overlay(RoundedRectangle(cornerRadius: Radius.md, style: .continuous)
-                    .strokeBorder(focused.wrappedValue ? BedrockColor.ember : BedrockColor.lineStrong, lineWidth: 1))
+                    .strokeBorder(BedrockColor.ember, lineWidth: 1.5))
                 .accessibilityLabel(OnbCopy.string("onb.s7.a11y_field"))
                 .onChange(of: text) { _, new in
                     if new.count > BedrockSize.wordMaxLength { text = String(new.prefix(BedrockSize.wordMaxLength)) }
                 }
             if showsError {
                 Text(error)
-                    .font(BedrockFont.footnote)
+                    .ptype(.footnotePlain)
                     .foregroundStyle(BedrockColor.emberGlow)
             }
             Text(helper)
-                .font(BedrockFont.footnote)
+                .ptype(.footnotePlain)
                 .foregroundStyle(BedrockColor.inkTertiary)
         }
     }

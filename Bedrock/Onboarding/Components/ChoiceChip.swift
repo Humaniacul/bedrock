@@ -1,15 +1,15 @@
 import SwiftUI
 
-/// One selectable chip (S5, S6, S7). Min 52pt, radius 14. Unselected: `bgSurface`
-/// with a `lineStrong` border. Selected: `emberWash`, an `ember` border and an
-/// ember tick. VoiceOver: a toggle button with the selected trait.
+/// One answer chip (S5, S6, S7): min 52pt, radius 14, 16pt label left, a 20pt
+/// tick circle right. Chosen: ember border, `emberWash` fill, the tick filled
+/// ember with a dark check. Unchosen: `lineStrong` border, `bgSurface`, an empty
+/// tick with a `lineMuted` edge.
 struct ChoiceChip: View {
     let title: String
     let isSelected: Bool
-    /// “No pattern yet”, “Not sure”: picking it clears the others. Enforced by
-    /// `ChoiceChipGrid`; carried here so the chip can say so if a screen needs it.
+    /// “No pattern yet”, “Not sure”: picking it clears the others.
     var isExclusive = false
-    /// Single choice (S7): read as a radio, “Steady, 1 of 7.”, and the label warms to ember.
+    /// Single choice (S7): read as a radio, “Steady, 1 of 7.”
     var position: (index: Int, count: Int)? = nil
     let action: () -> Void
 
@@ -20,26 +20,27 @@ struct ChoiceChip: View {
         Button(action: tap) {
             HStack(spacing: Space.s2) {
                 Text(title)
-                    .font(BedrockFont.chip)
-                    .foregroundStyle(position != nil && isSelected ? BedrockColor.emberGlow : BedrockColor.inkPrimary)
-                    .animation(BedrockMotion.ember, value: isSelected)
+                    .ptype(.callout)
+                    .foregroundStyle(BedrockColor.inkPrimary)
                     .multilineTextAlignment(.leading)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                Image(systemName: "checkmark")
-                    .font(BedrockFont.chip.weight(.semibold))
-                    .foregroundStyle(BedrockColor.emberGlow)
-                    .opacity(isSelected ? 1 : 0) // space kept, so nothing reflows
+                Circle()
+                    .fill(isSelected ? BedrockColor.ember : .clear)
+                    .overlay(Circle().strokeBorder(isSelected ? BedrockColor.ember : BedrockColor.lineMuted, lineWidth: 1))
+                    .overlay {
+                        ProtoIcon.check
+                            .stroke(BedrockColor.bgBase, style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round))
+                            .frame(width: 10, height: 10)
+                    }
+                    .frame(width: 20, height: 20)
                     .accessibilityHidden(true)
             }
             .padding(.horizontal, Space.s4)
-            .padding(.vertical, Space.s3)
             .frame(maxWidth: .infinity, minHeight: BedrockSize.chipMinHeight, maxHeight: .infinity)
-            .background(
-                RoundedRectangle(cornerRadius: Radius.md, style: .continuous)
-                    .fill(isSelected ? BedrockColor.emberWash : BedrockColor.bgSurface))
-            .overlay(
-                RoundedRectangle(cornerRadius: Radius.md, style: .continuous)
-                    .strokeBorder(isSelected ? BedrockColor.ember : BedrockColor.lineStrong, lineWidth: 1))
+            .background(RoundedRectangle(cornerRadius: Radius.md, style: .continuous)
+                .fill(isSelected ? BedrockColor.emberWash : BedrockColor.bgSurface))
+            .overlay(RoundedRectangle(cornerRadius: Radius.md, style: .continuous)
+                .strokeBorder(isSelected ? BedrockColor.ember : BedrockColor.lineStrong, lineWidth: 1))
             .animation(BedrockMotion.chipColour, value: isSelected)
             .contentShape(RoundedRectangle(cornerRadius: Radius.md, style: .continuous))
             .scaleEffect(bump)
@@ -51,7 +52,6 @@ struct ChoiceChip: View {
     private func tap() {
         BedrockHaptics.select()
         action()
-        // S5: the chip scales 0.96 → 1 on select. Reduce Motion: colour only.
         guard !reduceMotion else { return }
         var instant = Transaction()
         instant.disablesAnimations = true
@@ -80,15 +80,16 @@ private struct ChipAccessibility: ViewModifier {
     }
 }
 
-/// Chips in a two-column grid with 10pt gaps; one column at accessibility text
-/// sizes. Chips Strata in on arrival. Exclusive options clear the rest, and
-/// picking any other option clears them.
+/// Chips in a two-column grid with 10pt gaps (one column at accessibility text
+/// sizes), Strata in on arrival. Exclusive options clear the rest.
 struct ChoiceChipGrid: View {
     let options: [String]
     @Binding var selection: Set<String>
     var exclusive: Set<String> = []
     /// One choice at most (S7).
     var single = false
+    /// For radio labels when the grid is part of a longer list (S7's own word).
+    var totalCount: Int? = nil
 
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
@@ -103,7 +104,7 @@ struct ChoiceChipGrid: View {
                         ChoiceChip(title: option,
                                    isSelected: selection.contains(option),
                                    isExclusive: exclusive.contains(option),
-                                   position: single ? (index + 1, options.count) : nil) {
+                                   position: single ? (index + 1, totalCount ?? options.count) : nil) {
                             toggle(option)
                         }
                         .bedrockAppear(.strata(index: index))
@@ -114,11 +115,9 @@ struct ChoiceChipGrid: View {
                 }
             }
         }
-        // Each row is as tall as its tallest chip, and no taller.
         .fixedSize(horizontal: false, vertical: true)
     }
 
-    /// Option indices, chunked into grid rows.
     private var rows: [[Int]] {
         stride(from: 0, to: options.count, by: columns).map { start in
             Array(start..<min(start + columns, options.count))
@@ -136,31 +135,3 @@ struct ChoiceChipGrid: View {
         }
     }
 }
-
-#if DEBUG
-struct ChoiceChipPreview: View {
-    private let options = OnbCopy.parts("onb.s5.chips")
-    @State private var selection: Set<String>
-
-    init() {
-        let options = OnbCopy.parts("onb.s5.chips")
-        _selection = State(initialValue: Set(options.prefix(2)))
-    }
-
-    var body: some View {
-        PreviewPage {
-            ScrollView {
-                ChoiceChipGrid(options: options, selection: $selection,
-                               exclusive: Set(options.suffix(1)))
-                    .padding(.vertical, Space.s10)
-            }
-            .scrollBounceBehavior(.basedOnSize)
-        }
-    }
-}
-
-#Preview("ChoiceChip · 402×874", traits: .fixedLayout(width: 402, height: 874)) { ChoiceChipPreview().onboardingPreview(.standard) }
-#Preview("ChoiceChip · Reduce Motion", traits: .fixedLayout(width: 402, height: 874)) { ChoiceChipPreview().onboardingPreview(.reduceMotion) }
-#Preview("ChoiceChip · AX5", traits: .fixedLayout(width: 402, height: 874)) { ChoiceChipPreview().onboardingPreview(.ax5) }
-#Preview("ChoiceChip · AX5 · Reduce Motion", traits: .fixedLayout(width: 402, height: 874)) { ChoiceChipPreview().onboardingPreview(.ax5ReduceMotion) }
-#endif

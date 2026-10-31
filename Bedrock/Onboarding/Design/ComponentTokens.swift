@@ -16,11 +16,6 @@ extension BedrockColor {
     static let primaryDisabledFill = Color(hex: 0x1F1C1A)
     /// PrimaryButton baked ember shadow · ASSUMED opacity.
     static let primaryShadow = ember.opacity(0.35)
-    /// HorizonGlow core · ASSUMED: ember at 55%, fading to clear. Replaced by the
-    /// `HorizonGlow` image asset when one is added (ASSETS.md).
-    static let horizonCore = ember.opacity(0.55)
-    /// The carved word once it cools: chalk in the cut · ASSUMED.
-    static let engraving = Color(hex: 0xD9D1C5, opacity: 0.82)
 }
 
 // MARK: - Size
@@ -62,6 +57,9 @@ enum BedrockSize {
 
     // Background (ASSETS.md)
     static let horizonGlow = CGSize(width: 724, height: 560)
+    static let horizonWidthFactor: CGFloat = 1.8
+    static let horizonHeight: CGFloat = 560
+    static let horizonLift: CGFloat = 20
     static let noiseOpacity: Double = 0.06
 
     /// The five-point stone mark (PrivacyCover, S1, SP1) · ASSUMED size.

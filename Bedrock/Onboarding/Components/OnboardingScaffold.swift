@@ -2,77 +2,35 @@ import Combine
 import SwiftUI
 import UIKit
 
-/// The frame every onboarding screen sits in (COMPONENTS.md).
+/// The frame every onboarding screen sits in, as the prototype lays it out on
+/// the 402 × 874 reference (62pt top safe area, 34pt bottom):
 ///
-/// - Chapter bar at 58pt; back and Finish later (or close) at 92pt; content from
-///   112pt, or 150pt when the back row shows; 24pt side margins. Points are from
-///   the top of the 402 × 874 reference and move with the safe area elsewhere.
-/// - The footer (the primary area) is pinned so the primary button sits 46pt above
-///   the home indicator. `footerAccessory` (a link or text button, e.g. S1's link,
-///   S4's Skip) sits in that 46pt band, under the primary.
-/// - Background: `bgBase`, then `HorizonGlow` at the screen's Dawn level, then the
-///   noise tile at 6%.
-/// - Content scrolls when it doesn't fit (accessibility text sizes); while there's
-///   content under the footer, a 1pt `lineSubtle` hairline shows on top of it.
-/// - On S5–S8, S13.1 and Home, `PrivacyCover` covers the window when the scene goes
-///   inactive.
+/// - Content starts at 112pt, or 150pt when back or Finish later shows; 24pt sides.
+///   S1 and SP1 start at 0 and place their own stone mark.
+/// - The footer (the buttons) is pinned so its last control ends 46pt (40pt on
+///   some screens) above the screen's bottom edge; over the keyboard it rides
+///   12pt above it. Content scrolls when it doesn't fit, with a hairline over it.
+/// - Back and Finish later at 92pt, 20pt in from the sides; close at 58pt.
+/// - The backdrop and chapter bar are drawn once by `FirstLightView`.
 ///
-/// The spec's `showsBack` / `showsFinishLater` / `showsClose` are the presence of
-/// `onBack` / `onFinishLater` / `onClose`, so a control can't show without an action.
-struct OnboardingScaffold<Content: View, Footer: View, Accessory: View>: View {
+/// Points are reference points; on other iPhones they move with the safe area.
+struct OnboardingScaffold<Content: View, Footer: View>: View {
     let screen: ScreenID
-    var chapter: Chapter?
-    /// 0–1 within `chapter`.
-    var chapterProgress: Double
-    /// Overrides the screen's Dawn level (S3 rises a step once the wall is up; S9 dims).
-    var dawn: Double?
+    let top: CGFloat
+    let bottom: CGFloat
     var onBack: (() -> Void)?
     var onFinishLater: (() -> Void)?
     var onClose: (() -> Void)?
-    /// VoiceOver label for close: what it does (S12: “Keep the free wall”).
     var closeLabel: String
     let content: Content
     let footer: Footer
-    let footerAccessory: Accessory
 
-    /// Inside `FirstLightView`, the backdrop and chapter bar are drawn once by the
-    /// router so the horizon and the bar's fill move between screens instead of
-    /// fading with them. The scaffold keeps their space.
     @Environment(\.sharedOnboardingChrome) private var sharedChrome
-    @Environment(\.onboardingFillsHeight) private var fillsHeight
     @Environment(\.onboardingScrollAnchor) private var scrollAnchor
     @State private var contentUnderFooter = false
-    @State private var viewportHeight: CGFloat = 0
-    @State private var viewportWidth: CGFloat = 0
+    @State private var viewport: CGSize = .zero
     @State private var keyboardHeight: CGFloat = 0
     @State private var scrollPosition = ScrollPosition(edge: .top)
-
-    init(screen: ScreenID,
-         chapter: Chapter? = nil,
-         chapterProgress: Double = 0,
-         dawn: Double? = nil,
-         onBack: (() -> Void)? = nil,
-         onFinishLater: (() -> Void)? = nil,
-         onClose: (() -> Void)? = nil,
-         closeLabel: String = "",
-         @ViewBuilder content: () -> Content,
-         @ViewBuilder footer: () -> Footer,
-         @ViewBuilder footerAccessory: () -> Accessory) {
-        self.screen = screen
-        self.chapter = chapter
-        self.chapterProgress = chapterProgress
-        self.dawn = dawn
-        self.onBack = onBack
-        self.onFinishLater = onFinishLater
-        self.onClose = onClose
-        self.closeLabel = closeLabel
-        self.content = content()
-        self.footer = footer()
-        self.footerAccessory = footerAccessory()
-    }
-
-    private var showsChapterBar: Bool { chapter?.barLabelKey != nil }
-    private var showsBackRow: Bool { onBack != nil || onFinishLater != nil || onClose != nil }
 
     var body: some View {
         GeometryReader { proxy in
@@ -80,20 +38,21 @@ struct OnboardingScaffold<Content: View, Footer: View, Accessory: View>: View {
             let shift = insets.top - BedrockSize.referenceTopInset
 
             ZStack(alignment: .top) {
-                if !sharedChrome { background }
+                if !sharedChrome {
+                    OnboardingBackdrop(level: Dawn.level(for: screen.dawnScreen))
+                }
 
                 VStack(spacing: 0) {
-                    Color.clear.frame(height: contentTop + shift)
+                    Color.clear.frame(height: max(top + shift, 0))
                     scrollingContent
-                    footerArea(bottomInset: max(insets.bottom, keyboardHeight))
+                    footerArea(bottomEdge: footerBottom(insets))
                 }
 
                 chrome(shift: shift)
             }
         }
-        // Laid out over the whole screen, keyboard included: the footer's bottom
-        // padding is the safe area or the keyboard, whichever is taller, so the
-        // primary rides just above the keyboard and nothing is subtracted twice.
+        // Laid out over the whole screen, keyboard included: the footer's own
+        // bottom padding handles the keyboard, so nothing is subtracted twice.
         .ignoresSafeArea()
         .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillChangeFrameNotification)) { note in
             keyboardChanged(note)
@@ -106,34 +65,18 @@ struct OnboardingScaffold<Content: View, Footer: View, Accessory: View>: View {
 
     // MARK: Layers
 
-    private var background: some View {
-        OnboardingBackdrop(level: dawn ?? Dawn.level(for: screen.dawnScreen))
-    }
-
-    private var contentTop: CGFloat {
-        if showsBackRow { return Space.contentTopWithBack }
-        if showsChapterBar { return Space.contentTopWithChapter }
-        // S1 places its own stone mark from the top; every other screen without
-        // chrome starts where the chapter bar's screens do.
-        if screen == .s1 || screen == .r1 { return BedrockSize.referenceTopInset }
-        return Space.contentTopWithChapter
-    }
-
     private var scrollingContent: some View {
         ScrollView {
-            // With `onboardingFillsHeight`, at least the visible height, so a
-            // screen can push part of its content down with a Spacer (S1's
-            // lower-half text) and still scroll once it outgrows the screen.
-            if fillsHeight {
-                FillHeight(minHeight: viewportHeight, width: viewportWidth) { paddedContent }
-            } else {
-                paddedContent
+            // At least the visible height, so a screen's Spacers can centre an
+            // illustration or push a block down, as the prototype's flex column does.
+            FillHeight(minHeight: viewport.height, width: viewport.width) {
+                content
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, ProtoLayout.side)
             }
         }
         .scrollBounceBehavior(.basedOnSize)
         .scrollDismissesKeyboard(.interactively)
-        // A screen with a field low in its content (S7, S13.1, SP1) keeps the
-        // bottom in view when the keyboard shrinks the visible area.
         .defaultScrollAnchor(scrollAnchor, for: .sizeChanges)
         .scrollPosition($scrollPosition)
         .onScrollGeometryChange(for: Bool.self) { geometry in
@@ -142,63 +85,52 @@ struct OnboardingScaffold<Content: View, Footer: View, Accessory: View>: View {
             contentUnderFooter = isUnder
         }
         .onScrollGeometryChange(for: CGSize.self) { $0.containerSize } action: { _, size in
-            viewportHeight = size.height
-            viewportWidth = size.width
+            viewport = size
         }
     }
 
-    private var paddedContent: some View {
-        content
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, Space.s6)
-            .padding(.bottom, Space.s6)
-    }
-
-    private func footerArea(bottomInset: CGFloat) -> some View {
-        VStack(spacing: 0) {
-            footer
-                .padding(.horizontal, Space.s6)
-            // A container, so the 46pt band holds even when there's no accessory
-            // (a frame on EmptyView lays out as nothing). Over the keyboard the
-            // primary sits just above it, without the band.
-            ZStack { if keyboardHeight == 0 { footerAccessory } }
-                .frame(maxWidth: .infinity, minHeight: keyboardHeight > 0 ? Space.s3 : Space.primaryBottom)
-                .padding(.horizontal, Space.s6)
-        }
-        .padding(.top, Space.s3)
-        .padding(.bottom, bottomInset)
-        .overlay(alignment: .top) {
-            if contentUnderFooter {
-                Rectangle()
-                    .fill(BedrockColor.lineSubtle)
-                    .frame(height: 1)
-                    .accessibilityHidden(true)
+    private func footerArea(bottomEdge: CGFloat) -> some View {
+        VStack(spacing: 0) { footer }
+            .padding(.horizontal, ProtoLayout.side)
+            .padding(.top, Space.s2)
+            .padding(.bottom, bottomEdge)
+            .overlay(alignment: .top) {
+                if contentUnderFooter {
+                    Rectangle()
+                        .fill(BedrockColor.lineSubtle)
+                        .frame(height: 1)
+                        .accessibilityHidden(true)
+                }
             }
-        }
+    }
+
+    /// 46pt (or 40pt) above the bottom edge on the reference, moved with the
+    /// home-indicator inset; 12pt above the keyboard when it's up.
+    private func footerBottom(_ insets: Insets) -> CGFloat {
+        if keyboardHeight > 0 { return keyboardHeight + Space.s3 }
+        return max(bottom + insets.bottom - BedrockSize.referenceBottomInset, Space.s4)
     }
 
     private func chrome(shift: CGFloat) -> some View {
         ZStack(alignment: .top) {
-            if let chapter, showsChapterBar, !sharedChrome {
-                ChapterBar(current: chapter, progress: chapterProgress)
-                    .padding(.horizontal, Space.s6)
-                    .padding(.top, BedrockSize.chapterBarTop + shift)
-            }
-            if showsBackRow {
+            if onBack != nil || onFinishLater != nil {
                 HStack(spacing: Space.s2) {
                     if let onBack {
                         GlassCircleButton(kind: .back, accessibilityLabel: OnbCopy.string("onb.common.back"), action: onBack)
                     }
                     Spacer(minLength: 0)
-                    if let onFinishLater {
-                        FinishLaterButton(action: onFinishLater)
-                    }
-                    if let onClose {
-                        GlassCircleButton(kind: .close, accessibilityLabel: closeLabel, action: onClose)
-                    }
+                    if let onFinishLater { FinishLaterButton(action: onFinishLater) }
                 }
-                .padding(.horizontal, Space.s6)
-                .padding(.top, BedrockSize.backRowTop + shift)
+                .padding(.horizontal, ProtoLayout.controlSide)
+                .padding(.top, ProtoLayout.controlTop + shift)
+            }
+            if let onClose {
+                HStack {
+                    Spacer()
+                    GlassCircleButton(kind: .close, accessibilityLabel: closeLabel, action: onClose)
+                }
+                .padding(.horizontal, ProtoLayout.controlSide)
+                .padding(.top, ProtoLayout.closeTop + shift)
             }
         }
         .frame(maxWidth: .infinity, alignment: .top)
@@ -224,7 +156,7 @@ struct OnboardingScaffold<Content: View, Footer: View, Accessory: View>: View {
     // MARK: Insets
 
     /// Safe-area insets, or the reference device's when there are none at all
-    /// (a fixed-size canvas preview); any real iPhone has a top inset.
+    /// (a fixed-size preview); any real iPhone has a top inset.
     private struct Insets {
         let top: CGFloat
         let bottom: CGFloat
@@ -238,6 +170,55 @@ struct OnboardingScaffold<Content: View, Footer: View, Accessory: View>: View {
                 bottom = edges.bottom
             }
         }
+    }
+}
+
+extension OnboardingScaffold {
+    /// A First Light screen. Back shows when there's somewhere to go back to;
+    /// Finish later on S4–S11 once the wall is up. Content starts at 150pt with
+    /// either, else 112pt, unless the screen sets its own `top`.
+    init(_ screen: ScreenID,
+         flow: FirstLightFlow,
+         back: Bool = true,
+         top: CGFloat? = nil,
+         bottom: CGFloat = ProtoLayout.bottom,
+         onClose: (() -> Void)? = nil,
+         closeLabel: String = "",
+         @ViewBuilder content: () -> Content,
+         @ViewBuilder footer: () -> Footer) {
+        let canLeave = flow.canGoBack || flow.mode != .firstRun
+        let showsBack = back && canLeave
+        let finishLater = screen.showsFinishLater && flow.mode == .firstRun
+            && (flow.state.wallUp || flow.state.previewMode) && !flow.state.hasNoWall
+        self.screen = screen
+        self.top = top ?? (showsBack || finishLater ? ProtoLayout.topWithBack : ProtoLayout.topWithChapter)
+        self.bottom = bottom
+        self.onBack = showsBack ? { flow.back() } : nil
+        self.onFinishLater = finishLater ? { flow.showsFinishLater = true } : nil
+        self.onClose = onClose
+        self.closeLabel = closeLabel
+        self.content = content()
+        self.footer = footer()
+    }
+}
+
+extension OnboardingScaffold {
+    /// A footer with a secondary control under the primary, 6pt apart.
+    init<Primary: View, Accessory: View>(_ screen: ScreenID,
+                                         flow: FirstLightFlow,
+                                         back: Bool = true,
+                                         top: CGFloat? = nil,
+                                         bottom: CGFloat = ProtoLayout.bottom,
+                                         onClose: (() -> Void)? = nil,
+                                         closeLabel: String = "",
+                                         @ViewBuilder content: () -> Content,
+                                         @ViewBuilder footer: () -> Primary,
+                                         @ViewBuilder footerAccessory: () -> Accessory)
+    where Footer == TupleView<(Primary, Accessory)> {
+        let primary = footer()
+        let accessory = footerAccessory()
+        self.init(screen, flow: flow, back: back, top: top, bottom: bottom, onClose: onClose, closeLabel: closeLabel,
+                  content: content, footer: { primary; accessory })
     }
 }
 
@@ -261,21 +242,18 @@ struct FillHeight: Layout {
     }
 }
 
-/// Obsidian, the horizon glow at a Dawn level, and the noise tile at 6%.
+/// Obsidian, the horizon at a Dawn level, and the noise tile at 6%.
 struct OnboardingBackdrop: View {
     let level: Double
 
     var body: some View {
         ZStack {
             BedrockColor.bgBase
-            Color.clear.overlay(alignment: .bottom) {
-                // Centred on the bottom edge; overlay so its 724pt width never sizes the layout.
-                HorizonGlow(level: level)
-                    .offset(y: BedrockSize.horizonGlow.height / 2)
-            }
+            HorizonGlow(level: level)
             Image("NoiseTile")
                 .resizable(resizingMode: .tile)
                 .opacity(BedrockSize.noiseOpacity)
+                .blendMode(.overlay)
                 .accessibilityHidden(true)
         }
         .ignoresSafeArea()
@@ -285,91 +263,6 @@ struct OnboardingBackdrop: View {
 extension EnvironmentValues {
     /// Set by `FirstLightView`: the backdrop and chapter bar are drawn above the screens.
     @Entry var sharedOnboardingChrome = false
-    /// S1: the content is at least the screen's height, so a Spacer can push the
-    /// text into the lower half. Off elsewhere, where content sits from the top.
-    @Entry var onboardingFillsHeight = false
     /// Where the content stays pinned when the visible area changes size.
     @Entry var onboardingScrollAnchor: UnitPoint? = nil
 }
-
-extension OnboardingScaffold where Accessory == EmptyView {
-    init(screen: ScreenID,
-         chapter: Chapter? = nil,
-         chapterProgress: Double = 0,
-         dawn: Double? = nil,
-         onBack: (() -> Void)? = nil,
-         onFinishLater: (() -> Void)? = nil,
-         onClose: (() -> Void)? = nil,
-         closeLabel: String = "",
-         @ViewBuilder content: () -> Content,
-         @ViewBuilder footer: () -> Footer) {
-        self.init(screen: screen, chapter: chapter, chapterProgress: chapterProgress, dawn: dawn,
-                  onBack: onBack, onFinishLater: onFinishLater, onClose: onClose, closeLabel: closeLabel,
-                  content: content, footer: footer, footerAccessory: { EmptyView() })
-    }
-}
-
-#if DEBUG
-/// The scaffold with chrome on: back, Finish later, the chapter bar, a disabled
-/// primary. S5's copy, so lengths are real; not the S5 screen.
-struct ScaffoldPreview: View {
-    var body: some View {
-        OnboardingScaffold(screen: .s5, chapter: .you, chapterProgress: 0.25,
-                           onBack: {}, onFinishLater: {}) {
-            PreviewHeading(prefix: "onb.s5")
-        } footer: {
-            PrimaryButton(title: OnbCopy.string("onb.s5.primary"), isEnabled: false,
-                          disabledHint: OnbCopy.string("onb.common.pick_at_least_one")) {}
-        }
-    }
-}
-
-/// The scaffold's footer band: a primary with a text button under it. S4's copy.
-struct ScaffoldAccessoryPreview: View {
-    var body: some View {
-        OnboardingScaffold(screen: .s4, chapter: .wall, chapterProgress: 0.75,
-                           onFinishLater: {}) {
-            PreviewHeading(prefix: "onb.s4")
-        } footer: {
-            PrimaryButton(title: OnbCopy.string("onb.s4.primary")) {}
-        } footerAccessory: {
-            TextButton(title: OnbCopy.string("onb.s4.secondary")) {}
-        }
-    }
-}
-
-/// Eyebrow, Title headline and body for a screen prefix, in the spec's type styles.
-struct PreviewHeading: View {
-    let prefix: String
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Text(OnbCopy.string("\(prefix).eyebrow"))
-                .bedrockEyebrow()
-                .padding(.bottom, Space.s3)
-            Text(OnbCopy.string("\(prefix).headline"))
-                .font(BedrockFont.title)
-                .tracking(BedrockLine.title.tracking)
-                .lineSpacing(BedrockLine.title.lineSpacing)
-                .foregroundStyle(BedrockColor.inkPrimary)
-                .accessibilityAddTraits(.isHeader)
-                .padding(.bottom, Space.s4)
-            Text(OnbCopy.string("\(prefix).body"))
-                .font(BedrockFont.body)
-                .lineSpacing(BedrockLine.body.lineSpacing)
-                .foregroundStyle(BedrockColor.inkSecondary)
-        }
-        .fixedSize(horizontal: false, vertical: true)
-    }
-}
-
-#Preview("Scaffold · 402×874", traits: .fixedLayout(width: 402, height: 874)) { ScaffoldPreview().onboardingPreview(.standard) }
-#Preview("Scaffold · Reduce Motion", traits: .fixedLayout(width: 402, height: 874)) { ScaffoldPreview().onboardingPreview(.reduceMotion) }
-#Preview("Scaffold · AX5", traits: .fixedLayout(width: 402, height: 874)) { ScaffoldPreview().onboardingPreview(.ax5) }
-#Preview("Scaffold · AX5 · Reduce Motion", traits: .fixedLayout(width: 402, height: 874)) { ScaffoldPreview().onboardingPreview(.ax5ReduceMotion) }
-
-#Preview("Scaffold accessory · 402×874", traits: .fixedLayout(width: 402, height: 874)) { ScaffoldAccessoryPreview().onboardingPreview(.standard) }
-#Preview("Scaffold accessory · Reduce Motion", traits: .fixedLayout(width: 402, height: 874)) { ScaffoldAccessoryPreview().onboardingPreview(.reduceMotion) }
-#Preview("Scaffold accessory · AX5", traits: .fixedLayout(width: 402, height: 874)) { ScaffoldAccessoryPreview().onboardingPreview(.ax5) }
-#Preview("Scaffold accessory · AX5 · Reduce Motion", traits: .fixedLayout(width: 402, height: 874)) { ScaffoldAccessoryPreview().onboardingPreview(.ax5ReduceMotion) }
-#endif

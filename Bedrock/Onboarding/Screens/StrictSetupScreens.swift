@@ -702,7 +702,6 @@ struct SealedScreen: View {
         } footer: {
             PrimaryButton(title: OnbCopy.string("onb.s13_6.primary")) { flow.afterSealed() }
         }
-        .environment(\.onboardingFillsHeight, true)
         .task {
             flow.track(.strictSealed((flow.state.keyHolder ?? .bedrock).analytics))
             try? await Task.sleep(for: .seconds(0.25))

@@ -1,16 +1,17 @@
 import SwiftUI
 
-// PrimaryButton, TextButton and LinkButton (COMPONENTS.md › Buttons), plus the
-// glass controls the scaffold uses: GlassCircleButton (back, close) and
-// FinishLaterButton. No haptics on routine taps.
+// Buttons, as the prototype draws them: the ember primary, the plain secondary
+// under it, quiet and underlined links, pills, the sheets' closing button, and
+// the glass controls (back, close, Finish later). No haptics on routine taps.
 
 // MARK: - PrimaryButton
 
-/// The one ember action on a screen. 56pt capsule; disabled buttons still say why.
+/// The one ember action on a screen: a 56pt capsule with a 1pt warm edge, an
+/// inset top highlight and a baked ember shadow. Disabled buttons still say why.
 struct PrimaryButton: View {
     let title: String
     var isEnabled = true
-    /// Shows a small spinner beside the label; the label stays (S2 while iOS answers).
+    /// A small spinner beside the label; the label stays (S2 while iOS answers).
     var isLoading = false
     /// Read by VoiceOver when disabled, e.g. `onb.common.pick_at_least_one`.
     var disabledHint: String? = nil
@@ -19,10 +20,9 @@ struct PrimaryButton: View {
     var body: some View {
         Button(action: action) {
             HStack(spacing: Space.s3) {
-                // A hidden twin on the leading side keeps the label centred.
                 if isLoading { spinner.hidden() }
                 Text(title)
-                    .font(BedrockFont.headline)
+                    .ptype(.primary)
                     .multilineTextAlignment(.center)
                 if isLoading { spinner }
             }
@@ -48,85 +48,147 @@ private struct PrimaryButtonStyle: ButtonStyle {
         configuration.label
             .foregroundStyle(isEnabled ? BedrockColor.onEmber : BedrockColor.inkDisabled)
             .padding(.horizontal, Space.s6)
-            .padding(.vertical, Space.s3)
             .frame(maxWidth: .infinity, minHeight: BedrockSize.primaryHeight)
-            .background { background }
+            .background { PrimaryFill(isEnabled: isEnabled) }
             .contentShape(Capsule())
-            .opacity(configuration.isPressed ? BedrockMotion.pressedOpacity : 1)
+            .brightness(configuration.isPressed ? -0.06 : 0)
             .animation(BedrockMotion.press, value: configuration.isPressed)
     }
+}
 
-    @ViewBuilder private var background: some View {
-        ZStack {
-            if isEnabled {
-                // Baked shadow: a static blurred layer behind the fill, never a `.shadow`
-                // on the animating button. (Not `.drawingGroup()`: that clips the blur
-                // to the button's frame and leaves a hard rectangle.)
-                Capsule()
-                    .fill(BedrockColor.primaryShadow)
-                    .blur(radius: BedrockSize.primaryShadowRadius)
-                    .offset(y: BedrockSize.primaryShadowY)
-                Capsule().fill(BedrockColor.primaryFill)
-                Capsule()
-                    .inset(by: 1)
-                    .strokeBorder(
-                        LinearGradient(colors: [BedrockColor.primaryHighlight, .clear],
-                                       startPoint: .top, endPoint: .center),
-                        lineWidth: 1)
-                Capsule().strokeBorder(BedrockColor.primaryBorder, lineWidth: 1)
-            } else {
-                Capsule().fill(BedrockColor.primaryDisabledFill)
-                Capsule().strokeBorder(BedrockColor.lineSubtle, lineWidth: 1)
-            }
+/// The primary's fill: drawn once, never animated (its shadow is baked in).
+struct PrimaryFill: View {
+    var isEnabled = true
+
+    var body: some View {
+        if isEnabled {
+            Capsule()
+                .fill(BedrockColor.primaryFill)
+                .shadow(color: BedrockColor.primaryDrop, radius: 13, x: 0, y: 10)
+                .overlay(Capsule().strokeBorder(
+                    LinearGradient(colors: [BedrockColor.primaryInset, .clear],
+                                   startPoint: .top, endPoint: UnitPoint(x: 0.5, y: 0.14)),
+                    lineWidth: 1.5))
+                .overlay(Capsule().strokeBorder(BedrockColor.primaryBorder, lineWidth: 1))
+        } else {
+            Capsule()
+                .fill(BedrockColor.primaryDisabledFill)
+                .overlay(Capsule().strokeBorder(BedrockColor.lineSubtle, lineWidth: 1))
         }
     }
 }
 
-// MARK: - TextButton
+// MARK: - Secondary actions
 
-/// Secondary actions: “Skip”, “Not now”, “Keep the free wall”. 44pt tall, never a
-/// smaller target than the primary, and the free path is never styled weaker.
+/// Under the primary, 6pt down: “Skip”, “Not now”, “Keep going”. 44pt, 16pt Chalk.
+/// The free path is never styled weaker than this.
 struct TextButton: View {
     let title: String
-    var fullWidth = false
+    var fullWidth = true
+    var type: PType = .callout
+    var height: CGFloat = BedrockSize.textButtonHeight
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
             Text(title)
-                .font(BedrockFont.textButton)
+                .ptype(type)
                 .foregroundStyle(BedrockColor.inkPrimary)
                 .multilineTextAlignment(.center)
-                .frame(maxWidth: fullWidth ? .infinity : nil, minHeight: BedrockSize.textButtonHeight)
-                .padding(.horizontal, Space.s3)
+                .frame(maxWidth: fullWidth ? .infinity : nil, minHeight: height)
                 .contentShape(Rectangle())
         }
         .buttonStyle(PressOpacityStyle())
     }
 }
 
-// MARK: - LinkButton
-
-/// Underlined 14pt links: the crisis link, “What it can’t stop”, “Other plans”,
-/// “I got stuck”. 40pt hit height.
-struct LinkButton: View {
-    enum Tone { case tertiary, secondary }
-
+/// S1's “I'm here to support someone”: 15pt Limestone, no underline.
+struct QuietLink: View {
     let title: String
-    var tone: Tone = .tertiary
     let action: () -> Void
-
-    @ScaledMetric(relativeTo: .subheadline) private var size = BedrockSize.linkText
 
     var body: some View {
         Button(action: action) {
             Text(title)
-                .font(BedrockFont.link(size: size))
-                .underline()
-                .foregroundStyle(tone == .tertiary ? BedrockColor.inkTertiary : BedrockColor.inkSecondary)
-                .multilineTextAlignment(.center)
-                .frame(minHeight: BedrockSize.linkHitHeight)
+                .ptype(.subheadPlain)
+                .foregroundStyle(BedrockColor.inkSecondary)
+                .frame(maxWidth: .infinity, minHeight: BedrockSize.textButtonHeight)
                 .contentShape(Rectangle())
+        }
+        .buttonStyle(PressOpacityStyle())
+    }
+}
+
+/// Underlined links: the crisis link, “What it can't stop”, “Other plans”,
+/// “I got stuck”. Underline offset 3pt.
+struct LinkButton: View {
+    enum Tone { case tertiary, secondary, ember }
+
+    let title: String
+    var tone: Tone = .tertiary
+    var type: PType = .notePlain
+    var height: CGFloat = BedrockSize.linkHitHeight
+    let action: () -> Void
+
+    private var color: Color {
+        switch tone {
+        case .tertiary: BedrockColor.inkTertiary
+        case .secondary: BedrockColor.inkSecondary
+        case .ember: BedrockColor.emberGlow
+        }
+    }
+
+    var body: some View {
+        Button(action: action) {
+            Text(title)
+                .ptype(type)
+                .underline(pattern: .solid, color: color)
+                .baselineOffset(0)
+                .foregroundStyle(color)
+                .multilineTextAlignment(.center)
+                .frame(minHeight: height)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(PressOpacityStyle())
+    }
+}
+
+/// A small raised pill: S3's “Add”, S8's “Set it”, S12's “Remind me tomorrow”.
+struct PillButton: View {
+    let title: String
+    var height: CGFloat = 36
+    var padding: CGFloat = 14
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Text(title)
+                .ptype(.subheadPlain)
+                .foregroundStyle(BedrockColor.inkPrimary)
+                .padding(.horizontal, padding)
+                .frame(minHeight: height)
+                .background(Capsule().fill(BedrockColor.bgRaised))
+                .overlay(Capsule().strokeBorder(BedrockColor.lineStrong, lineWidth: 1))
+                .contentShape(Capsule())
+        }
+        .buttonStyle(PressOpacityStyle())
+    }
+}
+
+/// A sheet's closing button: 52pt, raised, 17pt medium (“Close”, “Got it”).
+struct SheetButton: View {
+    let title: String
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Text(title)
+                .ptype(PType(face: .sans, size: 17, line: nil, weight: .medium, relativeTo: .headline))
+                .foregroundStyle(BedrockColor.inkPrimary)
+                .frame(maxWidth: .infinity, minHeight: 52)
+                .background(Capsule().fill(BedrockColor.bgRaised))
+                .overlay(Capsule().strokeBorder(BedrockColor.lineStrong, lineWidth: 1))
+                .contentShape(Capsule())
         }
         .buttonStyle(PressOpacityStyle())
     }
@@ -134,14 +196,35 @@ struct LinkButton: View {
 
 // MARK: - Glass controls (scaffold chrome)
 
-/// Back (chevron) and close (×). 44 × 44pt Liquid Glass circle; solid under
-/// Reduce Transparency. Labelled with what it does.
-struct GlassCircleButton: View {
-    enum Kind {
-        case back, close
+/// The prototype's control glass: a faint white fill, a 1pt edge and a top
+/// highlight. Solid `bgRaised` under Reduce Transparency.
+struct ControlGlass<S: InsettableShape>: ViewModifier {
+    let shape: S
+    var soft = false
 
-        var symbol: String { self == .back ? "chevron.left" : "xmark" }
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+
+    func body(content: Content) -> some View {
+        content
+            .background(shape.fill(reduceTransparency ? BedrockColor.bgRaised
+                                                      : (soft ? BedrockColor.glassFillSoft : BedrockColor.glassFill)))
+            .overlay(shape.strokeBorder(soft ? BedrockColor.glassEdgeSoft : BedrockColor.glassEdge, lineWidth: 1))
+            .overlay(shape.strokeBorder(
+                LinearGradient(colors: [BedrockColor.glassHighlight, .clear],
+                               startPoint: .top, endPoint: UnitPoint(x: 0.5, y: 0.12)),
+                lineWidth: 1.5))
     }
+}
+
+extension View {
+    func controlGlass<S: InsettableShape>(_ shape: S, soft: Bool = false) -> some View {
+        modifier(ControlGlass(shape: shape, soft: soft))
+    }
+}
+
+/// Back (chevron) and close (×): a 44pt glass circle, labelled with what it does.
+struct GlassCircleButton: View {
+    enum Kind { case back, close }
 
     let kind: Kind
     let accessibilityLabel: String
@@ -149,39 +232,45 @@ struct GlassCircleButton: View {
 
     var body: some View {
         Button(action: action) {
-            Image(systemName: kind.symbol)
-                .font(BedrockFont.headline)
-                .foregroundStyle(BedrockColor.inkPrimary)
-                .frame(width: BedrockSize.circleButton, height: BedrockSize.circleButton)
-                .bedrockGlass(Circle())
-                .contentShape(Circle())
+            Group {
+                switch kind {
+                case .back:
+                    ProtoIcon.chevronLeft
+                        .stroke(BedrockColor.inkPrimary, style: StrokeStyle(lineWidth: 2.2, lineCap: .round, lineJoin: .round))
+                        .frame(width: 12, height: 20)
+                case .close:
+                    ProtoIcon.close
+                        .stroke(BedrockColor.inkPrimary, style: StrokeStyle(lineWidth: 2, lineCap: .round))
+                        .frame(width: 14, height: 14)
+                }
+            }
+            .frame(width: BedrockSize.circleButton, height: BedrockSize.circleButton)
+            .controlGlass(Circle())
+            .contentShape(Circle())
         }
         .buttonStyle(PressOpacityStyle())
-        .dynamicTypeSize(...DynamicTypeSize.xxxLarge) // fixed 44pt control
         .accessibilityLabel(accessibilityLabel)
-        .accessibilityShowsLargeContentViewer()
     }
 }
 
-/// Glass capsule, 44pt, “Finish later”. Shown S4–S11; opens the Finish later sheet.
+/// “Finish later”: a 44pt glass capsule, 15pt. Shown S4–S11.
 struct FinishLaterButton: View {
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
             Text(OnbCopy.string("onb.s4.top_right"))
-                .font(BedrockFont.finishLater)
+                .ptype(.subheadPlain)
                 .foregroundStyle(BedrockColor.inkPrimary)
                 .lineLimit(1)
                 .padding(.horizontal, Space.s4)
                 .frame(height: BedrockSize.finishLaterHeight)
-                .bedrockGlass(Capsule())
+                .controlGlass(Capsule())
                 .contentShape(Capsule())
         }
         .buttonStyle(PressOpacityStyle())
-        .dynamicTypeSize(...DynamicTypeSize.xxxLarge) // fixed 44pt control
+        .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
         .accessibilityLabel(OnbCopy.string("onb.common.finish_later_a11y"))
-        .accessibilityShowsLargeContentViewer()
     }
 }
 
@@ -193,60 +282,3 @@ struct PressOpacityStyle: ButtonStyle {
             .animation(BedrockMotion.press, value: configuration.isPressed)
     }
 }
-
-// MARK: - Previews
-
-#if DEBUG
-struct PrimaryButtonPreview: View {
-    var body: some View {
-        PreviewPage {
-            VStack(spacing: Space.s8) {
-                PrimaryButton(title: OnbCopy.string("onb.s1.primary")) {}
-                PrimaryButton(title: OnbCopy.string("onb.s5.primary"), isEnabled: false,
-                              disabledHint: OnbCopy.string("onb.common.pick_at_least_one")) {}
-                PrimaryButton(title: OnbCopy.string("onb.s2.primary"), isLoading: true) {}
-            }
-        }
-    }
-}
-
-struct TextButtonPreview: View {
-    var body: some View {
-        PreviewPage {
-            VStack(spacing: Space.s6) {
-                TextButton(title: OnbCopy.string("onb.s4.secondary")) {}
-                TextButton(title: OnbCopy.string("onb.s12.free_path"), fullWidth: true) {}
-                TextButton(title: OnbCopy.string("onb.fl.secondary")) {}
-            }
-        }
-    }
-}
-
-struct LinkButtonPreview: View {
-    var body: some View {
-        PreviewPage {
-            VStack(spacing: Space.s5) {
-                LinkButton(title: OnbCopy.string("onb.s8.crisis_link")) {}
-                LinkButton(title: OnbCopy.string("onb.s10.link"), tone: .secondary) {}
-                LinkButton(title: OnbCopy.string("onb.s12.link"), tone: .secondary) {}
-                LinkButton(title: OnbCopy.string("onb.s13_5b.link")) {}
-            }
-        }
-    }
-}
-
-#Preview("PrimaryButton · 402×874", traits: .fixedLayout(width: 402, height: 874)) { PrimaryButtonPreview().onboardingPreview(.standard) }
-#Preview("PrimaryButton · Reduce Motion", traits: .fixedLayout(width: 402, height: 874)) { PrimaryButtonPreview().onboardingPreview(.reduceMotion) }
-#Preview("PrimaryButton · AX5", traits: .fixedLayout(width: 402, height: 874)) { PrimaryButtonPreview().onboardingPreview(.ax5) }
-#Preview("PrimaryButton · AX5 · Reduce Motion", traits: .fixedLayout(width: 402, height: 874)) { PrimaryButtonPreview().onboardingPreview(.ax5ReduceMotion) }
-
-#Preview("TextButton · 402×874", traits: .fixedLayout(width: 402, height: 874)) { TextButtonPreview().onboardingPreview(.standard) }
-#Preview("TextButton · Reduce Motion", traits: .fixedLayout(width: 402, height: 874)) { TextButtonPreview().onboardingPreview(.reduceMotion) }
-#Preview("TextButton · AX5", traits: .fixedLayout(width: 402, height: 874)) { TextButtonPreview().onboardingPreview(.ax5) }
-#Preview("TextButton · AX5 · Reduce Motion", traits: .fixedLayout(width: 402, height: 874)) { TextButtonPreview().onboardingPreview(.ax5ReduceMotion) }
-
-#Preview("LinkButton · 402×874", traits: .fixedLayout(width: 402, height: 874)) { LinkButtonPreview().onboardingPreview(.standard) }
-#Preview("LinkButton · Reduce Motion", traits: .fixedLayout(width: 402, height: 874)) { LinkButtonPreview().onboardingPreview(.reduceMotion) }
-#Preview("LinkButton · AX5", traits: .fixedLayout(width: 402, height: 874)) { LinkButtonPreview().onboardingPreview(.ax5) }
-#Preview("LinkButton · AX5 · Reduce Motion", traits: .fixedLayout(width: 402, height: 874)) { LinkButtonPreview().onboardingPreview(.ax5ReduceMotion) }
-#endif
