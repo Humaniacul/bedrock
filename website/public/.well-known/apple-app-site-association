@@ -1,0 +1,12 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["BWL4YS7RFJ.com.thebedrock.app"],
+        "components": [
+          { "/": "/join/*", "comment": "Partner invites open SP1 in the app." }
+        ]
+      }
+    ]
+  }
+}

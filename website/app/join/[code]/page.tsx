@@ -34,7 +34,7 @@ export default async function Join({
           Download <strong>Bedrock</strong> from the App Store.
         </li>
         <li>
-          Open the app and tap <strong>“Support someone”</strong>.
+          Open the app and tap <strong>“I’m here to support someone”</strong>.
         </li>
         <li>
           Enter the code above to connect. That’s it — you’re in their corner.
@@ -46,11 +46,18 @@ export default async function Join({
           Get Bedrock
         </a>
       </p>
+      <p style={{ marginTop: 12 }}>
+        <a href={`bedrock://join/${clean}`}>Already have Bedrock? Open it</a>
+      </p>
+      <p style={{ color: 'var(--ash)', fontSize: 14, marginTop: 20 }}>
+        Supporters need an iPhone for now.
+      </p>
 
       <p style={{ color: 'var(--ash)', fontSize: 14, marginTop: 28 }}>
-        Being a partner means showing up with kindness, not judgment. You won’t
-        see anything they browse — only whether they need a nudge. Learn more in
-        our <a href="/privacy">Privacy Policy</a>.
+        It means holding a key, not watching. You’ll see whether their wall is
+        up and when they ask to turn it off — never what they browse, block or
+        write. If you don’t answer a request within 3 days, it opens and you’re
+        told. Learn more in our <a href="/privacy">Privacy Policy</a>.
       </p>
     </section>
   );
