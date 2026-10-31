@@ -1,5 +1,27 @@
 import SwiftUI
 
+/// The premium surfaces a free user can reach (§8).
+enum PremiumFeature {
+    case strictMode, accountability, insights, general
+
+    var headline: String {
+        switch self {
+        case .strictMode: "Make it unbreakable."
+        case .accountability: "Don't do this alone."
+        case .insights: "See it coming."
+        case .general: "Unlock the full foundation."
+        }
+    }
+    var blurb: String {
+        switch self {
+        case .strictMode: "Strict Mode locks protection behind a wall even you can't tear down in a weak moment."
+        case .accountability: "Bring in a partner who's quietly got your back — and a gauntlet that calls them when it counts."
+        case .insights: "Bedrock learns your danger windows and helps you get ahead of them."
+        case .general: "Strict Mode, an accountability partner, and the intelligence that sees your danger windows coming."
+        }
+    }
+}
+
 /// Wraps a premium-only surface (§8). Free users see a locked state that opens
 /// the paywall; premium users see the content. This only ever gates *viewing*
 /// or *turning on* premium features — it never traps a user out of an off-switch.

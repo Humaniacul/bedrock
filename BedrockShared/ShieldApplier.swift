@@ -16,9 +16,25 @@ enum ShieldApplier {
         safariFilterEnabled: Bool,
         denylist: [String]
     ) {
-        let store = store
+        applyWeb(safariFilterEnabled: safariFilterEnabled, denylist: denylist)
+        applyApps(selection: selection)
+    }
 
-        // App, category, and web-domain shields straight from the picker tokens.
+    /// The web layer: Safari's adult-content filter plus our denylist (S3 row 1).
+    static func applyWeb(safariFilterEnabled: Bool, denylist: [String]) {
+        // `.auto`'s first set is *blocked* (our denylist); `except` is the
+        // allow-list. Verified against the ManagedSettings 26.2 interface.
+        if safariFilterEnabled {
+            let blocked = Set(denylist.map { WebDomain(domain: $0) })
+            store.webContent.blockedByFilter = .auto(blocked, except: [])
+        } else {
+            store.webContent.blockedByFilter = nil
+        }
+    }
+
+    /// The app layer: app, category and web-domain shields from the picker (S3 row 2).
+    static func applyApps(selection: FamilyActivitySelection) {
+        let store = store
         store.shield.applications = selection.applicationTokens.isEmpty ? nil : selection.applicationTokens
         store.shield.applicationCategories = selection.categoryTokens.isEmpty
             ? nil
@@ -27,16 +43,6 @@ enum ShieldApplier {
         store.shield.webDomainCategories = selection.categoryTokens.isEmpty
             ? nil
             : .specific(selection.categoryTokens)
-
-        // Safari adult-content filter (§4). `.auto`'s first set is *blocked*
-        // (our denylist); `except` is the allow-list. Verified against the
-        // ManagedSettings 26.2 interface.
-        if safariFilterEnabled {
-            let blocked = Set(denylist.map { WebDomain(domain: $0) })
-            store.webContent.blockedByFilter = .auto(blocked, except: [])
-        } else {
-            store.webContent.blockedByFilter = nil
-        }
     }
 
     /// Lift every shield in the Bedrock store (gauntlet release / pause).

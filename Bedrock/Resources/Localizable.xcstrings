@@ -109,6 +109,42 @@
         }
       }
     },
+    "onb.common.a11y_exclusive": {
+      "comment": "VoiceOver (SPEC.md). Hint on “No pattern yet” and “Not sure”.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clears other choices."
+          }
+        }
+      }
+    },
+    "onb.common.a11y_option": {
+      "comment": "VoiceOver (SPEC.md). Radio option: “Bedrock keeps it, 1 of 2.”",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@, %2$lld of %3$lld"
+          }
+        }
+      }
+    },
+    "onb.common.a11y_privacy": {
+      "comment": "VoiceOver (SPEC.md). The S5–S7 privacy chip.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your answers stay on this iPhone."
+          }
+        }
+      }
+    },
     "onb.common.back": {
       "comment": "Back button · VoiceOver label. Verbatim from COMPONENTS.md (GlassCircleButton). Added at build time: not in the handoff catalog.",
       "extractionState": "manual",
@@ -177,6 +213,30 @@
           "stringUnit": {
             "state": "translated",
             "value": "You"
+          }
+        }
+      }
+    },
+    "onb.common.day": {
+      "comment": "Stone day label. {n} is the Foundation day.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DAY {n}"
+          }
+        }
+      }
+    },
+    "onb.common.dismiss": {
+      "comment": "VoiceOver label for a card's ×.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dismiss"
           }
         }
       }
@@ -277,18 +337,6 @@
         }
       }
     },
-    "onb.home.card_heads_up": {
-      "comment": "Home · Day 1. The wall is standing. · Card: heads-up. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "First heads-up · Tonight at 9:45 PM"
-          }
-        }
-      }
-    },
     "onb.home.card_later": {
       "comment": "Home · Day 1. The wall is standing. · Card: later. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
       "extractionState": "manual",
@@ -325,6 +373,18 @@
         }
       }
     },
+    "onb.home.card_setup": {
+      "comment": "Home card after a purchase whose setup isn't finished. Not dismissible.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish Strict Mode setup · About 3 minutes"
+          }
+        }
+      }
+    },
     "onb.home.card_trial": {
       "comment": "Home · Day 1. The wall is standing. · Card: trial. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
       "extractionState": "manual",
@@ -357,6 +417,78 @@
           "stringUnit": {
             "state": "translated",
             "value": "Day 1."
+          }
+        }
+      }
+    },
+    "onb.home.heads_up_day": {
+      "comment": "Home heads-up card, later this week. Template: {tokens} are replaced at runtime; prices come from StoreKit, never literals.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{day} at {time}"
+          }
+        }
+      }
+    },
+    "onb.home.heads_up_off": {
+      "comment": "Home heads-up card when notifications were declined.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Heads-ups are off · Turn on in Settings"
+          }
+        }
+      }
+    },
+    "onb.home.heads_up_title": {
+      "comment": "Home heads-up card title.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "First heads-up"
+          }
+        }
+      }
+    },
+    "onb.home.heads_up_today": {
+      "comment": "Home heads-up card. Template: {tokens} are replaced at runtime; prices come from StoreKit, never literals.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today at {time}"
+          }
+        }
+      }
+    },
+    "onb.home.heads_up_tomorrow": {
+      "comment": "Home heads-up card. Template: {tokens} are replaced at runtime; prices come from StoreKit, never literals.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tomorrow at {time}"
+          }
+        }
+      }
+    },
+    "onb.home.heads_up_tonight": {
+      "comment": "Home heads-up card, after 18:00. Template: {tokens} are replaced at runtime; prices come from StoreKit, never literals.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tonight at {time}"
           }
         }
       }
@@ -409,6 +541,18 @@
         }
       }
     },
+    "onb.reminder.heads_up": {
+      "comment": "Heads-up notification body. Discreet: never says what Bedrock is for.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A good moment to plan the next hour."
+          }
+        }
+      }
+    },
     "onb.resume.toast": {
       "comment": "RESUME · Picking up where you left off · Toast.",
       "extractionState": "manual",
@@ -417,6 +561,30 @@
           "stringUnit": {
             "state": "translated",
             "value": "Picking up where you left off."
+          }
+        }
+      }
+    },
+    "onb.s1.a11y_link": {
+      "comment": "VoiceOver (SPEC.md).",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opens supporter setup."
+          }
+        }
+      }
+    },
+    "onb.s1.a11y_primary": {
+      "comment": "VoiceOver (SPEC.md).",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starts setup."
           }
         }
       }
@@ -513,6 +681,30 @@
           "stringUnit": {
             "state": "translated",
             "value": "Put it back up"
+          }
+        }
+      }
+    },
+    "onb.s10.a11y_step": {
+      "comment": "VoiceOver (SPEC.md).",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Step %1$lld of %2$lld. %3$@."
+          }
+        }
+      }
+    },
+    "onb.s10.a11y_step_hint": {
+      "comment": "VoiceOver (SPEC.md).",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shows details."
           }
         }
       }
@@ -781,26 +973,110 @@
         }
       }
     },
-    "onb.s12.cta": {
-      "comment": "S12 · Remove the door · CTA. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot. Prices are examples: build this with StoreKit’s localized price, never the literal.",
+    "onb.s12.a11y_plan": {
+      "comment": "VoiceOver (SPEC.md). Plan card: “Yearly, $69.99 a year, 3 days free.”",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Start 3 days free · Continue · $69.99 a year · Pay $149 once · Continue · $5.99 a week"
+            "value": "{title}, {price}, {detail}"
           }
         }
       }
     },
-    "onb.s12.errors": {
-      "comment": "S12 · Remove the door · Errors. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+    "onb.s12.cta_lifetime": {
+      "comment": "S12 CTA, Lifetime. Template: {tokens} are replaced at runtime; prices come from StoreKit, never literals.",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "That didn’t go through. You haven’t been charged. (Try again) · Waiting for approval. Your free wall stays on meanwhile. · Can’t reach the App Store right now. Your free wall stays on. · No purchases found for this Apple Account. · Restored. Welcome back."
+            "value": "Pay {price} once"
+          }
+        }
+      }
+    },
+    "onb.s12.cta_trial": {
+      "comment": "S12 CTA, Yearly with a trial. Template: {tokens} are replaced at runtime; prices come from StoreKit, never literals.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start {days} days free"
+          }
+        }
+      }
+    },
+    "onb.s12.cta_weekly": {
+      "comment": "S12 CTA, Weekly. Shows the literal dot. Template: {tokens} are replaced at runtime; prices come from StoreKit, never literals.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue · {price} a week"
+          }
+        }
+      }
+    },
+    "onb.s12.cta_yearly": {
+      "comment": "S12 CTA, Yearly without a trial. Shows the literal dot. Template: {tokens} are replaced at runtime; prices come from StoreKit, never literals.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue · {price} a year"
+          }
+        }
+      }
+    },
+    "onb.s12.error_failed": {
+      "comment": "S12 purchase failed.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "That didn’t go through. You haven’t been charged."
+          }
+        }
+      }
+    },
+    "onb.s12.error_offline": {
+      "comment": "S12 offers didn't load.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Can’t reach the App Store right now. Your free wall stays on."
+          }
+        }
+      }
+    },
+    "onb.s12.error_pending": {
+      "comment": "S12 Ask to Buy / SCA.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for approval. Your free wall stays on meanwhile."
+          }
+        }
+      }
+    },
+    "onb.s12.error_retry": {
+      "comment": "S12 purchase failed: retry.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try again"
           }
         }
       }
@@ -854,49 +1130,85 @@
       }
     },
     "onb.s12.legal_lifetime": {
-      "comment": "S12 · Remove the door · Legal, lifetime. Prices are examples: build this with StoreKit’s localized price, never the literal.",
+      "comment": "S12 legal, Lifetime. Template: {tokens} are replaced at runtime; prices come from StoreKit, never literals.",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "One-time purchase of $149. No subscription, nothing renews."
+            "value": "One-time purchase of {price}. No subscription, nothing renews."
           }
         }
       }
     },
     "onb.s12.legal_trial": {
-      "comment": "S12 · Remove the door · Legal, trial. Prices are examples: build this with StoreKit’s localized price, never the literal.",
+      "comment": "S12 legal, Yearly with a trial. Template: {tokens} are replaced at runtime; prices come from StoreKit, never literals.",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "3 days free, then $69.99 a year. Renews automatically unless cancelled at least 24 hours before the trial or current period ends. Manage or cancel in Settings › your name › Subscriptions. Payment is charged to your Apple Account."
+            "value": "{days} days free, then {price} a year. Renews automatically unless cancelled at least 24 hours before the trial or current period ends. Manage or cancel in Settings › your name › Subscriptions. Payment is charged to your Apple Account."
           }
         }
       }
     },
     "onb.s12.legal_weekly": {
-      "comment": "S12 · Remove the door · Legal, weekly. Prices are examples: build this with StoreKit’s localized price, never the literal.",
+      "comment": "S12 legal, Weekly. Template: {tokens} are replaced at runtime; prices come from StoreKit, never literals.",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "$5.99 a week. Renews automatically unless cancelled at least 24 hours before the current period ends. Manage or cancel in Settings › your name › Subscriptions."
+            "value": "{price} a week. Renews automatically unless cancelled at least 24 hours before the current period ends. Manage or cancel in Settings › your name › Subscriptions. Payment is charged to your Apple Account."
           }
         }
       }
     },
-    "onb.s12.lifetime_card": {
-      "comment": "S12 · Remove the door · Lifetime card. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot. Prices are examples: build this with StoreKit’s localized price, never the literal.",
+    "onb.s12.legal_yearly": {
+      "comment": "S12 legal, Yearly without a trial. Template: {tokens} are replaced at runtime; prices come from StoreKit, never literals.",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lifetime · $149 · Pay once. Keep it for good. · tag: Your last blocker"
+            "value": "{price} a year. Renews automatically unless cancelled at least 24 hours before the current period ends. Manage or cancel in Settings › your name › Subscriptions. Payment is charged to your Apple Account."
+          }
+        }
+      }
+    },
+    "onb.s12.lifetime_badge": {
+      "comment": "S12 Lifetime badge.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your last blocker"
+          }
+        }
+      }
+    },
+    "onb.s12.lifetime_detail": {
+      "comment": "S12 Lifetime subline.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pay once. Keep it for good."
+          }
+        }
+      }
+    },
+    "onb.s12.lifetime_title": {
+      "comment": "S12 plan card title.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lifetime"
           }
         }
       }
@@ -926,13 +1238,13 @@
       }
     },
     "onb.s12.other_plans_sheet": {
-      "comment": "S12 · Remove the door · Other plans sheet. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot. Prices are examples: build this with StoreKit’s localized price, never the literal.",
+      "comment": "S12 Other plans sheet: title · row title · price · detail · button · close. Template: {tokens} are replaced at runtime; prices come from StoreKit, never literals.",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Other plans · Weekly · $5.99 a week · Renews weekly until you cancel. · Choose weekly · Close"
+            "value": "Other plans · Weekly · {price} a week · Renews weekly until you cancel. · Choose weekly · Close"
           }
         }
       }
@@ -997,6 +1309,30 @@
         }
       }
     },
+    "onb.s12.restore_found": {
+      "comment": "S12 restore found a purchase.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restored. Welcome back."
+          }
+        }
+      }
+    },
+    "onb.s12.restore_none": {
+      "comment": "S12 restore found nothing.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No purchases found for this Apple Account."
+          }
+        }
+      }
+    },
     "onb.s12.statement_line": {
       "comment": "S12 · Remove the door · Statement line.",
       "extractionState": "manual",
@@ -1045,14 +1381,50 @@
         }
       }
     },
-    "onb.s12.timeline": {
-      "comment": "S12 · Remove the door · Timeline. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot. Prices are examples: build this with StoreKit’s localized price, never the literal.",
+    "onb.s12.timeline_end": {
+      "comment": "S12 trial timeline row. Template: {tokens} are replaced at runtime; prices come from StoreKit, never literals.",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Today · Strict Mode goes on / In 2 days · We send a reminder / In 3 days · $69.99 for the year, unless you cancel"
+            "value": "In {days} days · {price} for the year, unless you cancel"
+          }
+        }
+      }
+    },
+    "onb.s12.timeline_reminder": {
+      "comment": "S12 trial timeline row, the day before the trial ends. Template: {tokens} are replaced at runtime; prices come from StoreKit, never literals.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In {n} days · We send a reminder"
+          }
+        }
+      }
+    },
+    "onb.s12.timeline_reminder_tomorrow": {
+      "comment": "S12 trial timeline row for a 2-day trial.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tomorrow · We send a reminder"
+          }
+        }
+      }
+    },
+    "onb.s12.timeline_today": {
+      "comment": "S12 trial timeline row.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today · Strict Mode goes on"
           }
         }
       }
@@ -1094,37 +1466,73 @@
       }
     },
     "onb.s12.weekly_selected": {
-      "comment": "S12 · Remove the door · Weekly, selected. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot. Prices are examples: build this with StoreKit’s localized price, never the literal.",
+      "comment": "S12 selected weekly row: title · price. Template: {tokens} are replaced at runtime; prices come from StoreKit, never literals.",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Weekly · $5.99 a week (a selected row under the two cards; both cards show unselected)"
+            "value": "Weekly · {price} a week"
           }
         }
       }
     },
-    "onb.s12.yearly_card": {
-      "comment": "S12 · Remove the door · Yearly card. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot. Prices are examples: build this with StoreKit’s localized price, never the literal.",
+    "onb.s12.yearly_badge": {
+      "comment": "S12 Yearly badge, only when the trial applies. Template: {tokens} are replaced at runtime; prices come from StoreKit, never literals.",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Yearly · $69.99 a year · 3 days free, then $5.83 a month, billed yearly · tag: 3 days free"
+            "value": "{days} days free"
           }
         }
       }
     },
-    "onb.s12.yearly_no_trial": {
-      "comment": "S12 · Remove the door · Yearly, no trial. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot. Prices are examples: build this with StoreKit’s localized price, never the literal.",
+    "onb.s12.yearly_plain": {
+      "comment": "S12 Yearly subline without a trial. Template: {tokens} are replaced at runtime; prices come from StoreKit, never literals.",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Yearly · $69.99 a year · $5.83 a month, billed yearly"
+            "value": "{monthly} a month, billed yearly"
+          }
+        }
+      }
+    },
+    "onb.s12.yearly_price": {
+      "comment": "S12 plan card price. Template: {tokens} are replaced at runtime; prices come from StoreKit, never literals.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{price} a year"
+          }
+        }
+      }
+    },
+    "onb.s12.yearly_title": {
+      "comment": "S12 plan card title.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yearly"
+          }
+        }
+      }
+    },
+    "onb.s12.yearly_trial": {
+      "comment": "S12 Yearly subline when the trial applies. Template: {tokens} are replaced at runtime; prices come from StoreKit, never literals.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{days} days free, then {monthly} a month, billed yearly"
           }
         }
       }
@@ -1197,6 +1605,30 @@
           "stringUnit": {
             "state": "translated",
             "value": "Keep the free wall"
+          }
+        }
+      }
+    },
+    "onb.s13_1.a11y_letter": {
+      "comment": "VoiceOver (SPEC.md).",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your letter. At least 40 characters."
+          }
+        }
+      }
+    },
+    "onb.s13_1.a11y_starter": {
+      "comment": "VoiceOver (SPEC.md).",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Insert: {text}"
           }
         }
       }
@@ -1430,13 +1862,13 @@
       }
     },
     "onb.s13_2p.card": {
-      "comment": "S13.2P · Invite your person · Card. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "comment": "S13.2P card: label · code · link. Template: {tokens} are replaced at runtime; prices come from StoreKit, never literals.",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Invite code · 7K2Q-M9 · thebedrock.app/join/7K2Q"
+            "value": "Invite code · {code} · {link}"
           }
         }
       }
@@ -1465,6 +1897,18 @@
         }
       }
     },
+    "onb.s13_2p.later": {
+      "comment": "S13.2P: continue without sending; Home keeps a resend card.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invite them later"
+          }
+        }
+      }
+    },
     "onb.s13_2p.note": {
       "comment": "S13.2P · Invite your person · Note.",
       "extractionState": "manual",
@@ -1473,6 +1917,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "If they don’t answer a request within 3 days, Bedrock opens it and tells them. Nobody gets stuck."
+          }
+        }
+      }
+    },
+    "onb.s13_2p.offline": {
+      "comment": "S13.2P: no invite from the server: body · button.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t make an invite just now. Check your connection and try again. · Try again"
           }
         }
       }
@@ -1502,13 +1958,13 @@
       }
     },
     "onb.s13_2p.share_message": {
-      "comment": "S13.2P · Invite your person · Share message.",
+      "comment": "S13.2P share message. Template: {tokens} are replaced at runtime; prices come from StoreKit, never literals.",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "I’m using Bedrock and I’d like you to be my support person. You’d see whether my wall is up, and okay it if I ask to turn it off. Join here: thebedrock.app/join/7K2Q"
+            "value": "I’m using Bedrock and I’d like you to be my support person. You’d see whether my wall is up, and okay it if I ask to turn it off. Join here: {link}"
           }
         }
       }
@@ -1573,6 +2029,30 @@
         }
       }
     },
+    "onb.s13_3b.slow": {
+      "comment": "S13.3B after three wrong digits: slow the real run.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show each digit for 5 seconds"
+          }
+        }
+      }
+    },
+    "onb.s13_3b.slow_toast": {
+      "comment": "S13.3B toast after slowing the window.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Each digit will stay for 5 seconds."
+          }
+        }
+      }
+    },
     "onb.s13_3b.window": {
       "comment": "S13.3B · Practice run · Window. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot. Braces mark a variable or a set of variants.",
       "extractionState": "manual",
@@ -1609,6 +2089,30 @@
         }
       }
     },
+    "onb.s13_4b.fallback_body": {
+      "comment": "S13.4B when Picture in Picture isn't available: the app-switching fallback.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bedrock shows each digit here for a few seconds. Type it in Settings, then come back for the next."
+          }
+        }
+      }
+    },
+    "onb.s13_4b.fallback_switch": {
+      "comment": "S13.4B fallback: after each digit.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switch to Settings"
+          }
+        }
+      }
+    },
     "onb.s13_4b.headline": {
       "comment": "S13.4B · The real run · Headline.",
       "extractionState": "manual",
@@ -1617,6 +2121,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Now the real one."
+          }
+        }
+      }
+    },
+    "onb.s13_4b.ios_labels": {
+      "comment": "S13.4B: iOS labels set in bold in the checklist.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lock Screen Time Settings · Change Screen Time Passcode · Screen Time · Cancel"
           }
         }
       }
@@ -1641,6 +2157,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Open Settings"
+          }
+        }
+      }
+    },
+    "onb.s13_4b.show_digits": {
+      "comment": "S13.4B / S13.5A: start the floating window again.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show the digits"
           }
         }
       }
@@ -1789,6 +2317,18 @@
         }
       }
     },
+    "onb.s13_5a.a11y_primary": {
+      "comment": "VoiceOver (SPEC.md).",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirms the passcode matches."
+          }
+        }
+      }
+    },
     "onb.s13_5a.body": {
       "comment": "S13.5A · Check the code · Body.",
       "extractionState": "manual",
@@ -1921,6 +2461,18 @@
         }
       }
     },
+    "onb.s13_6.a11y": {
+      "comment": "VoiceOver (SPEC.md).",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sealed. Strict Mode is on."
+          }
+        }
+      }
+    },
     "onb.s13_6.body_a": {
       "comment": "S13.6 · Sealed · Body A.",
       "extractionState": "manual",
@@ -2001,6 +2553,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "The code didn’t match."
+          }
+        }
+      }
+    },
+    "onb.s13_7a.mail_subject": {
+      "comment": "S13.7A Get help: the email subject. The reference is a random setup ID.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strict Mode setup · ref {ref}"
           }
         }
       }
@@ -2126,13 +2690,13 @@
       }
     },
     "onb.s14.preview": {
-      "comment": "S14 · Quiet heads-ups · Preview. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+      "comment": "S14 preview notification: app · time · message.",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bedrock · now · A good moment to plan the next hour. (The lock-screen time in the preview is a few minutes before their first S5 window: the S5 payoff.)"
+            "value": "Bedrock · now · A good moment to plan the next hour."
           }
         }
       }
@@ -2145,6 +2709,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Continue"
+          }
+        }
+      }
+    },
+    "onb.s15.a11y_button": {
+      "comment": "VoiceOver (SPEC.md).",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starts a one-breath practice."
           }
         }
       }
@@ -2233,6 +2809,18 @@
         }
       }
     },
+    "onb.s2.a11y_primary": {
+      "comment": "VoiceOver (SPEC.md).",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opens the iOS Screen Time request."
+          }
+        }
+      }
+    },
     "onb.s2.body": {
       "comment": "S2 · Before the Screen Time sheet · Body.",
       "extractionState": "manual",
@@ -2253,6 +2841,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "iOS will ask you to confirm."
+          }
+        }
+      }
+    },
+    "onb.s2.card": {
+      "comment": "S2 illustration card label.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Screen Time"
           }
         }
       }
@@ -2289,6 +2889,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Continue"
+          }
+        }
+      }
+    },
+    "onb.s2_d.a11y_secondary": {
+      "comment": "VoiceOver (SPEC.md).",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You can turn it on later."
           }
         }
       }
@@ -2397,6 +3009,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Open Settings"
+          }
+        }
+      }
+    },
+    "onb.s3.a11y_wall": {
+      "comment": "VoiceOver (SPEC.md).",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wall, %1$lld of %2$lld rows in place."
           }
         }
       }
@@ -2521,14 +3145,38 @@
         }
       }
     },
-    "onb.s3.row_2_after": {
-      "comment": "S3 · The wall goes up · Row 2, after. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+    "onb.s3.row_2_count": {
+      "comment": "S3 row 2 after picking apps. Template: {tokens} are replaced at runtime; prices come from StoreKit, never literals.",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "3 apps · Their names never leave this iPhone · Edit"
+            "value": "{n} apps · Their names never leave this iPhone · Edit"
+          }
+        }
+      }
+    },
+    "onb.s3.row_2_mixed": {
+      "comment": "S3 row 2 when categories were picked too. Template: {tokens} are replaced at runtime; prices come from StoreKit, never literals.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{n} picked · Their names never leave this iPhone · Edit"
+          }
+        }
+      }
+    },
+    "onb.s3.row_2_one": {
+      "comment": "S3 row 2 after picking one app.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 app · Their names never leave this iPhone · Edit"
           }
         }
       }
@@ -2581,6 +3229,18 @@
         }
       }
     },
+    "onb.s4.a11y_held": {
+      "comment": "VoiceOver (SPEC.md).",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Held. The test page was blocked."
+          }
+        }
+      }
+    },
     "onb.s4.body": {
       "comment": "S4 · Try it · Body.",
       "extractionState": "manual",
@@ -2613,18 +3273,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "THE WALL"
-          }
-        }
-      }
-    },
-    "onb.s4.finish_later_sheet": {
-      "comment": "S4 · Try it · Finish later sheet. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Finish later? · Your wall is up. Bedrock will pick this up the next time you open it. · Go to my wall · Keep going"
           }
         }
       }
@@ -2917,6 +3565,18 @@
         }
       }
     },
+    "onb.s7.a11y_field": {
+      "comment": "VoiceOver (SPEC.md).",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your own word. One word, letters only."
+          }
+        }
+      }
+    },
     "onb.s7.body": {
       "comment": "S7 · Your word · Body.",
       "extractionState": "manual",
@@ -3025,6 +3685,54 @@
         }
       }
     },
+    "onb.s8.a11y_crisis_link": {
+      "comment": "VoiceOver (SPEC.md).",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Support resources. Opens a sheet."
+          }
+        }
+      }
+    },
+    "onb.s8.a11y_hold": {
+      "comment": "VoiceOver (SPEC.md).",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set your first stone. Double-tap to set."
+          }
+        }
+      }
+    },
+    "onb.s8.a11y_set": {
+      "comment": "VoiceOver (SPEC.md).",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stone set. Day one."
+          }
+        }
+      }
+    },
+    "onb.s8.a11y_stone": {
+      "comment": "VoiceOver (SPEC.md).",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Foundation, day {n}. Your word: {word}."
+          }
+        }
+      }
+    },
     "onb.s8.after": {
       "comment": "S8 · Your stone · After.",
       "extractionState": "manual",
@@ -3045,6 +3753,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "This is your foundation."
+          }
+        }
+      }
+    },
+    "onb.s8.crisis_988_canada": {
+      "comment": "Crisis sheet first row in Canada.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Call or text 988 (Suicide Crisis Helpline, Canada)"
           }
         }
       }
@@ -3097,6 +3817,66 @@
         }
       }
     },
+    "onb.s8.feelings": {
+      "comment": "S8 line 2 fragments, in S6's order.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "bored · stressed · lonely · tired · anxious"
+          }
+        }
+      }
+    },
+    "onb.s8.feelings_many": {
+      "comment": "S8 line 2, three or more (the first three).",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usually when you’re {a}, {b}, or {c}."
+          }
+        }
+      }
+    },
+    "onb.s8.feelings_not_sure": {
+      "comment": "S8 line 2, Not sure.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Even when you can’t say why."
+          }
+        }
+      }
+    },
+    "onb.s8.feelings_one": {
+      "comment": "S8 line 2, one answer.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usually when you’re {a}."
+          }
+        }
+      }
+    },
+    "onb.s8.feelings_two": {
+      "comment": "S8 line 2, two answers.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usually when you’re {a} or {b}."
+          }
+        }
+      }
+    },
     "onb.s8.hold_label": {
       "comment": "S8 · Your stone · Hold label.",
       "extractionState": "manual",
@@ -3109,26 +3889,62 @@
         }
       }
     },
-    "onb.s8.line_1": {
-      "comment": "S8 · Your stone · Line 1. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+    "onb.s8.hours": {
+      "comment": "S8 line 1, one answer from S5, in S5's order.",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "From S5: “Late at night.” · “Early in the morning.” · “In the middle of the day.” · “After work.” · “On weekends.” · “At no set time.” Two picked: “Late at night, and on weekends.” Three or more: “Late at night, and a few other times.”"
+            "value": "Late at night. · Early in the morning. · In the middle of the day. · After work. · On weekends. · At no set time."
           }
         }
       }
     },
-    "onb.s8.line_2": {
-      "comment": "S8 · Your stone · Line 2.",
+    "onb.s8.hours_lead": {
+      "comment": "S8 line 1, the first of several answers.",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "From S6: “Usually when you’re tired.” Two: “Usually when you’re tired or stressed.” Three or more: “Usually when you’re tired, stressed, or lonely.” Not sure: “Even when you can’t say why.”"
+            "value": "Late at night · Early in the morning · In the middle of the day · After work · On weekends"
+          }
+        }
+      }
+    },
+    "onb.s8.hours_many": {
+      "comment": "S8 line 1, three or more answers.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{a}, and a few other times."
+          }
+        }
+      }
+    },
+    "onb.s8.hours_tail": {
+      "comment": "S8 line 1, the second of two answers.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "late at night · early in the morning · in the middle of the day · after work · on weekends"
+          }
+        }
+      }
+    },
+    "onb.s8.hours_two": {
+      "comment": "S8 line 1, two answers: “Late at night, and on weekends.”",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{a}, and {b}."
           }
         }
       }
@@ -3157,18 +3973,6 @@
         }
       }
     },
-    "onb.s8.stone": {
-      "comment": "S8 · Your stone · Stone. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot. Braces mark a variable or a set of variants.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "{WORD} · DAY 1"
-          }
-        }
-      }
-    },
     "onb.s8.tap_hint": {
       "comment": "S8 · Your stone · Tap hint.",
       "extractionState": "manual",
@@ -3177,6 +3981,30 @@
           "stringUnit": {
             "state": "translated",
             "value": "Keep holding"
+          }
+        }
+      }
+    },
+    "onb.s9.a11y_illustration": {
+      "comment": "VoiceOver (SPEC.md).",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A Screen Time switch for Bedrock being turned off, and the wall disappearing."
+          }
+        }
+      }
+    },
+    "onb.s9.a11y_primary": {
+      "comment": "VoiceOver (SPEC.md).",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shows Strict Mode."
           }
         }
       }
@@ -3241,6 +4069,18 @@
         }
       }
     },
+    "onb.s9.row": {
+      "comment": "S9 illustration row: title · app.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Screen Time access · Bedrock"
+          }
+        }
+      }
+    },
     "onb.siwa.body": {
       "comment": "SIWA · Keep it if you change phones · Body.",
       "extractionState": "manual",
@@ -3273,18 +4113,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Keep it if you change phones."
-          }
-        }
-      }
-    },
-    "onb.siwa.primary": {
-      "comment": "SIWA · Keep it if you change phones · Primary.",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sign in with Apple (system button)"
           }
         }
       }
@@ -3333,6 +4161,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Invite code · Enter the code they sent you · Continue"
+          }
+        }
+      }
+    },
+    "onb.sp1.code_used": {
+      "comment": "SP1 code already used.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This invite has already been accepted."
           }
         }
       }
@@ -3409,6 +4249,18 @@
         }
       }
     },
+    "onb.sp2.you_wont_see_title": {
+      "comment": "SP2 column heading.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You won’t see"
+          }
+        }
+      }
+    },
     "onb.sp2.youll_see": {
       "comment": "SP2 · What you’ll see, and won’t · You’ll see. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
       "extractionState": "manual",
@@ -3417,6 +4269,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Whether their wall is up · When they ask to turn it off · If their Bedrock goes quiet for a while"
+          }
+        }
+      }
+    },
+    "onb.sp2.youll_see_title": {
+      "comment": "SP2 column heading.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You’ll see"
           }
         }
       }
@@ -3481,6 +4345,30 @@
         }
       }
     },
+    "onb.sp4.checked": {
+      "comment": "Supporter status card. {time} is relative, e.g. “2 hours ago”.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Checked in {time}"
+          }
+        }
+      }
+    },
+    "onb.sp4.checked_never": {
+      "comment": "Supporter status card before any heartbeat.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for their first check-in"
+          }
+        }
+      }
+    },
     "onb.sp4.headline": {
       "comment": "SP4 · You’re their person · Headline.",
       "extractionState": "manual",
@@ -3489,6 +4377,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "You’re their person."
+          }
+        }
+      }
+    },
+    "onb.sp4.notif_denied": {
+      "comment": "SP4 when notifications were declined on SP3.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on notifications in Settings to see requests quickly."
           }
         }
       }
@@ -3517,14 +4417,74 @@
         }
       }
     },
-    "onb.sp4.status_card": {
-      "comment": "SP4 · You’re their person · Status card. Contains “ · ”: usually separate strings (title · subtitle, sheet rows). Split into their own keys when building the view, unless the UI shows a literal middle dot.",
+    "onb.sp4.status_down": {
+      "comment": "Supporter status card.",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wall up · Checked in 2 hours ago"
+            "value": "Wall not up"
+          }
+        }
+      }
+    },
+    "onb.sp4.status_up": {
+      "comment": "Supporter status card.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wall up"
+          }
+        }
+      }
+    },
+    "onb.sp_home.empty": {
+      "comment": "Supporter home, no requests.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing to answer right now."
+          }
+        }
+      }
+    },
+    "onb.sp_home.eyebrow": {
+      "comment": "Supporter home eyebrow.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YOUR PERSON"
+          }
+        }
+      }
+    },
+    "onb.sp_home.invite": {
+      "comment": "Supporter home: add another person.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supporting someone else? · Enter their code"
+          }
+        }
+      }
+    },
+    "onb.sp_home.request": {
+      "comment": "Supporter home request card: title · body · approve · decline.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "They’re asking to turn it off. · If you don’t answer, it opens in 3 days. · Approve · Not yet"
           }
         }
       }

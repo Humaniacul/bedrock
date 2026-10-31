@@ -33,7 +33,12 @@ struct OnboardingScaffold<Content: View, Footer: View, Accessory: View>: View {
     let footer: Footer
     let footerAccessory: Accessory
 
+    /// Inside `FirstLightView`, the backdrop and chapter bar are drawn once by the
+    /// router so the horizon and the bar's fill move between screens instead of
+    /// fading with them. The scaffold keeps their space.
+    @Environment(\.sharedOnboardingChrome) private var sharedChrome
     @State private var contentUnderFooter = false
+    @State private var viewportHeight: CGFloat = 0
 
     init(screen: ScreenID,
          chapter: Chapter? = nil,
@@ -68,7 +73,7 @@ struct OnboardingScaffold<Content: View, Footer: View, Accessory: View>: View {
             let shift = insets.top - BedrockSize.referenceTopInset
 
             ZStack(alignment: .top) {
-                background
+                if !sharedChrome { background }
 
                 VStack(spacing: 0) {
                     Color.clear.frame(height: contentTop + shift)
@@ -86,19 +91,7 @@ struct OnboardingScaffold<Content: View, Footer: View, Accessory: View>: View {
     // MARK: Layers
 
     private var background: some View {
-        ZStack {
-            BedrockColor.bgBase
-            Color.clear.overlay(alignment: .bottom) {
-                // Centred on the bottom edge; overlay so its 724pt width never sizes the layout.
-                HorizonGlow(level: dawn ?? Dawn.level(for: screen.dawnScreen))
-                    .offset(y: BedrockSize.horizonGlow.height / 2)
-            }
-            Image("NoiseTile")
-                .resizable(resizingMode: .tile)
-                .opacity(BedrockSize.noiseOpacity)
-                .accessibilityHidden(true)
-        }
-        .ignoresSafeArea()
+        OnboardingBackdrop(level: dawn ?? Dawn.level(for: screen.dawnScreen))
     }
 
     private var contentTop: CGFloat {
@@ -109,16 +102,25 @@ struct OnboardingScaffold<Content: View, Footer: View, Accessory: View>: View {
 
     private var scrollingContent: some View {
         ScrollView {
-            content
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, Space.s6)
-                .padding(.bottom, Space.s6)
+            // At least the visible height, so a screen can push part of its
+            // content down with a Spacer (S1's lower-half text) and still scroll
+            // once it outgrows the screen.
+            FillHeight(minHeight: viewportHeight) {
+                content
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, Space.s6)
+                    .padding(.bottom, Space.s6)
+            }
         }
         .scrollBounceBehavior(.basedOnSize)
+        .scrollDismissesKeyboard(.interactively)
         .onScrollGeometryChange(for: Bool.self) { geometry in
             geometry.visibleRect.maxY < geometry.contentSize.height - 1
         } action: { _, isUnder in
             contentUnderFooter = isUnder
+        }
+        .onScrollGeometryChange(for: CGFloat.self) { $0.containerSize.height } action: { _, height in
+            viewportHeight = height
         }
     }
 
@@ -146,7 +148,7 @@ struct OnboardingScaffold<Content: View, Footer: View, Accessory: View>: View {
 
     private func chrome(shift: CGFloat) -> some View {
         ZStack(alignment: .top) {
-            if let chapter, showsChapterBar {
+            if let chapter, showsChapterBar, !sharedChrome {
                 ChapterBar(current: chapter, progress: chapterProgress)
                     .padding(.horizontal, Space.s6)
                     .padding(.top, BedrockSize.chapterBarTop + shift)
@@ -189,6 +191,48 @@ struct OnboardingScaffold<Content: View, Footer: View, Accessory: View>: View {
             }
         }
     }
+}
+
+/// Lays its content out at least `minHeight` tall, proposing the final height so
+/// Spacers inside can expand; taller content keeps its own height (and scrolls).
+struct FillHeight: Layout {
+    var minHeight: CGFloat
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        guard let child = subviews.first else { return .zero }
+        let ideal = child.sizeThatFits(ProposedViewSize(width: proposal.width, height: nil))
+        return CGSize(width: proposal.width ?? ideal.width, height: max(ideal.height, minHeight))
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        subviews.first?.place(at: bounds.origin, anchor: .topLeading, proposal: ProposedViewSize(bounds.size))
+    }
+}
+
+/// Obsidian, the horizon glow at a Dawn level, and the noise tile at 6%.
+struct OnboardingBackdrop: View {
+    let level: Double
+
+    var body: some View {
+        ZStack {
+            BedrockColor.bgBase
+            Color.clear.overlay(alignment: .bottom) {
+                // Centred on the bottom edge; overlay so its 724pt width never sizes the layout.
+                HorizonGlow(level: level)
+                    .offset(y: BedrockSize.horizonGlow.height / 2)
+            }
+            Image("NoiseTile")
+                .resizable(resizingMode: .tile)
+                .opacity(BedrockSize.noiseOpacity)
+                .accessibilityHidden(true)
+        }
+        .ignoresSafeArea()
+    }
+}
+
+extension EnvironmentValues {
+    /// Set by `FirstLightView`: the backdrop and chapter bar are drawn above the screens.
+    @Entry var sharedOnboardingChrome = false
 }
 
 extension OnboardingScaffold where Accessory == EmptyView {

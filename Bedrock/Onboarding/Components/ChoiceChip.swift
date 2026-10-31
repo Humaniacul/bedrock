@@ -9,6 +9,8 @@ struct ChoiceChip: View {
     /// “No pattern yet”, “Not sure”: picking it clears the others. Enforced by
     /// `ChoiceChipGrid`; carried here so the chip can say so if a screen needs it.
     var isExclusive = false
+    /// Single choice (S7): read as a radio, “Steady, 1 of 7.”, and the label warms to ember.
+    var position: (index: Int, count: Int)? = nil
     let action: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -19,7 +21,8 @@ struct ChoiceChip: View {
             HStack(spacing: Space.s2) {
                 Text(title)
                     .font(BedrockFont.chip)
-                    .foregroundStyle(BedrockColor.inkPrimary)
+                    .foregroundStyle(position != nil && isSelected ? BedrockColor.emberGlow : BedrockColor.inkPrimary)
+                    .animation(BedrockMotion.ember, value: isSelected)
                     .multilineTextAlignment(.leading)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 Image(systemName: "checkmark")
@@ -42,7 +45,7 @@ struct ChoiceChip: View {
             .scaleEffect(bump)
         }
         .buttonStyle(.plain)
-        .accessibilityAddTraits(isSelected ? [.isToggle, .isSelected] : .isToggle)
+        .modifier(ChipAccessibility(title: title, isSelected: isSelected, isExclusive: isExclusive, position: position))
     }
 
     private func tap() {
@@ -57,6 +60,26 @@ struct ChoiceChip: View {
     }
 }
 
+/// Toggle chips (S5, S6) or radio chips (S7), per SPEC.md's VoiceOver notes.
+private struct ChipAccessibility: ViewModifier {
+    let title: String
+    let isSelected: Bool
+    let isExclusive: Bool
+    let position: (index: Int, count: Int)?
+
+    func body(content: Content) -> some View {
+        if let position {
+            content
+                .accessibilityLabel(OnbCopy.format("onb.common.a11y_option", title, position.index, position.count))
+                .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
+        } else {
+            content
+                .accessibilityAddTraits(isSelected ? [.isToggle, .isSelected] : .isToggle)
+                .accessibilityHint(isExclusive ? OnbCopy.string("onb.common.a11y_exclusive") : "")
+        }
+    }
+}
+
 /// Chips in a two-column grid with 10pt gaps; one column at accessibility text
 /// sizes. Chips Strata in on arrival. Exclusive options clear the rest, and
 /// picking any other option clears them.
@@ -64,6 +87,8 @@ struct ChoiceChipGrid: View {
     let options: [String]
     @Binding var selection: Set<String>
     var exclusive: Set<String> = []
+    /// One choice at most (S7).
+    var single = false
 
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
@@ -77,7 +102,8 @@ struct ChoiceChipGrid: View {
                         let option = options[index]
                         ChoiceChip(title: option,
                                    isSelected: selection.contains(option),
-                                   isExclusive: exclusive.contains(option)) {
+                                   isExclusive: exclusive.contains(option),
+                                   position: single ? (index + 1, options.count) : nil) {
                             toggle(option)
                         }
                         .bedrockAppear(.strata(index: index))
@@ -98,7 +124,9 @@ struct ChoiceChipGrid: View {
     }
 
     private func toggle(_ option: String) {
-        if exclusive.contains(option) {
+        if single {
+            selection = [option]
+        } else if exclusive.contains(option) {
             selection = selection.contains(option) ? [] : [option]
         } else {
             selection.subtract(exclusive)

@@ -44,9 +44,22 @@ final class LiveBlockingService: BlockingService {
         authState = .unavailable
         throw BlockingError.requiresDevice
         #else
-        try await AuthorizationCenter.shared.requestAuthorization(for: .individual)
-        authState = Self.currentAuthState()
+        do {
+            try await AuthorizationCenter.shared.requestAuthorization(for: .individual)
+            authState = Self.currentAuthState()
+        } catch FamilyControlsError.restricted {
+            authState = .restricted
+            throw BlockingError.restricted
+        } catch {
+            authState = Self.currentAuthState()
+            throw error
+        }
         #endif
+    }
+
+    func refreshAuthState() {
+        guard authState != .restricted else { return }
+        authState = Self.currentAuthState()
     }
 
     func applyProtection() {
@@ -54,6 +67,35 @@ final class LiveBlockingService: BlockingService {
         startSchedule()
         isProtected = true
         BlockingSelectionStore.protectionActive = true
+    }
+
+    func applyStage(_ stage: WallStage) throws {
+        switch stage {
+        case .web:
+            // The S4 test page goes behind the wall with everything else.
+            var denylist = BlockingSelectionStore.denylist
+            if !denylist.contains(WallTestPage.domain) {
+                denylist.append(WallTestPage.domain)
+                BlockingSelectionStore.denylist = denylist
+            }
+            safariFilterEnabled = true
+            #if !targetEnvironment(simulator)
+            ShieldApplier.applyWeb(safariFilterEnabled: true, denylist: denylist)
+            #endif
+        case .apps:
+            #if !targetEnvironment(simulator)
+            ShieldApplier.applyApps(selection: selection)
+            #endif
+        case .schedule:
+            #if !targetEnvironment(simulator)
+            try DeviceActivityCenter().startMonitoring(
+                DeviceActivityName(AppGroup.Blocking.activityName),
+                during: Self.dailySchedule
+            )
+            #endif
+            isProtected = true
+            BlockingSelectionStore.protectionActive = true
+        }
     }
 
     func clearProtection() {
@@ -77,19 +119,21 @@ final class LiveBlockingService: BlockingService {
         #endif
     }
 
-    private func startSchedule() {
-        #if !targetEnvironment(simulator)
-        // A daily repeating interval wakes the monitor extension to re-apply
-        // shields (belt-and-suspenders against the user clearing them; Phase 2
-        // adds tamper detection on the same hook).
-        let schedule = DeviceActivitySchedule(
+    /// A daily repeating interval wakes the monitor extension to re-apply shields
+    /// (belt-and-suspenders against anything clearing them).
+    private static var dailySchedule: DeviceActivitySchedule {
+        DeviceActivitySchedule(
             intervalStart: DateComponents(hour: 0, minute: 0),
             intervalEnd: DateComponents(hour: 23, minute: 59),
             repeats: true
         )
+    }
+
+    private func startSchedule() {
+        #if !targetEnvironment(simulator)
         try? DeviceActivityCenter().startMonitoring(
             DeviceActivityName(AppGroup.Blocking.activityName),
-            during: schedule
+            during: Self.dailySchedule
         )
         #endif
     }
@@ -110,6 +154,7 @@ final class LiveBlockingService: BlockingService {
         case .notDetermined: return .notDetermined
         case .approved: return .approved
         case .denied: return .denied
+        case .approvedWithDataAccess: return .approved
         @unknown default: return .notDetermined
         }
         #endif
