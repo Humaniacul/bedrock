@@ -64,7 +64,7 @@ struct RootView: View {
         .task {
             #if DEBUG
             // Open a side flow directly for testing: SIMCTL_CHILD_BEDROCK_DEBUG_FLOW=
-            // upgrade | paywall | finishSetup | rebuildWall | supporter.
+            // upgrade | paywall | finishSetup | rebuildWall | supporter | supporterLink.
             if let flow = ProcessInfo.processInfo.environment["BEDROCK_DEBUG_FLOW"] {
                 unsetenv("BEDROCK_DEBUG_FLOW")
                 switch flow {
@@ -73,6 +73,7 @@ struct RootView: View {
                 case "finishSetup": launch = FlowLaunch(mode: .finishSetup)
                 case "rebuildWall": launch = FlowLaunch(mode: .rebuildWall)
                 case "supporter": launch = FlowLaunch(mode: .supporter(code: nil))
+                case "supporterLink": launch = FlowLaunch(mode: .supporter(code: "7K2QM9"))
                 default: break
                 }
             }
@@ -145,6 +146,24 @@ struct RootView: View {
             FirstLightState.clear()
             unsetenv("BEDROCK_FORCE_ONBOARDING")
             return .onboarding
+        }
+        // Home as a first run leaves it: SIMCTL_CHILD_BEDROCK_DEBUG_HOME=1 (free) or =pro.
+        if let home = ProcessInfo.processInfo.environment["BEDROCK_DEBUG_HOME"] {
+            unsetenv("BEDROCK_DEBUG_HOME")
+            var state = FirstLightState()
+            state.word = "steady"
+            state.hours = [.lateNight]
+            state.feelings = [.tired]
+            state.wallUp = true
+            state.previewMode = true
+            state.stoneSetAt = .now
+            state.keyHolder = .bedrock
+            state.paywallOutcome = home == "pro" ? .purchased : .free
+            state.completed = true
+            state.completedAt = .now
+            state.save()
+            AppGroup.defaults.removeObject(forKey: AppGroup.Key.homeHeadlineShown)
+            return .app
         }
         #endif
         if FirstLightState.isComplete { return .app }

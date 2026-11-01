@@ -91,12 +91,39 @@ final class FirstLightFlow {
             unsetenv("BEDROCK_DEBUG_SCREEN")
             loaded.screen = raw
             toast = nil
+            // BEDROCK_DEBUG_SEED=1: answers and history as if walked here from S1.
+            if ProcessInfo.processInfo.environment["BEDROCK_DEBUG_SEED"] == "1" {
+                Self.seed(&loaded, upTo: raw)
+            }
         }
         #endif
         loaded.lastActiveAt = now
         state = loaded
         state.save()
     }
+
+    #if DEBUG
+    /// A typical first run reaching `screen`: the screens before it in history,
+    /// the wall up after S3, answers after S5–S7, the stone after S8, Bedrock
+    /// holding the key after S11.
+    private static func seed(_ state: inout FirstLightState, upTo screen: String) {
+        let order: [ScreenID] = [.s1, .s2, .s3, .s4, .s5, .s6, .s7, .s8, .s9, .s10, .s11, .s12,
+                                 .s13_1, .s13_2b, .s13_3b, .s13_4b, .s13_5a, .s13_5b, .s13_6, .s14, .s15]
+        guard let target = ScreenID(rawValue: screen), let index = order.firstIndex(of: target) else { return }
+        let before = Set(order.prefix(index))
+        state.history = order.prefix(index).map(\.rawValue)
+        state.startedAt = .now
+        if before.contains(.s3) { state.wallUp = true }
+        if before.contains(.s5) { state.hours = [.lateNight] }
+        if before.contains(.s6) { state.feelings = [.tired] }
+        if before.contains(.s7) { state.word = "steady" }
+        if before.contains(.s8) { state.stoneSetAt = .now }
+        if before.contains(.s10) { state.pathPlayed = true }
+        if before.contains(.s11) { state.keyHolder = .bedrock }
+        if before.contains(.s12) { state.paywallOutcome = .purchased }
+        if before.contains(.s13_1) { state.letterSaved = true }
+    }
+    #endif
 
     var current: ScreenID { state.current }
     var canGoBack: Bool { !state.history.isEmpty }

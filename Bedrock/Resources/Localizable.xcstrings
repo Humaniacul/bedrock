@@ -121,6 +121,18 @@
         }
       }
     },
+    "onb.common.a11y_notification": {
+      "comment": "S14, SP3 · VoiceOver label for the lock-screen preview. {message} is the example notification.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Example notification: {message}"
+          }
+        }
+      }
+    },
     "onb.common.a11y_option": {
       "comment": "VoiceOver (SPEC.md). Radio option: “Bedrock keeps it, 1 of 2.”",
       "extractionState": "manual",
@@ -321,6 +333,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Finish later?"
+          }
+        }
+      }
+    },
+    "onb.home.a11y_intercept": {
+      "comment": "Home · VoiceOver hint for the urge button.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opens Intercept."
           }
         }
       }
@@ -2745,6 +2769,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Starts a one-breath practice."
+          }
+        }
+      }
+    },
+    "onb.s15.a11y_done": {
+      "comment": "S15 · VoiceOver label for the breath ring once the breath is done.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One breath, done."
           }
         }
       }

@@ -37,7 +37,7 @@ final class BlindEntryRunner {
     }
 
     /// The window as drawn in Bedrock and into the PiP frames.
-    var face: DigitWindowFace { DigitWindowFace(state: session.state, progress: session.progress) }
+    var face: DigitWindowFace { DigitWindowFace(state: session.state) }
 
     /// The digits show inside Bedrock (app switching, preview) rather than over Settings.
     var showsInBedrock: Bool { style != .pictureInPicture }
@@ -55,7 +55,7 @@ final class BlindEntryRunner {
             session.reset()
             phase = .starting
             pip.render { [weak self] in
-                self?.face ?? DigitWindowFace(state: .tapToStart, progress: 0)
+                self?.face ?? DigitWindowFace(state: .tapToStart)
             }
             pip.start()
         }

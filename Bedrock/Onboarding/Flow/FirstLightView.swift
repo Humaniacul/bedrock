@@ -36,11 +36,12 @@ private struct FirstLightStage: View {
         ZStack(alignment: .top) {
             OnboardingBackdrop(level: dawn)
 
+            // Under the screens, so a screen's sheet scrim covers it too.
+            chapterBar
+
             screen(flow.current)
                 .id(flow.current)
                 .transition(.rise(reduceMotion: reduceMotion))
-
-            chapterBar
         }
         .animation(BedrockMotion.riseOut, value: flow.current)
         .environment(flow)
@@ -115,7 +116,7 @@ private struct FirstLightStage: View {
         .allowsHitTesting(false)
     }
 
-    /// B9: “Preview” under the Dynamic Island for the rest of the flow.
+    /// B9: “Preview” at 52pt, just under the Dynamic Island, for the rest of the flow.
     @ViewBuilder private var previewTag: some View {
         if flow.state.previewMode && flow.current.chapter != .supporter {
             PreviewTag()
@@ -131,21 +132,16 @@ private struct FinishLaterSheet: View {
     @Environment(FirstLightFlow.self) private var flow
 
     var body: some View {
-        Text(OnbCopy.string("onb.fl.sheet_body"))
-            .font(BedrockFont.body)
-            .lineSpacing(BedrockLine.body.lineSpacing)
-            .foregroundStyle(BedrockColor.inkSecondary)
-            .fixedSize(horizontal: false, vertical: true)
-        VStack(spacing: Space.s2) {
+        SheetBody(text: OnbCopy.string("onb.fl.sheet_body"))
+        VStack(spacing: ProtoLayout.buttonGap) {
             PrimaryButton(title: OnbCopy.string("onb.fl.primary")) {
                 flow.showsFinishLater = false
                 flow.finishLater()
             }
-            TextButton(title: OnbCopy.string("onb.fl.secondary"), fullWidth: true) {
+            TextButton(title: OnbCopy.string("onb.fl.secondary")) {
                 flow.showsFinishLater = false
             }
         }
-        .padding(.top, Space.s3)
     }
 }
 

@@ -167,83 +167,94 @@ final class BlindEntrySession {
 
 // MARK: - The window's face
 
-/// The floating window: one large digit with a ring sweeping its duration.
-/// Rendered as a SwiftUI view in Bedrock (practice, fallback) and drawn into
-/// Picture in Picture frames over Settings.
+/// The floating window, as the prototype draws it: a phase word (mono, Ash),
+/// one serif digit, “n of 4” under it. No ring: the digit simply holds.
+/// `.pip` is the 150 × 116 window over Settings; `.practice` the 200 × 128 one
+/// on S13.3B. Rendered as a SwiftUI view in Bedrock (practice, fallback) and
+/// drawn into Picture in Picture frames over Settings.
 struct DigitWindowFace: View {
+    enum Style { case pip, practice }
+
     let state: DigitWindowState
-    let progress: Double
-    var practice = false
-    var reduceMotion = false
+    var style: Style = .pip
+
+    private var size: CGSize {
+        style == .pip ? CGSize(width: 150, height: 116) : CGSize(width: 200, height: 128)
+    }
 
     var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: Radius.lg, style: .continuous)
-                .fill(BedrockColor.bgSurface)
-            RoundedRectangle(cornerRadius: Radius.lg, style: .continuous)
-                .strokeBorder(BedrockColor.lineStrong, lineWidth: 1)
-            content
-                .padding(Space.s4)
-        }
-        .frame(width: BedrockSize.digitWindow.width, height: BedrockSize.digitWindow.height)
-        .environment(\.colorScheme, .dark)
+        content
+            .frame(width: size.width, height: size.height)
+            .background(RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .fill(style == .pip ? BedrockColor.pipFill : BedrockColor.windowFill))
+            .overlay(RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .strokeBorder(Color.white.opacity(style == .pip ? 0.16 : 0.14), lineWidth: 1))
+            .overlay(alignment: .top) {
+                RoundedRectangle(cornerRadius: 22, style: .continuous)
+                    .strokeBorder(Color.white.opacity(style == .pip ? 0.12 : 0.16), lineWidth: 1)
+                    .mask(alignment: .top) { Rectangle().frame(height: 1.5) }
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+            .environment(\.colorScheme, .dark)
+            .dynamicTypeSize(.large)
     }
 
     @ViewBuilder private var content: some View {
         switch state {
         case .tapToStart:
-            VStack(spacing: Space.s2) {
-                StoneMark()
-                    .fill(BedrockColor.emberGlow)
-                    .frame(width: BedrockSize.holdGlyph.width, height: BedrockSize.holdGlyph.height)
+            VStack(spacing: 10) {
+                UnitPolygon.mark
+                    .fill(LinearGradient(colors: [BedrockColor.iconStoneHi, BedrockColor.iconStoneLo],
+                                         startPoint: UnitPoint(x: 0.33, y: 0), endPoint: UnitPoint(x: 0.67, y: 1)))
+                    .frame(width: 20, height: 24)
                 Text(OnbCopy.string("onb.s13_4b.window_start"))
-                    .font(BedrockFont.headline)
+                    .ptype(.calloutSemibold)
                     .foregroundStyle(BedrockColor.inkPrimary)
             }
         case .digit(let digit, let index, let confirming):
-            HStack(spacing: Space.s5) {
-                ZStack {
-                    Circle().stroke(BedrockColor.lineStrong, lineWidth: 3)
-                    if !reduceMotion {
-                        Circle()
-                            .trim(from: 0, to: progress)
-                            .stroke(BedrockColor.ember, style: StrokeStyle(lineWidth: 3, lineCap: .round))
-                            .rotationEffect(.degrees(-90))
-                    }
-                    Text(String(digit))
-                        .font(BedrockFont.digitHero)
-                        .foregroundStyle(BedrockColor.inkPrimary)
-                        .monospacedDigit()
-                }
-                .frame(width: BedrockSize.digitRing, height: BedrockSize.digitRing)
-                VStack(alignment: .leading, spacing: Space.s1) {
-                    Text(label(confirming: confirming))
-                        .bedrockEyebrow(color: confirming ? BedrockColor.emberGlow : BedrockColor.inkTertiary)
-                    Text(position(index))
-                        .font(BedrockFont.subhead)
-                        .foregroundStyle(BedrockColor.inkSecondary)
-                }
+            VStack(spacing: style == .pip ? 0 : 2) {
+                Text(label(confirming: confirming))
+                    .ptype(style == .pip ? .pipPhase : .windowPhase)
+                    .textCase(.uppercase)
+                    .foregroundStyle(BedrockColor.inkTertiary)
+                Text(String(digit))
+                    .ptype(style == .pip ? .pipDigit : .digitHero)
+                    .foregroundStyle(BedrockColor.inkPrimary)
+                Text(position(index))
+                    .ptype(.small)
+                    .foregroundStyle(BedrockColor.inkTertiary)
             }
         case .between:
-            StoneMark()
-                .fill(BedrockColor.stoneLight)
-                .frame(width: BedrockSize.holdGlyph.width, height: BedrockSize.holdGlyph.height)
+            UnitPolygon.mark
+                .fill(LinearGradient(colors: [BedrockColor.iconStoneHi, BedrockColor.iconStoneLo],
+                                     startPoint: UnitPoint(x: 0.33, y: 0), endPoint: UnitPoint(x: 0.67, y: 1)))
+                .frame(width: 20, height: 24)
         case .pausedForRecording:
             Text(OnbCopy.string("onb.s13_4b.window_recording"))
-                .font(BedrockFont.subhead.weight(.medium))
+                .ptype(PType(face: .sans, size: 14, line: 18, relativeTo: .footnote))
                 .foregroundStyle(BedrockColor.inkPrimary)
                 .multilineTextAlignment(.center)
+                .padding(.horizontal, 14)
         case .done:
-            Text(OnbCopy.string("onb.s13_4b.window_end"))
-                .font(BedrockFont.subhead.weight(.medium))
-                .foregroundStyle(BedrockColor.inkPrimary)
-                .multilineTextAlignment(.center)
+            VStack(spacing: 6) {
+                ProtoIcon.check
+                    .stroke(BedrockColor.emberGlow, style: StrokeStyle(lineWidth: 1.8, lineCap: .round, lineJoin: .round))
+                    .frame(width: 12, height: 12)
+                    .frame(width: 26, height: 26)
+                    .background(Circle().fill(BedrockColor.emberWash))
+                    .overlay(Circle().strokeBorder(BedrockColor.ember, lineWidth: 1.5))
+                Text(OnbCopy.string("onb.s13_4b.window_end"))
+                    .ptype(PType(face: .sans, size: 14, line: 18, relativeTo: .footnote))
+                    .foregroundStyle(BedrockColor.inkPrimary)
+                    .multilineTextAlignment(.center)
+            }
+            .padding(.horizontal, 14)
         }
     }
 
     /// “Type · {digit} · {n} of 4” (practice: “Digit {n} of 4”).
-    private var windowKey: String { practice ? "onb.s13_3b.window" : "onb.s13_4b.window" }
-    private var confirmKey: String { practice ? "onb.s13_3b.confirm_phase" : "onb.s13_4b.window_confirm" }
+    private var windowKey: String { style == .practice ? "onb.s13_3b.window" : "onb.s13_4b.window" }
+    private var confirmKey: String { style == .practice ? "onb.s13_3b.confirm_phase" : "onb.s13_4b.window_confirm" }
 
     /// The leading word: “Type” or “Again”.
     private func label(confirming: Bool) -> String {
@@ -428,16 +439,18 @@ struct PictureInPictureHost: UIViewRepresentable {
 
 // MARK: - Practice keypad (S13.3B)
 
-/// A local, practice-only passcode pad in Bedrock's style (not an iOS copy).
+/// A local, practice-only passcode pad in Bedrock's style (not an iOS copy):
+/// 72pt Basalt circles with a Fault edge, 28pt digits, 12pt between rows and
+/// 22pt between columns.
 struct PracticeKeypad: View {
     let onDigit: (Character) -> Void
 
     private let rows: [[Character?]] = [["1", "2", "3"], ["4", "5", "6"], ["7", "8", "9"], [nil, "0", nil]]
 
     var body: some View {
-        VStack(spacing: Space.s2) {
+        VStack(spacing: 12) {
             ForEach(rows.indices, id: \.self) { row in
-                HStack(spacing: Space.s5) {
+                HStack(spacing: 22) {
                     ForEach(rows[row].indices, id: \.self) { column in
                         if let digit = rows[row][column] {
                             Button {
@@ -445,16 +458,17 @@ struct PracticeKeypad: View {
                                 onDigit(digit)
                             } label: {
                                 Text(String(digit))
-                                    .font(BedrockFont.keypad)
+                                    .ptype(.keypad)
                                     .foregroundStyle(BedrockColor.inkPrimary)
-                                    .frame(width: BedrockSize.keypadKey, height: BedrockSize.keypadKey)
-                                    .background(Circle().fill(BedrockColor.bgRaised))
-                                    .overlay(Circle().strokeBorder(BedrockColor.lineStrong))
+                                    .frame(width: 72, height: 72)
+                                    .background(Circle().fill(BedrockColor.bgSurface))
+                                    .overlay(Circle().strokeBorder(BedrockColor.lineStrong, lineWidth: 1))
+                                    .contentShape(Circle())
                             }
                             .buttonStyle(PressOpacityStyle())
                             .accessibilityLabel(String(digit))
                         } else {
-                            Color.clear.frame(width: BedrockSize.keypadKey, height: BedrockSize.keypadKey)
+                            Color.clear.frame(width: 72, height: 72)
                         }
                     }
                 }

@@ -52,24 +52,43 @@ final class ShieldConfigurationExtension: ShieldConfigurationDataSource {
         Bundle.main.localizedString(forKey: key, value: nil, table: nil)
     }
 
-    /// The five-point stone mark in ember, drawn once (matches the app icon).
+    /// The prototype's shield mark, drawn once: the grey standing stone (64 × 76,
+    /// 160°, #4A433C → #241F1B) with an ember line across it, glowing, tilted 8°.
     private static let stoneMark: UIImage = {
-        let size = CGSize(width: 56, height: 80)
-        let points: [CGPoint] = [CGPoint(x: 0.24, y: 0.00), CGPoint(x: 0.86, y: 0.08), CGPoint(x: 1.00, y: 0.64),
-                                 CGPoint(x: 0.58, y: 1.00), CGPoint(x: 0.00, y: 0.76)]
+        let size = CGSize(width: 64, height: 76)
+        let points: [CGPoint] = [CGPoint(x: 0.14, y: 0.03), CGPoint(x: 0.50, y: 0.00), CGPoint(x: 0.86, y: 0.04),
+                                 CGPoint(x: 1.00, y: 1.00), CGPoint(x: 0.00, y: 1.00)]
         return UIGraphicsImageRenderer(size: size).image { context in
+            let cg = context.cgContext
             let path = UIBezierPath()
             for (index, point) in points.enumerated() {
                 let p = CGPoint(x: point.x * size.width, y: point.y * size.height)
                 index == 0 ? path.move(to: p) : path.addLine(to: p)
             }
             path.close()
+            cg.saveGState()
             path.addClip()
-            let colors = [UIColor(BedrockColor.emberHot).cgColor, UIColor(BedrockColor.ember).cgColor] as CFArray
+            // CSS 160°: from the top, slightly left, to the bottom, slightly right.
+            let angle = 160 * CGFloat.pi / 180
+            let direction = CGPoint(x: sin(angle), y: -cos(angle))
+            let length = abs(size.width * sin(angle)) + abs(size.height * cos(angle))
+            let center = CGPoint(x: size.width / 2, y: size.height / 2)
+            let colors = [UIColor(red: 0x4A / 255, green: 0x43 / 255, blue: 0x3C / 255, alpha: 1).cgColor,
+                          UIColor(red: 0x24 / 255, green: 0x1F / 255, blue: 0x1B / 255, alpha: 1).cgColor] as CFArray
             if let gradient = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(), colors: colors, locations: [0, 1]) {
-                context.cgContext.drawLinearGradient(gradient, start: .zero,
-                                                     end: CGPoint(x: size.width, y: size.height), options: [])
+                cg.drawLinearGradient(gradient,
+                                      start: CGPoint(x: center.x - direction.x * length / 2, y: center.y - direction.y * length / 2),
+                                      end: CGPoint(x: center.x + direction.x * length / 2, y: center.y + direction.y * length / 2),
+                                      options: [.drawsBeforeStartLocation, .drawsAfterEndLocation])
             }
+            // The line: 10pt in from the left, 12pt from the right, 50pt down.
+            let line = CGRect(x: 10, y: 50, width: size.width - 22, height: 2)
+            cg.translateBy(x: line.midX, y: line.midY)
+            cg.rotate(by: -8 * .pi / 180)
+            cg.setShadow(offset: .zero, blur: 8, color: UIColor(BedrockColor.emberGlow).withAlphaComponent(0.9).cgColor)
+            cg.setFillColor(UIColor(BedrockColor.emberGlow).cgColor)
+            cg.fill(CGRect(x: -line.width / 2, y: -line.height / 2, width: line.width, height: line.height))
+            cg.restoreGState()
         }
     }()
 }

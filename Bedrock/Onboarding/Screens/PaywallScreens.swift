@@ -31,7 +31,6 @@ struct PaywallScreen: View {
     private var weekly: PaywallService.StrictOffer? { paywall.offers[.weekly] }
     private var selectedOffer: PaywallService.StrictOffer? { paywall.offers[plan] }
     private var trialDays: Int? { plan == .yearly ? yearly?.trialDays : nil }
-    private var inlineCTA: Bool { dynamicTypeSize.isAccessibilitySize }
 
     /// 22:00–04:59 local time.
     private var isLateNight: Bool {
@@ -41,12 +40,11 @@ struct PaywallScreen: View {
 
     var body: some View {
         ZStack {
-            OnboardingScaffold(.s12, flow: flow, back: false,
+            OnboardingScaffold(.s12, flow: flow, back: false, top: ProtoLayout.topWithChapter,
+                               bottom: ProtoLayout.bottomTight,
                                onClose: { keepFree(.close) },
                                closeLabel: OnbCopy.string("onb.s12.free_path")) {
                 content
-            } footer: {
-                if !inlineCTA { ctaGroup }
             }
             if succeeded {
                 SuccessMoment()
@@ -54,7 +52,7 @@ struct PaywallScreen: View {
             }
         }
         .animation(BedrockMotion.reducedFade, value: succeeded)
-        .bedrockSheet(isPresented: $otherPlansShown, title: otherPlansParts.first ?? "") {
+        .bedrockSheet(isPresented: $otherPlansShown, title: otherPlansParts.first ?? "", titleGap: 18) {
             otherPlansSheet
         }
         .task {
@@ -65,42 +63,65 @@ struct PaywallScreen: View {
 
     // MARK: Content
 
+    /// The whole page scrolls, the CTA included, as the prototype has it.
     private var content: some View {
-        VStack(alignment: .leading, spacing: Space.s6) {
-            ScreenHeading(eyebrow: OnbCopy.string("onb.s12.eyebrow"),
-                          headline: OnbCopy.string("onb.s12.headline"),
-                          text: OnbCopy.string(holder == .partner ? "onb.s12.subhead_b" : "onb.s12.subhead_a"))
+        VStack(alignment: .leading, spacing: 0) {
+            Eyebrow(text: OnbCopy.string("onb.s12.eyebrow"), color: BedrockColor.emberGlow)
+                .padding(.bottom, Space.s3)
+            Text(OnbCopy.string("onb.s12.headline"))
+                .ptype(.display)
+                .foregroundStyle(BedrockColor.inkPrimary)
+                .fixedSize(horizontal: false, vertical: true)
+                .accessibilityAddTraits(.isHeader)
+                .padding(.bottom, 10)
+            Text(OnbCopy.string(holder == .partner ? "onb.s12.subhead_b" : "onb.s12.subhead_a"))
+                .ptype(.body)
+                .foregroundStyle(BedrockColor.inkSecondary)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.bottom, 20)
             outcomes
+                .padding(.bottom, 22)
             plans
-            if trialDays != nil, plan == .yearly, let yearly { timeline(yearly) }
-            if inlineCTA { ctaGroup }
+            if trialDays != nil, plan == .yearly, let yearly {
+                timeline(yearly)
+                    .padding(.top, 2)
+                    .padding(.bottom, 18)
+            }
+            ctaGroup
+            if isLateNight { lateNight.padding(.top, 6) }
             Text(OnbCopy.string("onb.s12.trust_line"))
-                .font(BedrockFont.footnote)
-                .foregroundStyle(BedrockColor.inkTertiary)
-                .frame(maxWidth: .infinity)
+                .ptype(.footnotePlain)
+                .foregroundStyle(BedrockColor.inkSecondary)
                 .multilineTextAlignment(.center)
-            if isLateNight { lateNight }
-            legal
-            links
-            CrisisLink { flow.showsCrisis = true }
+                .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity)
+                .padding(.top, 18)
+                .padding(.bottom, 10)
+            legal
+                .padding(.bottom, 10)
+            links
+            CrisisLink(type: .captionPlain, height: 36) { flow.showsCrisis = true }
+                .frame(maxWidth: .infinity)
+                .padding(.top, Space.s1)
         }
     }
 
+    /// Four outcomes, each behind a small ember diamond.
     private var outcomes: some View {
         let keys = ["onb.s12.outcome_1", "onb.s12.outcome_2",
                     holder == .partner ? "onb.s12.outcome_3_b" : "onb.s12.outcome_3_a", "onb.s12.outcome_4"]
-        let glyphs = ["figure.walk", "trash.slash", holder == .partner ? "person.2" : "lock", "clock"]
         return VStack(alignment: .leading, spacing: Space.s3) {
             ForEach(keys.indices, id: \.self) { index in
-                HStack(alignment: .firstTextBaseline, spacing: Space.s3) {
-                    Image(systemName: glyphs[index])
-                        .font(BedrockFont.subhead.weight(.semibold))
-                        .foregroundStyle(BedrockColor.emberGlow)
-                        .frame(width: BedrockSize.outcomeGlyph)
+                HStack(alignment: .top, spacing: Space.s3) {
+                    RoundedRectangle(cornerRadius: 3, style: .continuous)
+                        .fill(BedrockColor.ember)
+                        .frame(width: 12, height: 12)
+                        .rotationEffect(.degrees(45))
+                        .padding(.top, 5)
+                        .frame(width: 22, alignment: .leading)
                         .accessibilityHidden(true)
                     Text(OnbCopy.string(keys[index]))
-                        .font(BedrockFont.body)
+                        .ptype(.bodyM)
                         .foregroundStyle(BedrockColor.inkPrimary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -118,23 +139,28 @@ struct PaywallScreen: View {
         case .unavailable:
             NoticeText(text: OnbCopy.string("onb.s12.error_offline"))
         case .ready:
-            VStack(spacing: Space.s3) {
-                let layout = inlineCTA
+            VStack(spacing: 0) {
+                let layout = dynamicTypeSize.isAccessibilitySize
                     ? AnyLayout(VStackLayout(spacing: Space.s5))
-                    : AnyLayout(HStackLayout(alignment: .top, spacing: Space.s3))
+                    : AnyLayout(HStackLayout(alignment: .top, spacing: 10))
                 layout {
                     if let yearly { yearlyCard(yearly) }
                     if let lifetime { lifetimeCard(lifetime) }
                 }
-                .padding(.top, BedrockSize.badgeOverlap)
-                if plan == .weekly, let weekly { weeklyRow(weekly) }
+                if plan == .weekly, let weekly {
+                    weeklyRow(weekly)
+                        .padding(.top, 10)
+                }
                 if weekly != nil {
-                    LinkButton(title: OnbCopy.string("onb.s12.link"), tone: .secondary) {
+                    LinkButton(title: OnbCopy.string("onb.s12.link"), tone: .secondary, height: 36) {
                         flow.track(.otherPlansOpened)
                         otherPlansShown = true
                     }
+                    .padding(.top, 6)
+                    .padding(.bottom, Space.s1)
                 }
             }
+            .frame(maxWidth: .infinity)
         }
     }
 
@@ -143,7 +169,7 @@ struct PaywallScreen: View {
         let subline = offer.trialDays != nil ? fill("onb.s12.yearly_trial", offer) : fill("onb.s12.yearly_plain", offer)
         let badge = offer.trialDays != nil ? fill("onb.s12.yearly_badge", offer) : nil
         let title = OnbCopy.string("onb.s12.yearly_title")
-        return PlanCard(title: title, price: price, priceEmphasis: offer.price, subline: subline, badge: badge,
+        return PlanCard(title: title, price: price, subline: subline, badge: badge,
                         isSelected: plan == .yearly,
                         accessibilityText: planLabel(title, price, badge ?? subline)) { select(.yearly) }
     }
@@ -152,33 +178,27 @@ struct PaywallScreen: View {
         let title = OnbCopy.string("onb.s12.lifetime_title")
         let detail = OnbCopy.string("onb.s12.lifetime_detail")
         return PlanCard(title: title, price: offer.price, subline: detail,
-                        badge: OnbCopy.string("onb.s12.lifetime_badge"),
+                        badge: OnbCopy.string("onb.s12.lifetime_badge"), badgeStyle: .deep,
                         isSelected: plan == .lifetime,
                         accessibilityText: planLabel(title, offer.price, detail)) { select(.lifetime) }
     }
 
     /// The selected weekly plan, as a row under the two cards (both unselected).
     private func weeklyRow(_ offer: PaywallService.StrictOffer) -> some View {
-        let parts = fill("onb.s12.weekly_selected", offer).components(separatedBy: " · ")
-        return HStack {
-            Text(parts.first ?? "")
-                .font(BedrockFont.headline)
-            Spacer()
-            Text(parts.last ?? "")
-                .font(BedrockFont.subhead.weight(.semibold))
-                .monospacedDigit()
-                .transaction { $0.animation = nil }
-        }
-        .foregroundStyle(BedrockColor.inkPrimary)
-        .padding(Space.s4)
-        .background(RoundedRectangle(cornerRadius: BedrockSize.planCardRadius, style: .continuous).fill(BedrockColor.emberWash))
-        .overlay(RoundedRectangle(cornerRadius: BedrockSize.planCardRadius, style: .continuous)
-            .strokeBorder(BedrockColor.ember, lineWidth: 1.5))
-        .accessibilityElement(children: .combine)
-        .accessibilityAddTraits(.isSelected)
+        Text(fill("onb.s12.weekly_selected", offer))
+            .ptype(.subheadPlain)
+            .foregroundStyle(BedrockColor.inkPrimary)
+            .transaction { $0.animation = nil }
+            .padding(.horizontal, 14)
+            .padding(.vertical, Space.s3)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(RoundedRectangle(cornerRadius: Radius.md, style: .continuous).fill(BedrockColor.emberWash))
+            .overlay(RoundedRectangle(cornerRadius: Radius.md, style: .continuous)
+                .strokeBorder(BedrockColor.ember, lineWidth: 1.5))
+            .accessibilityAddTraits(.isSelected)
     }
 
-    /// Today · In 2 days · In 3 days. Read as one sentence.
+    /// Today · In 2 days · In 3 days: a 10pt dot, a 90pt label, the line.
     private func timeline(_ offer: PaywallService.StrictOffer) -> some View {
         let days = offer.trialDays ?? 0
         var rows: [[String]] = [OnbCopy.parts("onb.s12.timeline_today")]
@@ -189,42 +209,46 @@ struct PaywallScreen: View {
             rows.append(OnbCopy.parts("onb.s12.timeline_reminder_tomorrow"))
         }
         rows.append(fill("onb.s12.timeline_end", offer).components(separatedBy: " · "))
-        return VStack(alignment: .leading, spacing: 0) {
+        return VStack(alignment: .leading, spacing: 10) {
             ForEach(rows.indices, id: \.self) { index in
-                HStack(alignment: .top, spacing: Space.s3) {
-                    VStack(spacing: 0) {
-                        Circle()
-                            .fill(index == 0 ? BedrockColor.ember : BedrockColor.bgRaised)
-                            .overlay(Circle().strokeBorder(BedrockColor.emberGlow, lineWidth: 1))
-                            .frame(width: BedrockSize.timelineDot, height: BedrockSize.timelineDot)
-                            .padding(.top, Space.s1)
-                        if index < rows.count - 1 {
-                            Rectangle().fill(BedrockColor.lineStrong).frame(width: 1).frame(maxHeight: .infinity)
-                        }
-                    }
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(rows[index].first ?? "")
-                            .font(BedrockFont.footnote.weight(.semibold))
-                            .foregroundStyle(BedrockColor.emberGlow)
-                        Text(rows[index].dropFirst().joined(separator: " · "))
-                            .font(BedrockFont.subhead)
-                            .foregroundStyle(BedrockColor.inkPrimary)
-                            .fixedSize(horizontal: false, vertical: true)
-                            .transaction { $0.animation = nil }
-                    }
-                    .padding(.bottom, Space.s3)
+                HStack(alignment: .center, spacing: 10) {
+                    timelineDot(index == 0 ? .filled : (index == rows.count - 1 ? .end : .ring))
+                        .frame(width: 16, alignment: .leading)
+                    Text(rows[index].first ?? "")
+                        .ptype(PType(face: .sans, size: 14, line: nil, weight: .semibold, relativeTo: .footnote))
+                        .foregroundStyle(BedrockColor.inkPrimary)
+                        .frame(width: 90, alignment: .leading)
+                    Text(rows[index].dropFirst().joined(separator: " · "))
+                        .ptype(.notePlain)
+                        .foregroundStyle(BedrockColor.inkSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .transaction { $0.animation = nil }
                 }
             }
         }
+        .padding(.leading, Space.s1)
         .accessibilityElement(children: .combine)
     }
 
-    private var ctaGroup: some View {
-        VStack(spacing: Space.s2) {
-            if let notice {
-                VStack(spacing: Space.s1) {
-                    NoticeText(text: OnbCopy.string(notice == .failed ? "onb.s12.error_failed" : "onb.s12.error_pending"))
+    private enum DotStyle { case filled, ring, end }
+
+    private func timelineDot(_ style: DotStyle) -> some View {
+        Circle()
+            .fill(style == .filled ? BedrockColor.ember : .clear)
+            .overlay {
+                if style != .filled {
+                    Circle().strokeBorder(style == .ring ? BedrockColor.ember : BedrockColor.inkTertiary, lineWidth: 1.5)
                 }
+            }
+            .frame(width: 10, height: 10)
+            .accessibilityHidden(true)
+    }
+
+    private var ctaGroup: some View {
+        VStack(spacing: 0) {
+            if let notice {
+                NoticeText(text: OnbCopy.string(notice == .failed ? "onb.s12.error_failed" : "onb.s12.error_pending"))
+                    .padding(.bottom, Space.s3)
             }
             PrimaryButton(title: notice == .failed ? OnbCopy.string("onb.s12.error_retry") : ctaTitle,
                           isEnabled: paywall.offersState == .ready && selectedOffer != nil,
@@ -232,11 +256,14 @@ struct PaywallScreen: View {
                 .contentTransition(.opacity)
                 .animation(BedrockMotion.ctaCrossfade, value: plan)
             Text(OnbCopy.string("onb.s12.under_cta"))
-                .font(BedrockFont.footnote)
-                .foregroundStyle(BedrockColor.inkSecondary)
+                .ptype(.footnote)
+                .foregroundStyle(BedrockColor.inkTertiary)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
-            TextButton(title: OnbCopy.string("onb.s12.free_path"), fullWidth: true) { keepFree(.button) }
+                .frame(maxWidth: .infinity)
+                .padding(.top, 10)
+            TextButton(title: OnbCopy.string("onb.s12.free_path"), type: .calloutMedium, height: 48) { keepFree(.button) }
+                .padding(.top, Space.s1)
         }
     }
 
@@ -249,42 +276,55 @@ struct PaywallScreen: View {
         }
     }
 
+    /// 22:00–04:59: “It's late. You don't have to decide tonight.” and a pill.
     private var lateNight: some View {
         let parts = OnbCopy.parts("onb.s12.late_night")
-        return VStack(alignment: .leading, spacing: Space.s3) {
+        return VStack(alignment: .leading, spacing: 10) {
             Text(parts.first ?? "")
-                .font(BedrockFont.titleS)
+                .ptype(.quote)
                 .foregroundStyle(BedrockColor.inkPrimary)
                 .fixedSize(horizontal: false, vertical: true)
-            TextButton(title: parts.last ?? "", fullWidth: true) { remindTomorrow() }
-                .background(Capsule().strokeBorder(BedrockColor.lineStrong))
+            PillButton(title: parts.last ?? "", height: 40, padding: Space.s4) { remindTomorrow() }
         }
-        .padding(Space.s5)
-        .background(RoundedRectangle(cornerRadius: Radius.lg, style: .continuous).fill(BedrockColor.bgSurface))
-        .overlay(RoundedRectangle(cornerRadius: Radius.lg, style: .continuous).strokeBorder(BedrockColor.lineSubtle))
+        .padding(Space.s4)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: Space.s4, style: .continuous).fill(BedrockColor.bgSurface))
+        .overlay(RoundedRectangle(cornerRadius: Space.s4, style: .continuous).strokeBorder(BedrockColor.lineSubtle, lineWidth: 1))
     }
 
+    /// “Your bank statement shows Apple.” and the plan's terms: 11.5/16 Ash.
     private var legal: some View {
-        VStack(alignment: .leading, spacing: Space.s2) {
-            Text(OnbCopy.string("onb.s12.statement_line"))
-            if let offer = selectedOffer { Text(legalText(offer)) }
-        }
-        .font(BedrockFont.footnote)
-        .foregroundStyle(BedrockColor.inkSecondary)
-        .fixedSize(horizontal: false, vertical: true)
-        .transaction { $0.animation = nil }
+        let statement = OnbCopy.string("onb.s12.statement_line")
+        let terms = selectedOffer.map(legalText) ?? ""
+        return Text(terms.isEmpty ? statement : "\(statement) \(terms)")
+            .ptype(.legal)
+            .foregroundStyle(BedrockColor.inkTertiary)
+            .fixedSize(horizontal: false, vertical: true)
+            .transaction { $0.animation = nil }
     }
 
+    /// Restore purchases · Terms · Privacy: 12.5pt Limestone, dots in #4A4540.
     private var links: some View {
         let parts = OnbCopy.parts("onb.s12.links")
-        return HStack(spacing: Space.s4) {
-            LinkButton(title: parts.first ?? "", tone: .secondary) { restore() }
-                .disabled(restoring)
-            if parts.count > 1 {
-                LinkButton(title: parts[1], tone: .secondary) { openURL(Legal.terms) }
-            }
-            if parts.count > 2 {
-                LinkButton(title: parts[2], tone: .secondary) { openURL(Legal.privacy) }
+        let actions: [() -> Void] = [restore, { openURL(Legal.terms) }, { openURL(Legal.privacy) }]
+        return HStack(spacing: Space.s1) {
+            ForEach(parts.indices, id: \.self) { index in
+                if index > 0 {
+                    Text(verbatim: "·")
+                        .ptype(.captionPlain)
+                        .foregroundStyle(BedrockColor.lineMuted)
+                        .accessibilityHidden(true)
+                }
+                Button(action: actions.indices.contains(index) ? actions[index] : {}) {
+                    Text(parts[index])
+                        .ptype(.captionPlain)
+                        .foregroundStyle(BedrockColor.inkSecondary)
+                        .padding(.horizontal, Space.s2)
+                        .frame(minHeight: 36)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(PressOpacityStyle())
+                .disabled(index == 0 && restoring)
             }
         }
         .frame(maxWidth: .infinity)
@@ -295,31 +335,34 @@ struct PaywallScreen: View {
         return fill("onb.s12.other_plans_sheet", weekly).components(separatedBy: " · ")
     }
 
+    /// One card (Slate, radius 18, a 1.5pt Fault edge), Choose weekly, Close.
     @ViewBuilder private var otherPlansSheet: some View {
         let parts = otherPlansParts
         let item: (Int) -> String = { parts.indices.contains($0) ? parts[$0] : "" }
         VStack(alignment: .leading, spacing: Space.s1) {
-            HStack {
-                Text(item(1)).font(BedrockFont.headline)
-                Spacer()
-                Text(item(2)).font(BedrockFont.subhead.weight(.semibold)).monospacedDigit()
-            }
-            .foregroundStyle(BedrockColor.inkPrimary)
+            Text(item(1))
+                .ptype(.subheadSemibold)
+                .foregroundStyle(BedrockColor.inkPrimary)
+            Text(item(2))
+                .ptype(.option)
+                .foregroundStyle(BedrockColor.inkPrimary)
             Text(item(3))
-                .font(BedrockFont.footnote)
+                .ptype(.footnotePlain)
                 .foregroundStyle(BedrockColor.inkSecondary)
         }
         .padding(Space.s4)
-        .background(RoundedRectangle(cornerRadius: Radius.md, style: .continuous).fill(BedrockColor.bgRaised))
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: BedrockSize.planCardRadius, style: .continuous).fill(BedrockColor.bgRaised))
+        .overlay(RoundedRectangle(cornerRadius: BedrockSize.planCardRadius, style: .continuous)
+            .strokeBorder(BedrockColor.lineStrong, lineWidth: 1.5))
         .accessibilityElement(children: .combine)
-        VStack(spacing: Space.s2) {
-            PrimaryButton(title: item(4)) {
-                select(.weekly)
-                otherPlansShown = false
-            }
-            TextButton(title: item(5), fullWidth: true) { otherPlansShown = false }
+        PrimaryButton(title: item(4)) {
+            select(.weekly)
+            otherPlansShown = false
         }
-        .padding(.top, Space.s3)
+        .padding(.top, 22)
+        TextButton(title: item(5)) { otherPlansShown = false }
+            .padding(.top, ProtoLayout.buttonGap)
     }
 
     // MARK: Helpers
@@ -426,14 +469,15 @@ struct PaywallScreen: View {
     }
 }
 
-/// “You're in.” Carves in over first light and holds 1.2s.
+/// “You're in.”: serif 52 carved on Obsidian; holds 1.2s.
 private struct SuccessMoment: View {
     static let duration = 0.6 + BedrockTiming.successHold
 
     var body: some View {
         ZStack {
-            OnboardingBackdrop(level: 1)
-            CarveText(OnbCopy.string("onb.s12.success"), font: BedrockFont.displayXL)
+            BedrockColor.bgBase.ignoresSafeArea()
+            CarveText(OnbCopy.string("onb.s12.success"))
+                .ptype(PType(face: .serif, size: 52, line: nil, relativeTo: .largeTitle))
                 .foregroundStyle(BedrockColor.inkPrimary)
                 .accessibilityAddTraits(.isHeader)
         }
@@ -447,13 +491,15 @@ private struct NoticeText: View {
 
     var body: some View {
         Text(text)
-            .font(BedrockFont.subhead)
+            .ptype(.note)
             .foregroundStyle(BedrockColor.inkPrimary)
             .multilineTextAlignment(.center)
             .fixedSize(horizontal: false, vertical: true)
-            .padding(Space.s3)
+            .padding(.horizontal, 14)
+            .padding(.vertical, Space.s3)
             .frame(maxWidth: .infinity)
             .background(RoundedRectangle(cornerRadius: Radius.md, style: .continuous).fill(BedrockColor.bgRaised))
+            .overlay(RoundedRectangle(cornerRadius: Radius.md, style: .continuous).strokeBorder(BedrockColor.lineStrong, lineWidth: 1))
     }
 }
 
@@ -470,25 +516,29 @@ struct NotReadyScreen: View {
     @Environment(FirstLightFlow.self) private var flow
 
     var body: some View {
-        OnboardingScaffold(.s12u, flow: flow) {
+        OnboardingScaffold(.s12u, flow: flow, back: false,
+                           onClose: keepFree, closeLabel: OnbCopy.string("onb.s12u.secondary")) {
             ScreenHeading(eyebrow: OnbCopy.string("onb.s12u.eyebrow"),
+                          eyebrowColor: BedrockColor.emberGlow,
                           headline: OnbCopy.string("onb.s12u.headline"),
                           text: OnbCopy.string("onb.s12u.body"))
         } footer: {
-            VStack(spacing: Space.s2) {
+            VStack(spacing: ProtoLayout.buttonGap) {
                 PrimaryButton(title: OnbCopy.string("onb.s12u.primary")) {
                     flow.track(.action(.remindAfterUpdate))
                     flow.update { $0.paywallOutcome = .waitingForUpdate }
                     flow.afterFreeChoice()
                 }
-                TextButton(title: OnbCopy.string("onb.s12u.secondary"), fullWidth: true) {
-                    flow.track(.action(.keepFree))
-                    flow.update { $0.paywallOutcome = .free }
-                    flow.afterFreeChoice()
-                }
+                TextButton(title: OnbCopy.string("onb.s12u.secondary"), action: keepFree)
             }
         }
         .task { flow.track(.paywallViewed(.unsupported, holder: flow.state.keyHolder?.analytics, trialEligible: false)) }
+    }
+
+    private func keepFree() {
+        flow.track(.action(.keepFree))
+        flow.update { $0.paywallOutcome = .free }
+        flow.afterFreeChoice()
     }
 }
 
@@ -501,10 +551,11 @@ struct SignInScreen: View {
     var body: some View {
         OnboardingScaffold(.siwa, flow: flow, back: false) {
             ScreenHeading(eyebrow: OnbCopy.string("onb.siwa.eyebrow"),
+                          eyebrowColor: BedrockColor.emberGlow,
                           headline: OnbCopy.string("onb.siwa.headline"),
                           text: OnbCopy.string("onb.siwa.body"))
         } footer: {
-            VStack(spacing: Space.s2) {
+            VStack(spacing: ProtoLayout.buttonGap) {
                 // The opaque Apple user identifier only: no name, no email.
                 SignInWithAppleButton(.signIn) { request in
                     request.requestedScopes = []
@@ -514,7 +565,7 @@ struct SignInScreen: View {
                 .signInWithAppleButtonStyle(.white)
                 .frame(height: BedrockSize.primaryHeight)
                 .clipShape(Capsule())
-                TextButton(title: OnbCopy.string("onb.siwa.secondary"), fullWidth: true) {
+                TextButton(title: OnbCopy.string("onb.siwa.secondary")) {
                     flow.track(.siwaResult(.skipped))
                     flow.go(.s13_1)
                 }

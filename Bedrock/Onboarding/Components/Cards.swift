@@ -1,13 +1,12 @@
 import SwiftUI
 
-// OptionCard (S11), PlanCard (S12), HomeCard and StatusChip (Home) —
-// COMPONENTS.md › Choices, Sheets.
+// OptionCard (S11), PlanCard (S12), HomeCard and StatusChip (Home), as the
+// prototype draws them.
 
 // MARK: - OptionCard
 
-/// S11 key holder. Full width, radius 20, title in serif 26, body 15, a small
-/// tag pill. Selected: ember border, `emberWash`, the title warms (Ember).
-/// VoiceOver: a radio button, “Bedrock keeps it, 1 of 2”, with body and tag as hint.
+/// S11: radius 20, 1.5pt edge (ember when chosen), `emberWash` when chosen;
+/// a serif 26 title, a 15pt body, a small raised tag in Glow.
 struct OptionCard: View {
     let title: String
     let detail: String
@@ -29,30 +28,31 @@ struct OptionCard: View {
             withTransaction(instant) { settle = BedrockMotion.cardSelectScale }
             withAnimation(BedrockMotion.settle) { settle = 1 }
         } label: {
-            VStack(alignment: .leading, spacing: Space.s2) {
+            VStack(alignment: .leading, spacing: 6) {
                 Text(title)
-                    .font(BedrockFont.optionTitle)
-                    .foregroundStyle(isSelected ? BedrockColor.emberGlow : BedrockColor.inkPrimary)
-                    .animation(BedrockMotion.ember, value: isSelected)
+                    .ptype(.option)
+                    .foregroundStyle(BedrockColor.inkPrimary)
                 Text(detail)
-                    .font(BedrockFont.subhead)
+                    .ptype(.subhead)
                     .foregroundStyle(BedrockColor.inkSecondary)
                     .fixedSize(horizontal: false, vertical: true)
                 Text(tag)
-                    .font(BedrockFont.footnote.weight(.medium))
-                    .foregroundStyle(isSelected ? BedrockColor.inkPrimary : BedrockColor.inkSecondary)
-                    .padding(.horizontal, Space.s2)
-                    .padding(.vertical, Space.s1)
-                    .background(Capsule().fill(isSelected ? BedrockColor.emberDeep : BedrockColor.bgRaised))
+                    .ptype(.captionPlain)
+                    .foregroundStyle(BedrockColor.emberGlow)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 3)
+                    .background(Capsule().fill(BedrockColor.bgRaised))
                     .padding(.top, Space.s1)
             }
             .multilineTextAlignment(.leading)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(Space.s5)
+            .padding(.horizontal, 18)
+            .padding(.top, 18)
+            .padding(.bottom, Space.s4)
             .background(RoundedRectangle(cornerRadius: Radius.lg, style: .continuous)
                 .fill(isSelected ? BedrockColor.emberWash : BedrockColor.bgSurface))
             .overlay(RoundedRectangle(cornerRadius: Radius.lg, style: .continuous)
-                .strokeBorder(isSelected ? BedrockColor.ember : BedrockColor.lineStrong, lineWidth: isSelected ? 1.5 : 1))
+                .strokeBorder(isSelected ? BedrockColor.ember : BedrockColor.lineStrong, lineWidth: 1.5))
             .animation(BedrockMotion.chipColour, value: isSelected)
             .contentShape(RoundedRectangle(cornerRadius: Radius.lg, style: .continuous))
             .scaleEffect(settle)
@@ -67,16 +67,17 @@ struct OptionCard: View {
 
 // MARK: - PlanCard
 
-/// S12. Radius 18, min 132pt tall, a badge pill overlapping the top edge. Prices
-/// never animate; the badge shows only when StoreKit says the trial applies.
+/// S12: radius 18, min 132pt, 1.5pt edge, a badge pill overlapping the top edge
+/// at the right. Title 15 semibold, the price in serif 26, a 12.5pt line.
+/// Prices never animate.
 struct PlanCard: View {
+    enum BadgeStyle { case ember, deep }
+
     let title: String
     let price: String
-    /// The StoreKit price inside `price` (“$69.99” in “$69.99 a year”), set
-    /// large; the period around it stays small so the line fits the card.
-    var priceEmphasis: String? = nil
     let subline: String
     let badge: String?
+    var badgeStyle: BadgeStyle = .ember
     let isSelected: Bool
     let accessibilityText: String
     let action: () -> Void
@@ -86,41 +87,41 @@ struct PlanCard: View {
             BedrockHaptics.select()
             action()
         } label: {
-            VStack(alignment: .leading, spacing: Space.s2) {
+            VStack(alignment: .leading, spacing: Space.s1) {
                 Text(title)
-                    .font(BedrockFont.headline)
-                    .foregroundStyle(BedrockColor.inkPrimary)
-                priceText
-                    .foregroundStyle(BedrockColor.inkPrimary)
+                    .ptype(.subheadSemibold)
+                Text(price)
+                    .ptype(.option)
                     .lineLimit(1)
                     .minimumScaleFactor(0.6)
-                    .transaction { $0.animation = nil } // prices never animate
+                    .transaction { $0.animation = nil }
                 Text(subline)
-                    .font(BedrockFont.footnote)
+                    .ptype(.caption)
                     .foregroundStyle(BedrockColor.inkSecondary)
                     .fixedSize(horizontal: false, vertical: true)
                     .transaction { $0.animation = nil }
                 Spacer(minLength: 0)
             }
+            .foregroundStyle(BedrockColor.inkPrimary)
             .multilineTextAlignment(.leading)
             .frame(maxWidth: .infinity, minHeight: BedrockSize.planCardMinHeight, alignment: .topLeading)
-            .padding(.horizontal, Space.s4)
-            .padding(.top, Space.s5)
-            .padding(.bottom, Space.s4)
+            .padding(.horizontal, 14)
+            .padding(.top, Space.s4)
+            .padding(.bottom, 14)
             .background(RoundedRectangle(cornerRadius: BedrockSize.planCardRadius, style: .continuous)
                 .fill(isSelected ? BedrockColor.emberWash : BedrockColor.bgSurface))
             .overlay(RoundedRectangle(cornerRadius: BedrockSize.planCardRadius, style: .continuous)
-                .strokeBorder(isSelected ? BedrockColor.ember : BedrockColor.lineStrong, lineWidth: isSelected ? 1.5 : 1))
-            .overlay(alignment: .top) {
+                .strokeBorder(isSelected ? BedrockColor.ember : BedrockColor.lineStrong, lineWidth: 1.5))
+            .overlay(alignment: .topTrailing) {
                 if let badge {
                     Text(badge)
-                        .font(BedrockFont.footnote.weight(.semibold))
-                        .foregroundStyle(BedrockColor.inkPrimary)
-                        .padding(.horizontal, Space.s3)
-                        .padding(.vertical, Space.s1)
-                        .background(Capsule().fill(BedrockColor.emberDeep))
+                        .ptype(.badge)
+                        .foregroundStyle(badgeStyle == .ember ? BedrockColor.onEmber : BedrockColor.inkPrimary)
+                        .padding(.horizontal, 9)
+                        .padding(.vertical, 3)
+                        .background(Capsule().fill(badgeStyle == .ember ? BedrockColor.ember : BedrockColor.emberDeep))
                         .fixedSize()
-                        .offset(y: -BedrockSize.badgeOverlap)
+                        .offset(x: -10, y: -10)
                 }
             }
             .animation(BedrockMotion.chipColour, value: isSelected)
@@ -133,22 +134,10 @@ struct PlanCard: View {
     }
 }
 
-extension PlanCard {
-    private var priceText: Text {
-        guard let emphasis = priceEmphasis, let range = price.range(of: emphasis) else {
-            return Text(price).font(BedrockFont.planPrice)
-        }
-        let before = Text(verbatim: String(price[..<range.lowerBound])).font(BedrockFont.subhead.weight(.medium))
-        let amount = Text(verbatim: emphasis).font(BedrockFont.planPrice)
-        let after = Text(verbatim: String(price[range.upperBound...])).font(BedrockFont.subhead.weight(.medium))
-        return Text("\(before)\(amount)\(after)")
-    }
-}
-
 // MARK: - HomeCard
 
-/// Home (COMPONENTS.md): title + subtitle, a chevron when tappable, × to dismiss
-/// (except “Finish setting up”).
+/// Home: radius 18, translucent basalt, a title (16 semibold) and a line (14pt),
+/// a chevron when it opens something, × to dismiss (except “Finish setting up”).
 struct HomeCard: View {
     let title: String
     let subtitle: String
@@ -156,31 +145,37 @@ struct HomeCard: View {
     var onDismiss: (() -> Void)?
 
     var body: some View {
-        HStack(spacing: Space.s3) {
+        HStack(spacing: 0) {
             Button {
                 action?()
             } label: {
                 HStack(spacing: Space.s3) {
-                    VStack(alignment: .leading, spacing: Space.s1) {
+                    VStack(alignment: .leading, spacing: 2) {
                         Text(title)
-                            .font(BedrockFont.headline)
+                            .ptype(.calloutSemibold)
                             .foregroundStyle(BedrockColor.inkPrimary)
                         if !subtitle.isEmpty {
                             Text(subtitle)
-                                .font(BedrockFont.subhead)
+                                .ptype(.rowDetail)
                                 .foregroundStyle(BedrockColor.inkSecondary)
                         }
                     }
-                    .fixedSize(horizontal: false, vertical: true)
                     .multilineTextAlignment(.leading)
-                    Spacer(minLength: 0)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     if action != nil {
-                        Image(systemName: "chevron.right")
-                            .font(BedrockFont.subhead.weight(.semibold))
-                            .foregroundStyle(BedrockColor.inkTertiary)
+                        ProtoIcon.chevronRight
+                            .stroke(BedrockColor.inkTertiary, style: StrokeStyle(lineWidth: 1.8, lineCap: .round, lineJoin: .round))
+                            .frame(width: 8, height: 14)
                             .accessibilityHidden(true)
                     }
                 }
+                .padding(.leading, Space.s4)
+                .padding(.trailing, 6)
+                .padding(.vertical, 10)
+                // As the prototype renders them: 64pt when it opens something,
+                // 84pt when it only informs.
+                .frame(minHeight: action == nil ? 84 : 64)
                 .contentShape(Rectangle())
             }
             .buttonStyle(PressOpacityStyle())
@@ -189,29 +184,31 @@ struct HomeCard: View {
 
             if let onDismiss {
                 Button(action: onDismiss) {
-                    Image(systemName: "xmark")
-                        .font(BedrockFont.footnote.weight(.semibold))
-                        .foregroundStyle(BedrockColor.inkTertiary)
-                        .frame(width: BedrockSize.circleButton, height: BedrockSize.circleButton)
-                        .contentShape(Rectangle())
+                    ViewBoxShape(viewBox: CGSize(width: 10, height: 10), path: Path { p in
+                        p.move(to: CGPoint(x: 1.5, y: 1.5)); p.addLine(to: CGPoint(x: 8.5, y: 8.5))
+                        p.move(to: CGPoint(x: 8.5, y: 1.5)); p.addLine(to: CGPoint(x: 1.5, y: 8.5))
+                    })
+                    .stroke(BedrockColor.inkTertiary, style: StrokeStyle(lineWidth: 1.6, lineCap: .round))
+                    .frame(width: 10, height: 10)
+                    .frame(width: 48)
+                    .frame(maxHeight: .infinity)
+                    .contentShape(Rectangle())
                 }
                 .buttonStyle(PressOpacityStyle())
                 .accessibilityLabel(OnbCopy.string("onb.common.dismiss"))
             }
         }
-        .padding(.leading, Space.s5)
-        .padding(.trailing, onDismiss == nil ? Space.s5 : Space.s2)
-        .padding(.vertical, Space.s3)
-        .frame(minHeight: BedrockSize.homeCardMinHeight)
-        .background(RoundedRectangle(cornerRadius: Radius.lg, style: .continuous).fill(BedrockColor.bgSurface))
-        .overlay(RoundedRectangle(cornerRadius: Radius.lg, style: .continuous).strokeBorder(BedrockColor.lineSubtle))
+        .fixedSize(horizontal: false, vertical: true)
+        .background(RoundedRectangle(cornerRadius: 18, style: .continuous).fill(BedrockColor.homeCardFill))
+        .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).strokeBorder(BedrockColor.lineSubtle, lineWidth: 1))
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
     }
 }
 
 // MARK: - StatusChip
 
-/// Home's status: “Wall up · Strict Mode on / off” or “Wall not up”, with a dot.
-/// On the free wall it's a button into S10 → S12; with no wall it opens S2.
+/// Home's status: a 32pt glass capsule, an 8pt dot (Glow with a halo, or Dust
+/// when the wall isn't up), 12.5pt text. A button into S10 (free) or S2 (no wall).
 struct StatusChip: View {
     enum Status { case pro, free, noWall }
 
@@ -228,23 +225,20 @@ struct StatusChip: View {
 
     var body: some View {
         Button { action?() } label: {
-            HStack(spacing: Space.s2) {
+            HStack(spacing: 7) {
                 Circle()
-                    .fill(status == .noWall ? BedrockColor.inkTertiary : BedrockColor.emberGlow)
-                    .frame(width: BedrockSize.statusDot, height: BedrockSize.statusDot)
+                    .fill(status == .noWall ? BedrockColor.inkDisabled : BedrockColor.emberGlow)
+                    .background(Circle().fill(BedrockColor.emberGlow.opacity(status == .noWall ? 0 : 0.18)).padding(-3))
+                    .frame(width: 8, height: 8)
                 Text(text)
-                    .font(BedrockFont.footnote.weight(.medium))
+                    .ptype(.captionPlain)
                     .foregroundStyle(BedrockColor.inkPrimary)
-                if action != nil {
-                    Image(systemName: "chevron.right")
-                        .font(BedrockFont.caption.weight(.semibold))
-                        .foregroundStyle(BedrockColor.inkTertiary)
-                }
+                    .lineLimit(1)
             }
             .padding(.horizontal, Space.s3)
-            .frame(minHeight: BedrockSize.textButtonHeight)
-            .background(Capsule().fill(BedrockColor.bgSurface))
-            .overlay(Capsule().strokeBorder(BedrockColor.lineSubtle))
+            .frame(height: 32)
+            .controlGlass(Capsule(), soft: true)
+            .contentShape(Capsule())
         }
         .buttonStyle(PressOpacityStyle())
         .disabled(action == nil)

@@ -44,8 +44,8 @@ struct OnboardingScaffold<Content: View, Footer: View>: View {
 
                 VStack(spacing: 0) {
                     Color.clear.frame(height: max(top + shift, 0))
-                    scrollingContent
-                    footerArea(bottomEdge: footerBottom(insets))
+                    scrollingContent(bottomInset: hasFooter ? 0 : footerBottom(insets))
+                    if hasFooter { footerArea(bottomEdge: footerBottom(insets)) }
                 }
 
                 chrome(shift: shift)
@@ -65,7 +65,11 @@ struct OnboardingScaffold<Content: View, Footer: View>: View {
 
     // MARK: Layers
 
-    private var scrollingContent: some View {
+    /// No footer (S12, where everything scrolls, the CTA included): the content
+    /// runs to the bottom edge and keeps the bottom padding itself.
+    private var hasFooter: Bool { Footer.self != EmptyView.self }
+
+    private func scrollingContent(bottomInset: CGFloat) -> some View {
         ScrollView {
             // At least the visible height, so a screen's Spacers can centre an
             // illustration or push a block down, as the prototype's flex column does.
@@ -73,6 +77,7 @@ struct OnboardingScaffold<Content: View, Footer: View>: View {
                 content
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, ProtoLayout.side)
+                    .padding(.bottom, bottomInset)
             }
         }
         .scrollBounceBehavior(.basedOnSize)
@@ -199,6 +204,21 @@ extension OnboardingScaffold {
         self.closeLabel = closeLabel
         self.content = content()
         self.footer = footer()
+    }
+}
+
+extension OnboardingScaffold where Footer == EmptyView {
+    /// A screen whose controls all scroll with its content.
+    init(_ screen: ScreenID,
+         flow: FirstLightFlow,
+         back: Bool = true,
+         top: CGFloat? = nil,
+         bottom: CGFloat = ProtoLayout.bottom,
+         onClose: (() -> Void)? = nil,
+         closeLabel: String = "",
+         @ViewBuilder content: () -> Content) {
+        self.init(screen, flow: flow, back: back, top: top, bottom: bottom, onClose: onClose, closeLabel: closeLabel,
+                  content: content, footer: { EmptyView() })
     }
 }
 

@@ -61,13 +61,20 @@ struct MultiChips: View {
 struct FlowLayout: Layout {
     var spacing: CGFloat = 8
 
+    /// Its ideal size, or wrapped to the row's width when that's too wide (large text).
+    private func size(of subview: LayoutSubview, maxWidth: CGFloat) -> CGSize {
+        let ideal = subview.sizeThatFits(.unspecified)
+        guard ideal.width > maxWidth else { return ideal }
+        return subview.sizeThatFits(ProposedViewSize(width: maxWidth, height: nil))
+    }
+
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout Void) -> CGSize {
         let maxWidth = proposal.width ?? .infinity
         var rowWidth: CGFloat = 0
         var totalHeight: CGFloat = 0
         var rowHeight: CGFloat = 0
         for subview in subviews {
-            let size = subview.sizeThatFits(.unspecified)
+            let size = size(of: subview, maxWidth: maxWidth)
             if rowWidth + size.width > maxWidth, rowWidth > 0 {
                 totalHeight += rowHeight + spacing
                 rowWidth = 0
@@ -85,7 +92,7 @@ struct FlowLayout: Layout {
         var y = bounds.minY
         var rowHeight: CGFloat = 0
         for subview in subviews {
-            let size = subview.sizeThatFits(.unspecified)
+            let size = size(of: subview, maxWidth: bounds.width)
             if x + size.width > bounds.maxX, x > bounds.minX {
                 x = bounds.minX
                 y += rowHeight + spacing

@@ -23,71 +23,79 @@ struct SupporterWelcomeScreen: View {
     }
 
     var body: some View {
-        OnboardingScaffold(.sp1, flow: flow) {
-            VStack(alignment: .leading, spacing: Space.s7) {
-                StoneMark()
-                    .fill(LinearGradient(colors: [BedrockColor.emberGlow, BedrockColor.ember],
-                                         startPoint: .top, endPoint: .bottom))
-                    .frame(width: BedrockSize.stoneMark.width, height: BedrockSize.stoneMark.height)
-                    .bedrockAppear(.settle)
-                    .accessibilityHidden(true)
-                VStack(alignment: .leading, spacing: 0) {
-                    Text(OnbCopy.string("onb.sp1.eyebrow"))
-                        .bedrockEyebrow()
-                        .padding(.bottom, Space.s3)
-                    CarveText(OnbCopy.string("onb.sp1.headline"), delay: 0.1, font: BedrockFont.title)
-                        .lineSpacing(BedrockLine.title.lineSpacing)
+        OnboardingScaffold(.sp1, flow: flow, back: linkedCode == nil, top: 0) {
+            VStack(alignment: .leading, spacing: 0) {
+                if linkedCode != nil {
+                    StoneMarkView()
+                        .frame(width: 30, height: 36)
+                        .padding(.top, ProtoLayout.controlTop)
+                        .bedrockAppear(.settle, delay: 0.12)
+                        .accessibilityHidden(true)
+                }
+                Spacer(minLength: ProtoLayout.topWithBack)
+                VStack(alignment: .leading, spacing: 14) {
+                    Eyebrow(text: OnbCopy.string("onb.sp1.eyebrow"))
+                    CarveText(OnbCopy.string("onb.sp1.headline"))
+                        .ptype(.titleL)
                         .foregroundStyle(BedrockColor.inkPrimary)
                         .fixedSize(horizontal: false, vertical: true)
                         .accessibilityAddTraits(.isHeader)
                     Text(OnbCopy.string("onb.sp1.body"))
-                        .font(BedrockFont.body)
-                        .lineSpacing(BedrockLine.body.lineSpacing)
+                        .ptype(.body)
                         .foregroundStyle(BedrockColor.inkSecondary)
                         .fixedSize(horizontal: false, vertical: true)
-                        .padding(.top, Space.s4)
                         .bedrockAppear(.rise, delay: 0.5)
                 }
-                if linkedCode == nil { codeField }
-                if let error {
-                    Text(error)
-                        .font(BedrockFont.subhead)
-                        .foregroundStyle(BedrockColor.emberGlow)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .transition(.opacity)
+                if linkedCode == nil {
+                    codeField
+                        .padding(.top, 28)
                 }
+                Color.clear.frame(height: (linkedCode == nil ? Space.s4 : 40) - Space.s2)
             }
-            .animation(BedrockMotion.reducedFade, value: error)
         } footer: {
             PrimaryButton(title: linkedCode == nil ? (field.last ?? "") : OnbCopy.string("onb.sp1.primary"),
                           isEnabled: linkedCode != nil || typedCode.count >= 4,
                           isLoading: working) {
                 Task { await accept() }
             }
+            .bedrockAppear(.settle, delay: linkedCode == nil ? 0 : 0.8)
         }
         .task { flow.track(.supStarted(source: linkedCode == nil ? .organic : .inviteLink)) }
         .environment(\.onboardingScrollAnchor, fieldFocused ? .bottom : nil)
     }
 
+    /// “Invite code” (13pt Ash), a 56pt field (Slate, radius 14, a 1.5pt edge
+    /// that turns Glow on an error), the error in 14/20 Glow.
     private var codeField: some View {
         VStack(alignment: .leading, spacing: Space.s2) {
             Text(field.first ?? "")
-                .bedrockEyebrow()
-            TextField(field.dropFirst().first ?? "", text: $code)
+                .ptype(.footnotePlain)
+                .foregroundStyle(BedrockColor.inkTertiary)
+            TextField("", text: $code,
+                      prompt: Text(field.dropFirst().first ?? "").foregroundStyle(BedrockColor.inkTertiary))
                 .focused($fieldFocused)
-                .font(BedrockFont.digits)
+                .ptype(PType(face: .sans, size: 17, line: nil, tracking: 0.5))
                 .foregroundStyle(BedrockColor.inkPrimary)
                 .textInputAutocapitalization(.characters)
                 .autocorrectionDisabled()
                 .submitLabel(.continue)
                 .onSubmit { Task { await accept() } }
                 .padding(.horizontal, Space.s4)
-                .frame(minHeight: BedrockSize.chipMinHeight)
+                .frame(minHeight: 56)
                 .background(RoundedRectangle(cornerRadius: Radius.md, style: .continuous).fill(BedrockColor.bgRaised))
                 .overlay(RoundedRectangle(cornerRadius: Radius.md, style: .continuous)
-                    .strokeBorder(fieldFocused ? BedrockColor.ember : BedrockColor.lineStrong, lineWidth: 1))
+                    .strokeBorder(error != nil ? BedrockColor.emberGlow : BedrockColor.lineStrong, lineWidth: 1.5))
+                .accessibilityLabel(field.first ?? "")
                 .onChange(of: code) { _, _ in error = nil }
+            if let error {
+                Text(error)
+                    .ptype(.note)
+                    .foregroundStyle(BedrockColor.emberGlow)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .transition(.opacity)
+            }
         }
+        .animation(BedrockMotion.reducedFade, value: error)
     }
 
     private func accept() async {
@@ -119,21 +127,21 @@ struct SupporterTermsScreen: View {
 
     var body: some View {
         let layout = dynamicTypeSize.isAccessibilitySize
-            ? AnyLayout(VStackLayout(alignment: .leading, spacing: Space.s7))
-            : AnyLayout(HStackLayout(alignment: .top, spacing: Space.s4))
-        OnboardingScaffold(.sp2, flow: flow, back: false) {
-            VStack(alignment: .leading, spacing: Space.s8) {
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: 10))
+            : AnyLayout(HStackLayout(alignment: .top, spacing: 10))
+        OnboardingScaffold(.sp2, flow: flow, top: ProtoLayout.topWithBack) {
+            VStack(alignment: .leading, spacing: 0) {
                 ScreenHeading(headline: OnbCopy.string("onb.sp2.headline"))
+                    .padding(.bottom, Space.s6)
                 layout {
                     TermsColumn(title: OnbCopy.string("onb.sp2.youll_see_title"),
-                                items: OnbCopy.parts("onb.sp2.youll_see"),
-                                glyph: "eye", tint: BedrockColor.emberGlow)
+                                items: OnbCopy.parts("onb.sp2.youll_see"), sees: true)
                         .bedrockAppear(.strata(index: 0))
                     TermsColumn(title: OnbCopy.string("onb.sp2.you_wont_see_title"),
-                                items: OnbCopy.parts("onb.sp2.you_wont_see"),
-                                glyph: "eye.slash", tint: BedrockColor.inkTertiary)
-                        .bedrockAppear(.strata(index: 1), delay: 0.03)
+                                items: OnbCopy.parts("onb.sp2.you_wont_see"), sees: false)
+                        .bedrockAppear(.strata(index: 1), delay: 0.02)
                 }
+                .fixedSize(horizontal: false, vertical: true)
             }
         } footer: {
             PrimaryButton(title: OnbCopy.string("onb.sp2.primary")) { flow.go(.sp3) }
@@ -142,35 +150,69 @@ struct SupporterTermsScreen: View {
     }
 }
 
+/// SP2's two cards: “You'll see” (warm: Ember Night, a Kiln edge, Glow
+/// heading, Chalk items) and “You won't see” (Basalt, a Fault edge, Ash
+/// heading, Limestone items). Each item is a small icon over its text.
 private struct TermsColumn: View {
     let title: String
     let items: [String]
-    let glyph: String
-    let tint: Color
+    let sees: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: Space.s4) {
             Text(title)
-                .bedrockEyebrow(color: tint)
+                .ptype(.columnHead)
+                .textCase(.uppercase)
+                .foregroundStyle(sees ? BedrockColor.emberGlow : BedrockColor.inkTertiary)
                 .accessibilityAddTraits(.isHeader)
-            ForEach(items, id: \.self) { item in
-                HStack(alignment: .firstTextBaseline, spacing: Space.s2) {
-                    Image(systemName: glyph)
-                        .font(BedrockFont.footnote.weight(.semibold))
-                        .foregroundStyle(tint)
-                        .accessibilityHidden(true)
-                    Text(item)
-                        .font(BedrockFont.subhead)
-                        .foregroundStyle(BedrockColor.inkPrimary)
-                        .fixedSize(horizontal: false, vertical: true)
+            VStack(alignment: .leading, spacing: Space.s4) {
+                ForEach(Array(items.enumerated()), id: \.offset) { index, item in
+                    VStack(alignment: .leading, spacing: Space.s2) {
+                        icon(index)
+                            .frame(width: 26, height: 18)
+                            .accessibilityHidden(true)
+                        Text(item)
+                            .ptype(.listItem)
+                            .foregroundStyle(sees ? BedrockColor.inkPrimary : BedrockColor.inkSecondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
                 }
             }
         }
-        .padding(Space.s4)
-        .frame(maxWidth: .infinity, alignment: .topLeading)
-        .background(RoundedRectangle(cornerRadius: Radius.lg, style: .continuous).fill(BedrockColor.bgSurface))
-        .overlay(RoundedRectangle(cornerRadius: Radius.lg, style: .continuous).strokeBorder(BedrockColor.lineSubtle))
+        .padding(.horizontal, 14)
+        .padding(.top, Space.s4)
+        .padding(.bottom, 18)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .background(RoundedRectangle(cornerRadius: BedrockSize.planCardRadius, style: .continuous)
+            .fill(sees ? BedrockColor.emberNight : BedrockColor.bgSurface))
+        .overlay(RoundedRectangle(cornerRadius: BedrockSize.planCardRadius, style: .continuous)
+            .strokeBorder(sees ? BedrockColor.emberDeep : BedrockColor.lineStrong, lineWidth: 1))
         .accessibilityElement(children: .contain)
+    }
+
+    @ViewBuilder private func icon(_ index: Int) -> some View {
+        if !sees {
+            ProtoIcon.spEyeSlash
+                .stroke(BedrockColor.inkTertiary, style: StrokeStyle(lineWidth: 1.7, lineCap: .round))
+        } else {
+            switch index {
+            case 0:
+                ZStack {
+                    ProtoIcon.spWallTop.fill(BedrockColor.ember)
+                    ProtoIcon.spWallHalves.fill(BedrockColor.emberDeep)
+                }
+            case 1:
+                ProtoIcon.spKey
+                    .stroke(BedrockColor.emberGlow, style: StrokeStyle(lineWidth: 2, lineCap: .round))
+            default:
+                ZStack {
+                    ProtoIcon.spPulse
+                        .stroke(BedrockColor.emberGlow, style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round))
+                    ProtoIcon.spPulseTail
+                        .stroke(BedrockColor.emberDeep, style: StrokeStyle(lineWidth: 2, lineCap: .round, dash: [1.5, 3]))
+                }
+            }
+        }
     }
 }
 
@@ -181,9 +223,24 @@ struct SupporterAlertsScreen: View {
     @State private var asking = false
 
     var body: some View {
-        OnboardingScaffold(.sp3, flow: flow, back: false) {
-            ScreenHeading(headline: OnbCopy.string("onb.sp3.headline"),
-                          text: OnbCopy.string("onb.sp3.body"))
+        let message = OnbCopy.string("onb.sp4.alert_later")
+        OnboardingScaffold(.sp3, flow: flow, top: ProtoLayout.topWithBack) {
+            VStack(alignment: .leading, spacing: 0) {
+                ScreenHeading(headline: OnbCopy.string("onb.sp3.headline"),
+                              text: OnbCopy.string("onb.sp3.body"))
+                Spacer(minLength: Space.s4)
+                NotificationPreview(date: Date.now.formatted(.dateTime.weekday(.wide).month(.wide).day()),
+                                    time: "9:41",
+                                    appName: OnbCopy.parts("onb.s14.preview").first ?? "",
+                                    now: OnbCopy.parts("onb.s14.preview").dropFirst().first ?? "",
+                                    message: message,
+                                    wallpaper: .warm,
+                                    messageType: PType(face: .sans, size: 14.5, line: 19, relativeTo: .subheadline),
+                                    accessibilityText: OnbCopy.string("onb.common.a11y_notification")
+                                        .replacingOccurrences(of: "{message}", with: message))
+                    .frame(maxWidth: .infinity)
+                Spacer(minLength: Space.s4)
+            }
         } footer: {
             PrimaryButton(title: OnbCopy.string("onb.sp3.primary"), isLoading: asking) {
                 Task {
@@ -207,11 +264,19 @@ struct SupporterDoneScreen: View {
 
     var body: some View {
         OnboardingScaffold(.sp4, flow: flow, back: false) {
-            VStack(alignment: .leading, spacing: Space.s6) {
-                ScreenHeading(headline: OnbCopy.string("onb.sp4.headline"))
+            VStack(alignment: .leading, spacing: 0) {
+                Eyebrow(text: OnbCopy.string("onb.sp1.eyebrow"), color: BedrockColor.emberGlow)
+                    .padding(.bottom, Space.s3)
+                Text(OnbCopy.string("onb.sp4.headline"))
+                    .ptype(.titleL)
+                    .foregroundStyle(BedrockColor.inkPrimary)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityAddTraits(.isHeader)
+                    .padding(.bottom, 22)
                 SupporterStatusCard(person: services.accountability.supporting.first)
-                    .bedrockAppear(.settle)
+                    .bedrockAppear(.settle, delay: 0.2)
                 SupporterNotes(notificationsOff: notificationsOff)
+                    .padding(.top, 20)
             }
         } footer: {
             PrimaryButton(title: OnbCopy.string("onb.sp4.primary")) {
@@ -234,25 +299,31 @@ private struct SupporterNotes: View {
     let notificationsOff: Bool
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Space.s4) {
+        VStack(alignment: .leading, spacing: 14) {
             Text(OnbCopy.string("onb.sp4.body"))
-                .font(BedrockFont.body)
-                .lineSpacing(BedrockLine.body.lineSpacing)
+                .ptype(.body)
                 .foregroundStyle(BedrockColor.inkSecondary)
             Text(OnbCopy.string("onb.sp4.quiet_note"))
-                .font(BedrockFont.subhead)
+                .ptype(.note)
                 .foregroundStyle(BedrockColor.inkTertiary)
             if notificationsOff {
                 Text(OnbCopy.string("onb.sp4.notif_denied"))
-                    .font(BedrockFont.subhead)
-                    .foregroundStyle(BedrockColor.emberGlow)
+                    .ptype(.note)
+                    .foregroundStyle(BedrockColor.inkPrimary)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, Space.s3)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(RoundedRectangle(cornerRadius: Radius.md, style: .continuous).fill(BedrockColor.emberWash))
+                    .overlay(RoundedRectangle(cornerRadius: Radius.md, style: .continuous)
+                        .strokeBorder(BedrockColor.emberDeep, lineWidth: 1))
             }
         }
         .fixedSize(horizontal: false, vertical: true)
     }
 }
 
-/// “Wall up · Checked in 2 hours ago”, read as one element.
+/// “Wall up · Checked in 2 hours ago”, read as one element: Basalt, radius
+/// 20, a Fault edge; the small wall with its glow, the two lines, a Glow dot.
 struct SupporterStatusCard: View {
     let person: SupportedPerson?
 
@@ -268,24 +339,39 @@ struct SupporterStatusCard: View {
 
     var body: some View {
         HStack(spacing: Space.s4) {
-            Circle()
-                .fill(isUp ? BedrockColor.emberGlow : BedrockColor.inkTertiary)
-                .frame(width: BedrockSize.statusDot * 1.6, height: BedrockSize.statusDot * 1.6)
-                .shadow(color: isUp ? BedrockColor.emberGlow.opacity(0.6) : .clear, radius: 4)
-            VStack(alignment: .leading, spacing: Space.s1) {
+            ZStack(alignment: .bottom) {
+                MiniWall.status
+                    .padding(.bottom, Space.s1)
+                    .opacity(isUp ? 1 : 0.45)
+                if isUp {
+                    EmberGlow(width: 57, height: 10)
+                        .offset(y: Space.s1)
+                }
+            }
+            .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 2) {
                 Text(OnbCopy.string(isUp ? "onb.sp4.status_up" : "onb.sp4.status_down"))
-                    .font(BedrockFont.headline)
+                    .ptype(.rowTitle)
                     .foregroundStyle(BedrockColor.inkPrimary)
                 Text(checked)
-                    .font(BedrockFont.subhead)
+                    .ptype(.notePlain)
                     .foregroundStyle(BedrockColor.inkSecondary)
             }
-            Spacer(minLength: 0)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            Circle()
+                .fill(isUp ? BedrockColor.emberGlow : BedrockColor.inkDisabled)
+                .frame(width: 10, height: 10)
+                .background(Circle().fill(BedrockColor.emberGlow.opacity(isUp ? 0.16 : 0)).padding(-4))
+                .accessibilityHidden(true)
         }
-        .padding(Space.s5)
-        .frame(minHeight: BedrockSize.homeCardMinHeight)
+        .padding(18)
         .background(RoundedRectangle(cornerRadius: Radius.lg, style: .continuous).fill(BedrockColor.bgSurface))
-        .overlay(RoundedRectangle(cornerRadius: Radius.lg, style: .continuous).strokeBorder(BedrockColor.lineSubtle))
+        .overlay(RoundedRectangle(cornerRadius: Radius.lg, style: .continuous).strokeBorder(BedrockColor.lineStrong, lineWidth: 1))
+        .overlay(alignment: .top) {
+            RoundedRectangle(cornerRadius: Radius.lg, style: .continuous)
+                .strokeBorder(Color.white.opacity(0.05), lineWidth: 1)
+                .mask(alignment: .top) { Rectangle().frame(height: 1.5) }
+        }
         .accessibilityElement(children: .combine)
     }
 }
@@ -313,12 +399,12 @@ struct SupporterHomeView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: Space.s6) {
                     VStack(alignment: .leading, spacing: 0) {
-                        Text(OnbCopy.string("onb.sp_home.eyebrow"))
-                            .bedrockEyebrow()
+                        Eyebrow(text: OnbCopy.string("onb.sp_home.eyebrow"), color: BedrockColor.emberGlow)
                             .padding(.bottom, Space.s3)
                         Text(OnbCopy.string("onb.sp4.headline"))
-                            .font(BedrockFont.title)
+                            .ptype(.titleL)
                             .foregroundStyle(BedrockColor.inkPrimary)
+                            .fixedSize(horizontal: false, vertical: true)
                             .accessibilityAddTraits(.isHeader)
                     }
                     if accountability.supporting.isEmpty {
@@ -330,7 +416,7 @@ struct SupporterHomeView: View {
                     }
                     if accountability.pendingApprovals.isEmpty {
                         Text(OnbCopy.string("onb.sp_home.empty"))
-                            .font(BedrockFont.subhead)
+                            .ptype(.note)
                             .foregroundStyle(BedrockColor.inkTertiary)
                     } else {
                         ForEach(accountability.pendingApprovals) { request in
@@ -353,8 +439,8 @@ struct SupporterHomeView: View {
                         }
                     }
                 }
-                .padding(.horizontal, Space.s6)
-                .padding(.top, Space.s8)
+                .padding(.horizontal, ProtoLayout.side)
+                .padding(.top, ProtoLayout.topWithChapter - BedrockSize.referenceTopInset)
                 .padding(.bottom, Space.s10)
             }
             .scrollBounceBehavior(.basedOnSize)
@@ -387,19 +473,19 @@ private struct RequestCard: View {
         let item: (Int) -> String = { parts.indices.contains($0) ? parts[$0] : "" }
         VStack(alignment: .leading, spacing: Space.s3) {
             Text(item(0))
-                .font(BedrockFont.headline)
+                .ptype(.quote)
                 .foregroundStyle(BedrockColor.inkPrimary)
+                .fixedSize(horizontal: false, vertical: true)
             Text(item(1))
-                .font(BedrockFont.subhead)
+                .ptype(.note)
                 .foregroundStyle(BedrockColor.inkSecondary)
                 .fixedSize(horizontal: false, vertical: true)
             HStack(spacing: Space.s3) {
-                TextButton(title: item(3), fullWidth: true) { respond(false) }
-                    .background(Capsule().strokeBorder(BedrockColor.lineStrong))
+                SheetButton(title: item(3)) { respond(false) }
                 PrimaryButton(title: item(2), isLoading: isWorking) { respond(true) }
             }
         }
-        .padding(Space.s5)
+        .padding(Space.s4)
         .background(RoundedRectangle(cornerRadius: Radius.lg, style: .continuous).fill(BedrockColor.emberWash))
         .overlay(RoundedRectangle(cornerRadius: Radius.lg, style: .continuous).strokeBorder(BedrockColor.emberDeep))
     }

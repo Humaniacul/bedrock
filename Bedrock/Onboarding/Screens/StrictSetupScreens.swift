@@ -11,41 +11,42 @@ import UIKit
 struct LetterScreen: View {
     @Environment(FirstLightFlow.self) private var flow
     @Environment(AppServices.self) private var services
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @State private var text = ""
     @State private var selection: TextSelection?
-    @State private var folded = false
     @FocusState private var focused: Bool
 
     private static let minimum = 40
     private var canSave: Bool { text.trimmingCharacters(in: .whitespacesAndNewlines).count >= Self.minimum }
 
     var body: some View {
-        OnboardingScaffold(.s13_1, flow: flow, back: flow.mode != .firstRun) {
-            VStack(alignment: .leading, spacing: Space.s6) {
-                ScreenHeading(eyebrow: OnbCopy.string("onb.s13_1.eyebrow"),
-                              headline: OnbCopy.string("onb.s13_1.headline"),
-                              text: OnbCopy.string("onb.s13_1.body"))
+        OnboardingScaffold(.s13_1, flow: flow, back: flow.mode != .firstRun, bottom: ProtoLayout.bottomTight) {
+            VStack(alignment: .leading, spacing: 0) {
+                Eyebrow(text: OnbCopy.string("onb.s13_1.eyebrow"))
+                    .padding(.bottom, Space.s3)
+                ScreenHeading(headline: OnbCopy.string("onb.s13_1.headline"), headlineType: .titleM,
+                              headlineGap: Space.s3,
+                              text: OnbCopy.string("onb.s13_1.body"), textType: .bodyM)
+                    .padding(.bottom, Space.s4)
                 starters
+                    .padding(.bottom, 10)
                 editor
-                    .scaleEffect(folded ? 0.2 : 1, anchor: .center)
-                    .opacity(folded ? 0 : 1)
-                    .overlay {
-                        if folded {
-                            Image(systemName: "envelope.fill")
-                                .font(BedrockFont.title)
-                                .foregroundStyle(BedrockColor.emberGlow)
-                                .transition(.scale.combined(with: .opacity))
-                        }
-                    }
-                PrivacyChip(text: OnbCopy.string("onb.s13_1.privacy"))
+                HStack(alignment: .top) {
+                    Text(OnbCopy.string("onb.s13_1.helper"))
+                    Spacer(minLength: Space.s3)
+                    Text(OnbCopy.string("onb.s13_1.privacy"))
+                        .multilineTextAlignment(.trailing)
+                }
+                .ptype(.footnotePlain)
+                .foregroundStyle(BedrockColor.inkTertiary)
+                .padding(.top, Space.s2)
+                .padding(.bottom, 14 - Space.s2)
             }
         } footer: {
-            VStack(spacing: Space.s2) {
+            VStack(spacing: ProtoLayout.buttonGap) {
                 PrimaryButton(title: OnbCopy.string("onb.s13_1.primary"), isEnabled: canSave,
                               disabledHint: OnbCopy.string("onb.s13_1.helper")) { save(text, defaultUsed: false) }
-                TextButton(title: OnbCopy.string("onb.s13_1.secondary"), fullWidth: true) {
+                TextButton(title: OnbCopy.string("onb.s13_1.secondary")) {
                     let letter = OnbCopy.string("onb.s13_1.default_letter")
                         .replacingOccurrences(of: "{word}", with: flow.state.word ?? "")
                     save(letter, defaultUsed: true)
@@ -62,54 +63,56 @@ struct LetterScreen: View {
         .environment(\.onboardingScrollAnchor, focused ? .bottom : nil)
     }
 
+    /// Three starters that wrap: 34pt Basalt pills, 13pt Chalk.
     private var starters: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: Space.s2) {
-                ForEach(OnbCopy.parts("onb.s13_1.starters"), id: \.self) { starter in
-                    Button { insert(starter) } label: {
-                        Text(starter)
-                            .font(BedrockFont.footnote.weight(.medium))
-                            .foregroundStyle(BedrockColor.inkPrimary)
-                            .padding(.horizontal, Space.s3)
-                            .frame(minHeight: BedrockSize.textButtonHeight)
-                            .background(Capsule().fill(BedrockColor.bgSurface))
-                            .overlay(Capsule().strokeBorder(BedrockColor.lineStrong))
-                    }
-                    .buttonStyle(PressOpacityStyle())
-                    .accessibilityLabel(OnbCopy.string("onb.s13_1.a11y_starter").replacingOccurrences(of: "{text}", with: starter))
+        FlowLayout(spacing: Space.s2) {
+            ForEach(OnbCopy.parts("onb.s13_1.starters"), id: \.self) { starter in
+                Button { insert(starter) } label: {
+                    Text(starter)
+                        .ptype(.footnotePlain)
+                        .foregroundStyle(BedrockColor.inkPrimary)
+                        .multilineTextAlignment(.leading)
+                        .padding(.horizontal, Space.s3)
+                        .padding(.vertical, Space.s1)
+                        .frame(minHeight: 34)
+                        .background(RoundedRectangle(cornerRadius: 17, style: .continuous).fill(BedrockColor.bgSurface))
+                        .overlay(RoundedRectangle(cornerRadius: 17, style: .continuous)
+                            .strokeBorder(BedrockColor.lineStrong, lineWidth: 1))
+                        .contentShape(RoundedRectangle(cornerRadius: 17, style: .continuous))
                 }
+                .buttonStyle(PressOpacityStyle())
+                .accessibilityLabel(OnbCopy.string("onb.s13_1.a11y_starter").replacingOccurrences(of: "{text}", with: starter))
             }
         }
-        .scrollClipDisabled()
     }
 
+    /// The letter: Slate, radius 14, a Fault edge, serif 20/27; it takes the
+    /// height that's left (at least 150pt).
     private var editor: some View {
-        VStack(alignment: .leading, spacing: Space.s2) {
-            ZStack(alignment: .topLeading) {
-                if text.isEmpty {
-                    Text(OnbCopy.string("onb.s13_1.placeholder"))
-                        .font(BedrockFont.body)
-                        .foregroundStyle(BedrockColor.inkTertiary)
-                        .padding(.horizontal, Space.s4 + 5)
-                        .padding(.vertical, Space.s4 + 8)
-                        .accessibilityHidden(true)
-                }
-                TextEditor(text: $text, selection: $selection)
-                    .focused($focused)
-                    .font(BedrockFont.body)
-                    .foregroundStyle(BedrockColor.inkPrimary)
-                    .scrollContentBackground(.hidden)
-                    .padding(Space.s3)
-                    .frame(minHeight: BedrockSize.letterMinHeight)
-                    .accessibilityLabel(OnbCopy.string("onb.s13_1.a11y_letter"))
+        ZStack(alignment: .topLeading) {
+            if text.isEmpty {
+                Text(OnbCopy.string("onb.s13_1.placeholder"))
+                    .ptype(.letter)
+                    .foregroundStyle(BedrockColor.inkTertiary)
+                    .padding(.horizontal, Space.s4)
+                    .padding(.vertical, 14)
+                    .accessibilityHidden(true)
             }
-            .background(RoundedRectangle(cornerRadius: Radius.md, style: .continuous).fill(BedrockColor.bgRaised))
-            .overlay(RoundedRectangle(cornerRadius: Radius.md, style: .continuous)
-                .strokeBorder(focused ? BedrockColor.ember : BedrockColor.lineStrong, lineWidth: 1))
-            Text(OnbCopy.string("onb.s13_1.helper"))
-                .font(BedrockFont.footnote)
-                .foregroundStyle(canSave ? BedrockColor.inkTertiary : BedrockColor.inkSecondary)
+            TextEditor(text: $text, selection: $selection)
+                .focused($focused)
+                .ptype(.letter)
+                .foregroundStyle(BedrockColor.inkPrimary)
+                .scrollContentBackground(.hidden)
+                .contentMargins(.horizontal, Space.s4 - 5, for: .scrollContent)
+                .contentMargins(.vertical, 14 - 8, for: .scrollContent)
+                .accessibilityLabel(OnbCopy.string("onb.s13_1.a11y_letter"))
         }
+        .frame(maxWidth: .infinity, minHeight: 150, maxHeight: .infinity, alignment: .topLeading)
+        .background(RoundedRectangle(cornerRadius: Radius.md, style: .continuous).fill(BedrockColor.bgRaised))
+        .overlay(RoundedRectangle(cornerRadius: Radius.md, style: .continuous)
+            .strokeBorder(BedrockColor.lineStrong, lineWidth: 1))
+        .contentShape(Rectangle())
+        .onTapGesture { focused = true }
     }
 
     /// Starter chips insert their text at the cursor.
@@ -136,16 +139,7 @@ struct LetterScreen: View {
             $0.letterDraft = letter
         }
         flow.track(.letterSaved(length: LengthBucket(characters: letter.count), defaultUsed: defaultUsed))
-        let next: ScreenID = flow.state.keyHolder == .partner ? .s13_2p : .s13_2b
-        if reduceMotion {
-            flow.go(next)
-            return
-        }
-        withAnimation(.easeIn(duration: BedrockTiming.letterFold)) { folded = true }
-        Task {
-            try? await Task.sleep(for: .seconds(BedrockTiming.letterFold + 0.15))
-            flow.go(next)
-        }
+        flow.go(flow.state.keyHolder == .partner ? .s13_2p : .s13_2b)
     }
 }
 
@@ -155,27 +149,52 @@ struct BlindEntryIntroScreen: View {
     @Environment(FirstLightFlow.self) private var flow
 
     var body: some View {
-        OnboardingScaffold(.s13_2b, flow: flow) {
-            VStack(alignment: .leading, spacing: Space.s7) {
-                ScreenHeading(eyebrow: OnbCopy.string("onb.s13_2b.eyebrow"),
-                              headline: OnbCopy.string("onb.s13_2b.headline"))
-                NumberedSteps(keys: (1...3).map { "onb.s13_2b.step_\($0)" }, staggered: true)
+        OnboardingScaffold(.s13_2b, flow: flow, back: false) {
+            VStack(alignment: .leading, spacing: 0) {
+                Eyebrow(text: OnbCopy.string("onb.s13_2b.eyebrow"))
+                    .padding(.bottom, Space.s3)
+                Text(OnbCopy.string("onb.s13_2b.headline"))
+                    .ptype(.titleM)
+                    .foregroundStyle(BedrockColor.inkPrimary)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityAddTraits(.isHeader)
+                    .padding(.bottom, 20)
+                VStack(alignment: .leading, spacing: 14) {
+                    ForEach(1...3, id: \.self) { n in
+                        HStack(alignment: .top, spacing: Space.s3) {
+                            Text(verbatim: "\(n)")
+                                .ptype(.stepNumeral)
+                                .foregroundStyle(BedrockColor.ember)
+                                .frame(width: 32, alignment: .leading)
+                                .accessibilityHidden(true)
+                            Text(OnbCopy.string("onb.s13_2b.step_\(n)"))
+                                .ptype(.bodyM)
+                                .foregroundStyle(BedrockColor.inkPrimary)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        .accessibilityElement(children: .combine)
+                        .bedrockAppear(.strata(index: n - 1))
+                    }
+                }
+                .padding(.bottom, 18)
                 Text(OnbCopy.string("onb.s13_2b.note"))
-                    .font(BedrockFont.subhead)
-                    .lineSpacing(3)
+                    .ptype(.note)
                     .foregroundStyle(BedrockColor.inkSecondary)
                     .fixedSize(horizontal: false, vertical: true)
-                    .padding(Space.s4)
+                    .padding(.horizontal, Space.s4)
+                    .padding(.vertical, 14)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .background(RoundedRectangle(cornerRadius: Radius.md, style: .continuous).fill(BedrockColor.bgSurface))
-                    .overlay(RoundedRectangle(cornerRadius: Radius.md, style: .continuous).strokeBorder(BedrockColor.lineStrong))
+                    .overlay(RoundedRectangle(cornerRadius: Radius.md, style: .continuous)
+                        .strokeBorder(BedrockColor.lineSubtle, lineWidth: 1))
             }
         } footer: {
-            VStack(spacing: Space.s2) {
+            VStack(spacing: ProtoLayout.buttonGap) {
                 PrimaryButton(title: OnbCopy.string("onb.s13_2b.primary")) {
                     flow.track(.action(.practiceStarted))
                     flow.go(.s13_3b)
                 }
-                TextButton(title: OnbCopy.string("onb.s13_2b.secondary"), fullWidth: true) {
+                TextButton(title: OnbCopy.string("onb.s13_2b.secondary")) {
                     flow.track(.action(.practiceSkipped))
                     flow.go(.s13_4b)
                 }
@@ -184,187 +203,94 @@ struct BlindEntryIntroScreen: View {
     }
 }
 
-/// A numbered list (S13.2B, S13.4B). iOS labels the person has to find are bold.
-struct NumberedSteps: View {
-    let keys: [String]
-    var staggered = false
-    /// Phrases to set in bold (the iOS labels on S13.4B).
-    var bold: [String] = []
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: Space.s4) {
-            ForEach(Array(keys.enumerated()), id: \.offset) { index, key in
-                HStack(alignment: .firstTextBaseline, spacing: Space.s3) {
-                    Text("\(index + 1)")
-                        .font(BedrockFont.digits)
-                        .foregroundStyle(BedrockColor.emberGlow)
-                        .frame(width: BedrockSize.stepBadge, height: BedrockSize.stepBadge)
-                        .background(Circle().fill(BedrockColor.emberWash))
-                        .overlay(Circle().strokeBorder(BedrockColor.emberDeep))
-                        .accessibilityHidden(true)
-                    Text(emphasised(OnbCopy.string(key)))
-                        .font(BedrockFont.body)
-                        .foregroundStyle(BedrockColor.inkSecondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                .accessibilityElement(children: .combine)
-                .modifier(StaggerIn(index: index, enabled: staggered))
-            }
-        }
-    }
-
-    private func emphasised(_ string: String) -> AttributedString {
-        var attributed = AttributedString(string)
-        for phrase in bold.sorted(by: { $0.count > $1.count }) {
-            var searchRange = attributed.startIndex..<attributed.endIndex
-            while let range = attributed[searchRange].range(of: phrase) {
-                if attributed[range].inlinePresentationIntent == nil {
-                    attributed[range].inlinePresentationIntent = .stronglyEmphasized
-                    attributed[range].foregroundColor = BedrockColor.inkPrimary
-                }
-                searchRange = range.upperBound..<attributed.endIndex
-            }
-        }
-        return attributed
-    }
-}
-
-private struct StaggerIn: ViewModifier {
-    let index: Int
-    let enabled: Bool
-
-    func body(content: Content) -> some View {
-        if enabled {
-            content.bedrockAppear(.strata(index: index))
-        } else {
-            content
-        }
-    }
-}
-
 // MARK: - S13.3B · Practice run
 
+/// A practice code typed on a Bedrock keypad. Each digit waits until it's
+/// typed; a wrong one shakes the dots. Then all four again.
 struct PracticeScreen: View {
     @Environment(FirstLightFlow.self) private var flow
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @State private var code: [Character] = Array(String(format: "%04d", Int.random(in: 0...9999)))
     @State private var step = 0          // 0–7: four digits, then the same four again
-    @State private var progress: Double = 0
-    @State private var digitVisible = true
     @State private var errors = 0
-    @State private var wrongShown = false
     @State private var shake: CGFloat = 0
     @State private var done = false
-    @State private var slowed = false
-
-    private var perDigit: Double { flow.state.slowDigits ? BedrockTiming.digitDurationSlow : BedrockTiming.digitDuration }
 
     private var windowState: DigitWindowState {
-        guard !done else { return .done }
         let index = step % code.count
-        return digitVisible ? .digit(code[index], index: index, confirming: step >= code.count) : .between
+        return .digit(code[index], index: index, confirming: step >= code.count)
     }
 
     var body: some View {
-        OnboardingScaffold(.s13_3b, flow: flow) {
-            VStack(spacing: Space.s5) {
-                Group {
-                    if done {
-                        VStack(spacing: Space.s4) {
-                            Image(systemName: "lock.fill")
-                                .font(BedrockFont.title)
-                                .foregroundStyle(BedrockColor.emberGlow)
-                                .bedrockAppear(.settle)
-                            Text(OnbCopy.string("onb.s13_3b.done_headline"))
-                                .font(BedrockFont.title)
-                                .foregroundStyle(BedrockColor.inkPrimary)
-                                .accessibilityAddTraits(.isHeader)
-                        }
-                    } else {
-                        Text(OnbCopy.string("onb.s13_3b.headline"))
-                            .font(BedrockFont.title)
-                            .lineSpacing(BedrockLine.title.lineSpacing)
-                            .foregroundStyle(BedrockColor.inkPrimary)
-                            .multilineTextAlignment(.center)
-                            .fixedSize(horizontal: false, vertical: true)
-                            .accessibilityAddTraits(.isHeader)
-                    }
+        OnboardingScaffold(.s13_3b, flow: flow, back: false, bottom: ProtoLayout.bottomTight) {
+            if done {
+                VStack(spacing: 18) {
+                    Spacer(minLength: 0)
+                    ProtoIcon.check
+                        .stroke(BedrockColor.emberGlow, style: StrokeStyle(lineWidth: 1.6, lineCap: .round, lineJoin: .round))
+                        .frame(width: 22, height: 22)
+                        .frame(width: 64, height: 64)
+                        .background(Circle().fill(BedrockColor.emberWash))
+                        .overlay(Circle().strokeBorder(BedrockColor.ember, lineWidth: 1.5))
+                        .bedrockAppear(.settle)
+                        .accessibilityHidden(true)
+                    Text(OnbCopy.string("onb.s13_3b.done_headline"))
+                        .ptype(.doneTitle)
+                        .foregroundStyle(BedrockColor.inkPrimary)
+                        .multilineTextAlignment(.center)
+                        .accessibilityAddTraits(.isHeader)
+                    Spacer(minLength: 0)
                 }
                 .frame(maxWidth: .infinity)
-
-                if !done {
-                    DigitWindowFace(state: windowState, progress: progress, practice: true, reduceMotion: reduceMotion)
-                        .offset(x: shake)
+            } else {
+                VStack(spacing: 0) {
+                    Text(OnbCopy.string("onb.s13_3b.headline"))
+                        .ptype(.practiceTitle)
+                        .foregroundStyle(BedrockColor.inkPrimary)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .accessibilityAddTraits(.isHeader)
+                        .padding(.bottom, 18)
+                    DigitWindowFace(state: windowState, style: .practice)
                         .accessibilityHidden(true)
-                    Text(OnbCopy.string("onb.s13_3b.wrong"))
-                        .font(BedrockFont.subhead)
-                        .foregroundStyle(BedrockColor.emberGlow)
-                        .opacity(wrongShown ? 1 : 0)
-                        .accessibilityHidden(!wrongShown)
+                    HStack(spacing: 14) {
+                        ForEach(0..<4, id: \.self) { index in
+                            Circle()
+                                .fill(index < step % code.count ? BedrockColor.inkPrimary : .clear)
+                                .overlay(Circle().strokeBorder(BedrockColor.inkTertiary, lineWidth: 1.5))
+                                .frame(width: 14, height: 14)
+                        }
+                    }
+                    .offset(x: shake)
+                    .padding(.top, 22)
+                    .padding(.bottom, 18)
+                    .accessibilityHidden(true)
                     PracticeKeypad { typed($0) }
                 }
+                .frame(maxWidth: .infinity)
             }
         } footer: {
             if done {
-                VStack(spacing: Space.s2) {
-                    PrimaryButton(title: OnbCopy.string("onb.s13_3b.primary")) { flow.go(.s13_4b) }
-                    if errors >= 3 && !flow.state.slowDigits {
-                        TextButton(title: OnbCopy.string("onb.s13_3b.slow"), fullWidth: true) {
-                            flow.update { $0.slowDigits = true }
-                            flow.toast = OnbCopy.string("onb.s13_3b.slow_toast")
-                        }
-                    }
-                }
-                .bedrockAppear(.settle)
+                PrimaryButton(title: OnbCopy.string("onb.s13_3b.primary")) { flow.go(.s13_4b) }
+                    .bedrockAppear(.settle)
             }
         }
-        .task(id: step) { await showDigit() }
+        .onChange(of: step, initial: true) { _, _ in announce() }
     }
 
-    /// Each digit shows for 3 seconds (5 when slowed) or until typed. Missed:
-    /// counts as an error and shows again.
-    private func showDigit() async {
+    private func announce() {
         guard !done else { return }
-        if step == 0 && errors == 0 && progress == 0 {
-            // A beat to read the screen before the first digit's clock starts.
-            digitVisible = false
-            try? await Task.sleep(for: .seconds(BedrockTiming.practiceLeadIn))
-            guard !Task.isCancelled else { return }
-        }
-        digitVisible = true
-        progress = 0
         let index = step % code.count
         AccessibilityNotification.Announcement(
             BlindEntrySession.spoken(code[index], index: index, confirming: step >= code.count, practice: true)).post()
-        let started = Date.now
-        while !Task.isCancelled {
-            let elapsed = Date.now.timeIntervalSince(started)
-            progress = min(elapsed / perDigit, 1)
-            if elapsed >= perDigit { break }
-            try? await Task.sleep(for: .milliseconds(50))
-        }
-        guard !Task.isCancelled else { return }
-        // Not typed in time: it counts toward slowing the real run, and the
-        // same digit shows again. No error copy: nothing was typed wrong.
-        errors += 1
-        progress = 0
-        // Show the same digit again.
-        try? await Task.sleep(for: .milliseconds(400))
-        guard !Task.isCancelled else { return }
-        await showDigit()
     }
 
     private func typed(_ digit: Character) {
         guard !done else { return }
-        let expected = code[step % code.count]
-        guard digit == expected else {
+        guard digit == code[step % code.count] else {
             miss()
             return
-        }
-        wrongShown = false
-        if !reduceMotion {
-            withAnimation(BedrockMotion.digitSlide) { digitVisible = false }
         }
         if step + 1 >= code.count * 2 {
             finish()
@@ -373,23 +299,22 @@ struct PracticeScreen: View {
         }
     }
 
+    /// A wrong digit: the dots shake (no copy; it's practice).
     private func miss() {
         errors += 1
         BedrockHaptics.wrongDigit()
-        wrongShown = true
         AccessibilityNotification.Announcement(OnbCopy.string("onb.s13_3b.wrong")).post()
         guard !reduceMotion else { return }
-        withAnimation(BedrockMotion.shake) { shake = 0 }
         Task {
-            for offset in [-10.0, 10, -6, 6, 0] {
-                withAnimation(.linear(duration: 0.06)) { shake = offset }
-                try? await Task.sleep(for: .milliseconds(60))
+            for offset in [-8.0, 8, -6, 6, -3, 0] {
+                withAnimation(.linear(duration: 0.05)) { shake = offset }
+                try? await Task.sleep(for: .milliseconds(53))
             }
         }
     }
 
     private func finish() {
-        done = true
+        withAnimation(BedrockMotion.reducedFade) { done = true }
         BedrockHaptics.purchased()
         flow.update { $0.practiceDone = true }
         flow.track(.practiceCompleted(errors: errors))
@@ -402,25 +327,33 @@ struct RealRunScreen: View {
     @Environment(FirstLightFlow.self) private var flow
     @Environment(AppServices.self) private var services
     @Environment(\.scenePhase) private var scenePhase
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @State private var runner: BlindEntryRunner?
 
     var body: some View {
-        OnboardingScaffold(.s13_4b, flow: flow) {
-            VStack(alignment: .leading, spacing: Space.s6) {
-                ScreenHeading(headline: OnbCopy.string("onb.s13_4b.headline"),
+        OnboardingScaffold(.s13_4b, flow: flow, back: false) {
+            VStack(alignment: .leading, spacing: 0) {
+                ScreenHeading(headline: OnbCopy.string("onb.s13_4b.headline"), headlineType: .titleM,
+                              headlineGap: 10,
                               text: OnbCopy.string(runner?.style == .appSwitching
-                                                   ? "onb.s13_4b.fallback_body" : "onb.s13_4b.body"))
-                if let runner { DigitWindowStage(runner: runner, reduceMotion: reduceMotion, start: begin) }
-                NumberedSteps(keys: (1...7).map { "onb.s13_4b.step_\($0)" }, bold: iOSLabels)
+                                                   ? "onb.s13_4b.fallback_body" : "onb.s13_4b.body"),
+                              textType: .bodyM)
+                    .padding(.bottom, Space.s4)
+                if let runner, runner.showsInBedrock, runner.session.hasStarted {
+                    DigitWindowStage(runner: runner, start: begin)
+                        .padding(.bottom, Space.s4)
+                }
+                IOSSteps(keys: (1...7).map { "onb.s13_4b.step_\($0)" }, bold: iOSLabels)
                 Text(OnbCopy.string("onb.s13_4b.note"))
-                    .font(BedrockFont.footnote)
+                    .ptype(.footnotePlain)
                     .foregroundStyle(BedrockColor.inkTertiary)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.top, Space.s3)
             }
         } footer: {
             if let runner { BlindEntryFooter(runner: runner, primary: OnbCopy.string("onb.s13_4b.primary"), begin: begin) }
         }
+        .background { if let runner { PictureInPictureSource(runner: runner) } }
         .onAppear(perform: prepare)
         .onDisappear { runner?.tearDown() }
         .onChange(of: scenePhase) { _, phase in
@@ -469,38 +402,82 @@ struct RealRunScreen: View {
     private var iOSLabels: [String] { OnbCopy.parts("onb.s13_4b.ios_labels") }
 }
 
-/// The digit window inside Bedrock: the PiP source on S13.4B/S13.5A (“Tap to
-/// start” until it floats), or the digits themselves when switching apps.
-private struct DigitWindowStage: View {
-    let runner: BlindEntryRunner
-    let reduceMotion: Bool
-    let start: () -> Void
+/// S13.4B's steps: a mono Glow number in a 24pt column, 14.5/20 Chalk, the
+/// iOS labels the person has to find in semibold; 9pt apart.
+struct IOSSteps: View {
+    let keys: [String]
+    var bold: [String] = []
 
     var body: some View {
-        ZStack {
-            if let pip = runner.pictureInPicture {
-                // PiP needs its source layer on screen; it shows the same face.
-                PictureInPictureHost(pip: pip)
-                    .frame(width: BedrockSize.digitWindow.width, height: BedrockSize.digitWindow.height)
-                    .clipShape(RoundedRectangle(cornerRadius: Radius.lg, style: .continuous))
+        VStack(alignment: .leading, spacing: 9) {
+            ForEach(Array(keys.enumerated()), id: \.offset) { index, key in
+                HStack(alignment: .firstTextBaseline, spacing: Space.s2) {
+                    Text(verbatim: "\(index + 1)")
+                        .ptype(.stepNumber)
+                        .foregroundStyle(BedrockColor.emberGlow)
+                        .frame(width: 24, alignment: .leading)
+                        .accessibilityHidden(true)
+                    Text(emphasised(OnbCopy.string(key)))
+                        .ptype(.step)
+                        .foregroundStyle(BedrockColor.inkPrimary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .accessibilityElement(children: .combine)
             }
-            DigitWindowFace(state: runner.session.state, progress: runner.session.progress,
-                            reduceMotion: reduceMotion)
         }
-        .frame(maxWidth: .infinity)
-        .contentShape(Rectangle())
-        // “Tap to start” in Bedrock does what the button does.
-        .onTapGesture { if runner.phase == .ready && !runner.session.hasStarted { start() } }
-        .accessibilityHidden(true)
+    }
+
+    private func emphasised(_ string: String) -> AttributedString {
+        var attributed = AttributedString(string)
+        for phrase in bold.sorted(by: { $0.count > $1.count }) {
+            var searchRange = attributed.startIndex..<attributed.endIndex
+            while let range = attributed[searchRange].range(of: phrase) {
+                if attributed[range].inlinePresentationIntent == nil {
+                    attributed[range].inlinePresentationIntent = .stronglyEmphasized
+                }
+                searchRange = range.upperBound..<attributed.endIndex
+            }
+        }
+        return attributed
     }
 }
 
-/// S13.4B / S13.5A footer: start, or (app switching) “Switch to Settings”.
+/// Picture in Picture needs its source layer in the window; it's kept behind
+/// the screen, at the window's size, all but transparent.
+private struct PictureInPictureSource: View {
+    let runner: BlindEntryRunner
+
+    var body: some View {
+        if let pip = runner.pictureInPicture {
+            PictureInPictureHost(pip: pip)
+                .frame(width: 150, height: 116)
+                .opacity(0.02)
+                .allowsHitTesting(false)
+                .accessibilityHidden(true)
+        }
+    }
+}
+
+/// The digits inside Bedrock (app switching, preview): the 150 × 116 window.
+private struct DigitWindowStage: View {
+    let runner: BlindEntryRunner
+    let start: () -> Void
+
+    var body: some View {
+        DigitWindowFace(state: runner.session.state)
+            .shadow(color: .black.opacity(0.6), radius: 22, x: 0, y: 18)
+            .frame(maxWidth: .infinity)
+            .contentShape(Rectangle())
+            // “Tap to start” in Bedrock does what the button does.
+            .onTapGesture { if runner.phase == .ready && !runner.session.hasStarted { start() } }
+            .accessibilityHidden(true)
+    }
+}
+
+/// S13.4B / S13.5A: start, or (app switching) “Switch to Settings”.
 private struct BlindEntryFooter: View {
     let runner: BlindEntryRunner
     let primary: String
-    /// S13.5A already has its ember action (“iOS accepted it”): this one is quiet.
-    var secondary = false
     let begin: () -> Void
 
     private var busy: Bool {
@@ -509,20 +486,10 @@ private struct BlindEntryFooter: View {
 
     var body: some View {
         if runner.style == .appSwitching && runner.session.state == .between {
-            button(OnbCopy.string("onb.s13_4b.fallback_switch")) { runner.switchToSettings() }
+            PrimaryButton(title: OnbCopy.string("onb.s13_4b.fallback_switch")) { runner.switchToSettings() }
         } else {
-            button(primary) { begin() }
+            PrimaryButton(title: primary, isLoading: busy) { begin() }
                 .disabled(busy)
-                .opacity(busy && secondary ? BedrockMotion.pressedOpacity : 1)
-        }
-    }
-
-    @ViewBuilder private func button(_ title: String, action: @escaping () -> Void) -> some View {
-        if secondary {
-            TextButton(title: title, fullWidth: true, action: action)
-                .overlay(Capsule().strokeBorder(BedrockColor.lineStrong))
-        } else {
-            PrimaryButton(title: title, isLoading: busy, action: action)
         }
     }
 }
@@ -533,31 +500,34 @@ struct CodeCheckScreen: View {
     @Environment(FirstLightFlow.self) private var flow
     @Environment(AppServices.self) private var services
     @Environment(\.scenePhase) private var scenePhase
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @State private var runner: BlindEntryRunner?
 
     var body: some View {
         OnboardingScaffold(.s13_5a, flow: flow, back: flow.mode != .firstRun) {
-            VStack(alignment: .leading, spacing: Space.s6) {
+            VStack(alignment: .leading, spacing: 0) {
                 ScreenHeading(eyebrow: OnbCopy.string("onb.s13_5a.eyebrow"),
                               headline: OnbCopy.string("onb.s13_5a.headline"),
                               text: OnbCopy.string("onb.s13_5a.body"))
                 if let runner {
-                    DigitWindowStage(runner: runner, reduceMotion: reduceMotion) { runner.open() }
-                    BlindEntryFooter(runner: runner, primary: OnbCopy.string("onb.s13_4b.show_digits"),
-                                     secondary: true) { runner.open() }
+                    if runner.showsInBedrock && runner.session.hasStarted && !runner.session.isDone {
+                        DigitWindowStage(runner: runner) { runner.open() }
+                            .padding(.top, Space.s6)
+                    }
+                    LinkButton(title: OnbCopy.string("onb.s13_4b.show_digits"), tone: .secondary) { runner.open() }
+                        .disabled(runner.phase == .starting || (runner.session.isRunning && runner.showsInBedrock))
+                        .padding(.top, Space.s3)
                 }
             }
         } footer: {
-            VStack(spacing: Space.s2) {
+            VStack(spacing: ProtoLayout.buttonGap) {
                 PrimaryButton(title: OnbCopy.string("onb.s13_5a.primary")) {
                     BedrockHaptics.check()
                     flow.track(.codeCheck(.passed))
                     flow.go(.s13_5b)
                 }
                 .accessibilityHint(OnbCopy.string("onb.s13_5a.a11y_primary"))
-                TextButton(title: OnbCopy.string("onb.s13_5a.secondary"), fullWidth: true) {
+                TextButton(title: OnbCopy.string("onb.s13_5a.secondary")) {
                     flow.track(.codeCheck(.failed))
                     flow.update { $0.codeMismatches += 1 }
                     flow.track(.codeMismatch(attempt: flow.state.codeMismatches))
@@ -565,6 +535,7 @@ struct CodeCheckScreen: View {
                 }
             }
         }
+        .background { if let runner { PictureInPictureSource(runner: runner) } }
         .onAppear(perform: prepare)
         .onDisappear { runner?.tearDown() }
         .onChange(of: scenePhase) { _, phase in
@@ -589,45 +560,29 @@ struct CodeCheckScreen: View {
 struct SwitchOffScreen: View {
     @Environment(FirstLightFlow.self) private var flow
     @Environment(AppServices.self) private var services
-    @Environment(\.openURL) private var openURL
     @State private var stuckShown = false
 
     var body: some View {
         OnboardingScaffold(.s13_5b, flow: flow, back: false) {
-            ScreenHeading(headline: OnbCopy.string("onb.s13_5b.headline"),
+            ScreenHeading(eyebrow: OnbCopy.string("onb.s13_5a.eyebrow"),
+                          headline: OnbCopy.string("onb.s13_5b.headline"),
                           text: OnbCopy.string("onb.s13_5b.body"))
         } footer: {
-            VStack(spacing: Space.s2) {
+            VStack(spacing: 0) {
                 PrimaryButton(title: OnbCopy.string("onb.s13_5b.primary")) { asked() }
-                TextButton(title: OnbCopy.string("onb.s13_5b.secondary"), fullWidth: true) {
+                TextButton(title: OnbCopy.string("onb.s13_5b.secondary")) {
                     flow.track(.lockCheck(.switchedOff))
                     notSaved()
                 }
-            }
-        } footerAccessory: {
-            LinkButton(title: OnbCopy.string("onb.s13_5b.link")) {
-                flow.track(.action(.stuckOpened))
-                stuckShown = true
+                .padding(.top, ProtoLayout.buttonGap)
+                LinkButton(title: OnbCopy.string("onb.s13_5b.link"), height: 36) {
+                    flow.track(.action(.stuckOpened))
+                    stuckShown = true
+                }
             }
         }
-        .bedrockSheet(isPresented: $stuckShown, title: OnbCopy.string("onb.s13_5b.link")) {
-            stuckSheet
-        }
-    }
-
-    private var stuckSheet: some View {
-        let parts = OnbCopy.parts("onb.s13_5b.stuck_sheet")
-        return VStack(alignment: .leading, spacing: Space.s4) {
-            ForEach(Array(parts.dropLast().enumerated()), id: \.offset) { _, row in
-                Text(row)
-                    .font(BedrockFont.body)
-                    .foregroundStyle(BedrockColor.inkSecondary)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            if let url = Support.mailURL(subject: OnbCopy.string("onb.s13_5b.link")) {
-                TextButton(title: Support.email, fullWidth: true) { openURL(url) }
-            }
-            PrimaryButton(title: parts.last ?? "") { stuckShown = false }
+        .bedrockSheet(isPresented: $stuckShown, title: nil) {
+            StuckSheet { stuckShown = false }
         }
     }
 
@@ -661,59 +616,118 @@ struct SwitchOffScreen: View {
     }
 }
 
+/// “I got stuck”: four questions (serif 24/28) with their answers (16/22
+/// Limestone), 18pt apart, then Close.
+private struct StuckSheet: View {
+    let close: () -> Void
+
+    var body: some View {
+        let parts = OnbCopy.parts("onb.s13_5b.stuck_sheet")
+        VStack(alignment: .leading, spacing: 18) {
+            ForEach(Array(parts.dropLast().enumerated()), id: \.offset) { _, row in
+                let split = Self.split(row)
+                VStack(alignment: .leading, spacing: Space.s1) {
+                    Text(split.question)
+                        .ptype(.stuck)
+                        .foregroundStyle(BedrockColor.inkPrimary)
+                    Text(split.answer)
+                        .ptype(.bodyM)
+                        .foregroundStyle(BedrockColor.inkSecondary)
+                }
+                .fixedSize(horizontal: false, vertical: true)
+                .accessibilityElement(children: .combine)
+            }
+        }
+        .padding(.bottom, Space.s6)
+        SheetButton(title: parts.last ?? "", action: close)
+    }
+
+    /// “Lost your place? Run it again…” → the question and the answer.
+    private static func split(_ row: String) -> (question: String, answer: String) {
+        guard let mark = row.range(of: "? ") else { return (row, "") }
+        return (String(row[..<mark.upperBound]).trimmingCharacters(in: .whitespaces), String(row[mark.upperBound...]))
+    }
+}
+
 // MARK: - S13.6 · Sealed
 
 struct SealedScreen: View {
     @Environment(FirstLightFlow.self) private var flow
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var keystone: WallView.Keystone = .hovering
+    @State private var keystoneIn = false
+    @State private var wallDip: CGFloat = 0
+    @State private var glow = false
     @State private var warm = false
-    @State private var headlineShown = false
 
     var body: some View {
         OnboardingScaffold(.s13_6, flow: flow, back: false) {
-            VStack(alignment: .leading, spacing: Space.s8) {
-                Spacer(minLength: 0)
-                WallView(web: .landed, apps: nil, schedule: .landed, keystone: keystone)
+            VStack(alignment: .leading, spacing: 0) {
+                Spacer(minLength: Space.s6)
+                illustration
                     .frame(maxWidth: .infinity)
-                VStack(alignment: .leading, spacing: 0) {
-                    Text(OnbCopy.string("onb.s13_6.eyebrow"))
-                        .bedrockEyebrow()
-                        .padding(.bottom, Space.s3)
-                    if headlineShown {
-                        CarveText(OnbCopy.string("onb.s13_6.headline"), font: BedrockFont.displayXL)
-                            .foregroundStyle(warm ? BedrockColor.emberGlow : BedrockColor.inkPrimary)
-                            .animation(BedrockMotion.ember, value: warm)
-                            .accessibilityAddTraits(.isHeader)
-                    } else {
-                        Text(OnbCopy.string("onb.s13_6.headline"))
-                            .font(BedrockFont.displayXL)
-                            .hidden()
-                    }
-                    Text(OnbCopy.string(flow.state.keyHolder == .partner ? "onb.s13_6.body_b" : "onb.s13_6.body_a"))
-                        .font(BedrockFont.body)
-                        .lineSpacing(BedrockLine.body.lineSpacing)
-                        .foregroundStyle(BedrockColor.inkSecondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .padding(.top, Space.s4)
-                }
-                Spacer(minLength: 0)
+                Spacer(minLength: Space.s6)
+                Eyebrow(text: OnbCopy.string("onb.s13_6.eyebrow"))
+                    .padding(.bottom, Space.s3)
+                CarveText(OnbCopy.string("onb.s13_6.headline"), delay: 0.9)
+                    .ptype(.held)
+                    .foregroundStyle(warm ? BedrockColor.emberGlow : BedrockColor.inkPrimary)
+                    .accessibilityAddTraits(.isHeader)
+                    .padding(.bottom, 14)
+                Text(OnbCopy.string(flow.state.keyHolder == .partner ? "onb.s13_6.body_b" : "onb.s13_6.body_a"))
+                    .ptype(.body)
+                    .foregroundStyle(BedrockColor.inkSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .bedrockAppear(.rise, delay: 1.3)
+                    .padding(.bottom, 28 - Space.s2)
             }
         } footer: {
             PrimaryButton(title: OnbCopy.string("onb.s13_6.primary")) { flow.afterSealed() }
+                .bedrockAppear(.settle, delay: 1.5)
         }
         .task {
             flow.track(.strictSealed((flow.state.keyHolder ?? .bedrock).analytics))
-            try? await Task.sleep(for: .seconds(0.25))
-            withAnimation(reduceMotion ? nil : BedrockMotion.lock) { keystone = .set }
-            BedrockHaptics.lock()
-            try? await Task.sleep(for: .seconds(0.2))
-            headlineShown = true
+            if reduceMotion {
+                keystoneIn = true
+                glow = true
+                warm = true
+            } else {
+                try? await Task.sleep(for: .seconds(0.3))
+                withAnimation(BedrockMotion.settle) { keystoneIn = true }
+                try? await Task.sleep(for: .seconds(0.6))
+                BedrockHaptics.lock()
+                withAnimation(.timingCurve(0.2, 0.8, 0.2, 1, duration: 0.11)) { wallDip = BedrockSize.wallDip }
+                withAnimation(.timingCurve(0.2, 0.8, 0.2, 1, duration: 0.21).delay(0.11)) { wallDip = 0 }
+                withAnimation(.easeOut(duration: 1.1)) { glow = true }
+                try? await Task.sleep(for: .seconds(0.2))
+                withAnimation(BedrockMotion.ember) { warm = true }
+            }
             flow.dawnOverride = Dawn.level(for: .s15)
             AccessibilityNotification.Announcement(OnbCopy.string("onb.s13_6.a11y")).post()
-            try? await Task.sleep(for: .seconds(0.5))
-            warm = true
         }
+    }
+
+    /// The capstone drops onto a two-course wall; an ember glow under it.
+    private var illustration: some View {
+        VStack(spacing: Space.s1 + 2) {
+            ZStack(alignment: .top) {
+                MiniWall.sealed
+                    .offset(y: wallDip)
+                    .padding(.top, 52)
+                UnitPolygon.keystone
+                    .fill(LinearGradient(colors: [BedrockColor.glyphHi, BedrockColor.brickMid], startPoint: .top, endPoint: .bottom))
+                    .overlay(alignment: .top) {
+                        Rectangle().fill(Color.white.opacity(0.12)).frame(height: 1).padding(.horizontal, 8)
+                    }
+                    .frame(width: 64, height: 46)
+                    .opacity(keystoneIn ? 1 : 0)
+                    .offset(y: keystoneIn || reduceMotion ? wallDip : -BedrockSize.keystoneDrop)
+            }
+            EmberGlow(width: 280, height: 28)
+                .padding(.top, -12)
+                .opacity(glow ? 1 : 0)
+                .scaleEffect(x: glow ? 1 : 0.5, y: 1)
+        }
+        .accessibilityHidden(true)
     }
 }
 
@@ -731,13 +745,13 @@ struct CodeMismatchScreen: View {
             ScreenHeading(headline: OnbCopy.string("onb.s13_7a.headline"),
                           text: OnbCopy.string("onb.s13_7a.body"))
         } footer: {
-            VStack(spacing: Space.s2) {
+            VStack(spacing: ProtoLayout.buttonGap) {
                 if helpFirst {
                     PrimaryButton(title: OnbCopy.string("onb.s13_7a.secondary")) { help() }
-                    TextButton(title: OnbCopy.string("onb.s13_7a.primary"), fullWidth: true) { again() }
+                    TextButton(title: OnbCopy.string("onb.s13_7a.primary")) { again() }
                 } else {
                     PrimaryButton(title: OnbCopy.string("onb.s13_7a.primary")) { again() }
-                    TextButton(title: OnbCopy.string("onb.s13_7a.secondary"), fullWidth: true) { help() }
+                    TextButton(title: OnbCopy.string("onb.s13_7a.secondary")) { help() }
                 }
             }
         }
@@ -816,21 +830,27 @@ struct InviteScreen: View {
     private var link: String? { flow.state.inviteURL }
 
     var body: some View {
-        OnboardingScaffold(.s13_2p, flow: flow) {
-            VStack(alignment: .leading, spacing: Space.s6) {
+        OnboardingScaffold(.s13_2p, flow: flow, back: false) {
+            VStack(alignment: .leading, spacing: 0) {
                 ScreenHeading(eyebrow: OnbCopy.string("onb.s13_2p.eyebrow"),
                               headline: OnbCopy.string("onb.s13_2p.headline"),
+                              headlineGap: 14,
                               text: OnbCopy.string("onb.s13_2p.body"))
+                    .padding(.bottom, 20)
                 inviteCard
                 Text(OnbCopy.string("onb.s13_2p.note"))
-                    .font(BedrockFont.subhead)
+                    .ptype(.note)
                     .foregroundStyle(BedrockColor.inkSecondary)
                     .fixedSize(horizontal: false, vertical: true)
-                    .padding(Space.s4)
-                    .overlay(RoundedRectangle(cornerRadius: Radius.md, style: .continuous).strokeBorder(BedrockColor.lineStrong))
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, Space.s3)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .overlay(RoundedRectangle(cornerRadius: Radius.md, style: .continuous)
+                        .strokeBorder(BedrockColor.lineStrong, lineWidth: 1))
+                    .padding(.top, 14)
             }
         } footer: {
-            VStack(spacing: Space.s2) {
+            VStack(spacing: ProtoLayout.buttonGap) {
                 if failed {
                     PrimaryButton(title: OnbCopy.parts("onb.s13_2p.offline").last ?? "", isLoading: loading) {
                         Task { await load() }
@@ -839,14 +859,13 @@ struct InviteScreen: View {
                     PrimaryButton(title: OnbCopy.string("onb.s13_2p.primary"), isEnabled: link != nil, isLoading: loading) {
                         shareShown = true
                     }
-                    TextButton(title: OnbCopy.string("onb.s13_2p.secondary"), fullWidth: true) { copy() }
+                    TextButton(title: OnbCopy.string("onb.s13_2p.secondary")) { copy() }
                         .disabled(link == nil)
                 }
-            }
-        } footerAccessory: {
-            if failed || link == nil {
-                // Until they accept, the steps work on their own: this never blocks setup.
-                TextButton(title: OnbCopy.string("onb.s13_2p.later")) { flow.go(.s13_2b) }
+                if failed {
+                    // Until they accept, the steps work on their own: this never blocks setup.
+                    TextButton(title: OnbCopy.string("onb.s13_2p.later")) { flow.go(.s13_2b) }
+                }
             }
         }
         .sheet(isPresented: $shareShown) {
@@ -863,35 +882,42 @@ struct InviteScreen: View {
         .task { if code == nil { await load() } }
     }
 
+    /// Basalt, radius 18, a Seam edge, 18pt in: the label (13pt Ash), the code
+    /// (mono 28, +3, Glow), the link (14pt Limestone).
     private var inviteCard: some View {
-        let parts = OnbCopy.parts("onb.s13_2p.card")
-        return VStack(alignment: .leading, spacing: Space.s2) {
-            Text(parts.first ?? "")
-                .bedrockEyebrow()
+        let label = OnbCopy.parts("onb.s13_2p.card").first ?? ""
+        return VStack(alignment: .leading, spacing: 6) {
+            Text(label)
+                .ptype(.footnotePlain)
+                .foregroundStyle(BedrockColor.inkTertiary)
             if let code {
                 Text(code)
-                    .font(BedrockFont.digitHero)
-                    .foregroundStyle(BedrockColor.inkPrimary)
+                    .ptype(.code)
+                    .foregroundStyle(BedrockColor.emberGlow)
                     .textSelection(.enabled)
                     .accessibilityLabel(code.map { String($0) }.joined(separator: " "))
                 if let link {
-                    Text(link)
-                        .font(BedrockFont.footnote)
+                    Text(link.replacingOccurrences(of: "https://", with: ""))
+                        .ptype(.notePlain)
                         .foregroundStyle(BedrockColor.inkSecondary)
                         .textSelection(.enabled)
                 }
             } else if failed {
                 Text(OnbCopy.parts("onb.s13_2p.offline").first ?? "")
-                    .font(BedrockFont.subhead)
+                    .ptype(.note)
                     .foregroundStyle(BedrockColor.inkSecondary)
                     .fixedSize(horizontal: false, vertical: true)
             } else {
-                ProgressView().tint(BedrockColor.inkSecondary)
+                ProgressView()
+                    .tint(BedrockColor.inkSecondary)
+                    .frame(height: 34)
             }
         }
-        .padding(Space.s5)
+        .padding(18)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(RoundedRectangle(cornerRadius: Radius.lg, style: .continuous).fill(BedrockColor.bgRaised))
+        .background(RoundedRectangle(cornerRadius: BedrockSize.planCardRadius, style: .continuous).fill(BedrockColor.bgSurface))
+        .overlay(RoundedRectangle(cornerRadius: BedrockSize.planCardRadius, style: .continuous)
+            .strokeBorder(BedrockColor.lineSubtle, lineWidth: 1))
     }
 
     private var shareMessage: String {

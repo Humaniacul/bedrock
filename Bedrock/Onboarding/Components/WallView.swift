@@ -1,130 +1,116 @@
 import SwiftUI
 
-/// The wall (COMPONENTS.md · S3, S4 mini, S9 mini, S13.6): up to three courses
-/// of stones (76pt and 35pt halves, 46pt tall, 6pt gaps) on a ground line. A
-/// course Drops when its write returns; when all have landed the wall Locks
-/// (dips 3pt) and ember blooms at the base. Reduce Motion: each course fades
-/// in place.
+/// S3's wall, as the prototype draws it: a 172pt area, a ground line 23pt above
+/// its bottom, and courses of 46pt stones (76pt, 35pt halves, 6pt gaps) resting
+/// on it. Before building, three dashed courses at 55%. Each course drops in
+/// when its write returns, stone by stone 80ms apart; when all are in, the wall
+/// dips 3pt and an ember glow blooms at its foot. Bottom → top: web, apps (only
+/// when apps were picked), schedule.
 struct WallView: View {
     enum Course: Equatable { case empty, landed, failed }
 
-    /// Bottom → top: web, apps (only when apps were picked), schedule.
     var web: Course
     var apps: Course?
     var schedule: Course
-    /// S13.6: the keystone hovering above, then dropping into the top course.
-    var keystone: Keystone = .none
-    /// 1 = the 322 × 150pt wall; smaller for the S4 glyph and S9 miniature.
-    var scale: CGFloat = 1
-    /// Dim the whole wall (S9's door left open).
-    var dimmed = false
-
-    enum Keystone: Equatable { case none, hovering, set }
+    /// Before “Put the wall up”: the dashed outline.
+    var choosing = false
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var dip: CGFloat = 0
-    @State private var bloom = false
-
-    private var courses: [(id: Int, state: Course, offset: Bool)] {
-        var list: [(Int, Course, Bool)] = [(0, web, false)]
-        if let apps { list.append((1, apps, true)) }
-        list.append((2, schedule, apps != nil ? false : true))
-        return list.reversed() // drawn top-down
-    }
+    @State private var glow = false
 
     private var allLanded: Bool {
         web == .landed && schedule == .landed && (apps == nil || apps == .landed)
     }
 
+    private static let full: [CGFloat] = [76, 76, 76, 76]
+    private static let offset: [CGFloat] = [35, 76, 76, 76, 35]
+
     var body: some View {
-        VStack(spacing: BedrockSize.wallGap * scale) {
-            ForEach(Array(courses.enumerated()), id: \.element.id) { position, course in
-                // S13.6: the keystone is the top course's centre stone. It hovers
-                // 40pt above its slot, then drops in and Locks.
-                CourseRow(state: course.state, offset: course.offset, scale: scale,
-                          keystone: position == 0 ? keystone : .none)
-            }
-            Capsule()
-                .fill(BedrockColor.lineStrong)
+        ZStack(alignment: .bottom) {
+            Rectangle()
+                .fill(BedrockColor.lineSubtle)
                 .frame(height: 1)
+                .padding(.horizontal, -12)
+                .padding(.bottom, 23)
+            if choosing {
+                VStack(spacing: BedrockSize.wallGap) {
+                    dashed(Self.full)
+                    dashed(Self.offset)
+                    dashed(Self.full)
+                }
+                .opacity(0.55)
+                .padding(.bottom, 24)
+            } else {
+                VStack(spacing: BedrockSize.wallGap) {
+                    StoneCourse(widths: Self.full, landed: schedule == .landed)
+                    if let apps { StoneCourse(widths: Self.offset, landed: apps == .landed) }
+                    StoneCourse(widths: Self.full, landed: web == .landed)
+                }
+                .offset(y: dip)
+                .padding(.bottom, 24)
+                EllipticalGradient(stops: [
+                    .init(color: BedrockColor.bloom, location: 0),
+                    .init(color: BedrockColor.bloomMid, location: 0.6),
+                    .init(color: .clear, location: 1),
+                ], center: .center, startRadiusFraction: 0, endRadiusFraction: 0.5)
+                .frame(height: 34)
+                .padding(.horizontal, 10)
+                .padding(.bottom, 6)
+                .scaleEffect(x: glow ? 1 : 0.5, y: 1)
+                .opacity(glow ? 0.85 : 0)
+                .allowsHitTesting(false)
+            }
         }
-        // Ember blooms at the base, behind the stones.
-        .background(alignment: .bottom) {
-            Ellipse()
-                .fill(RadialGradient(colors: [BedrockColor.emberGlow.opacity(0.55), .clear],
-                                     center: .center, startRadius: 0, endRadius: 160 * scale))
-                .frame(height: 56 * scale)
-                .offset(y: 20 * scale)
-                .opacity(bloom ? 1 : 0)
-        }
-        .frame(width: BedrockSize.wallWidth * scale)
-        .offset(y: dip)
-        .opacity(dimmed ? 0.3 : 1)
-        .onChange(of: allLanded) { _, landed in
-            guard landed else { return }
-            lock()
-        }
-        .onAppear { if allLanded { bloom = true } }
+        .frame(width: BedrockSize.wallWidth, height: 172)
+        .onChange(of: allLanded) { _, landed in if landed { lock() } }
+        .onAppear { if allLanded && !choosing { glow = true } }
         .accessibilityHidden(true)
     }
 
+    private func dashed(_ widths: [CGFloat]) -> some View {
+        HStack(spacing: BedrockSize.wallGap) {
+            ForEach(Array(widths.enumerated()), id: \.offset) { _, width in
+                RoundedRectangle(cornerRadius: Radius.sm, style: .continuous)
+                    .strokeBorder(BedrockColor.lineStrong, style: StrokeStyle(lineWidth: 1, dash: [3, 3]))
+                    .frame(width: width, height: BedrockSize.wallStone.height)
+            }
+        }
+    }
+
+    /// Lock: the wall dips 3pt and returns; heavy, then success; the glow blooms.
     private func lock() {
         BedrockHaptics.lock()
-        if reduceMotion {
-            withAnimation(BedrockMotion.ember) { bloom = true }
-            return
-        }
-        withAnimation(BedrockMotion.lock) { dip = BedrockSize.wallDip }
-        withAnimation(BedrockMotion.lock.delay(BedrockTiming.wallDipReturn)) { dip = 0 }
-        withAnimation(BedrockMotion.ember) { bloom = true }
+        withAnimation(.easeOut(duration: 1.1)) { glow = true }
+        guard !reduceMotion else { return }
+        withAnimation(.timingCurve(0.2, 0.8, 0.2, 1, duration: 0.11)) { dip = BedrockSize.wallDip }
+        withAnimation(.timingCurve(0.2, 0.8, 0.2, 1, duration: 0.21).delay(0.11)) { dip = 0 }
     }
 }
 
-/// One course: 4 full stones, or (offset) a half, 3 full and a half.
-private struct CourseRow: View {
-    let state: WallView.Course
-    let offset: Bool
-    let scale: CGFloat
-    var keystone: WallView.Keystone = .none
+/// One course of S3's stones. Each falls 84pt and settles, 80ms apart, with a
+/// soft tap as it lands; Reduce Motion fades them in place.
+private struct StoneCourse: View {
+    let widths: [CGFloat]
+    let landed: Bool
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var landed = false
-
-    private var widths: [CGFloat] {
-        offset
-            ? [BedrockSize.wallHalf, BedrockSize.wallStone.width, BedrockSize.wallStone.width, BedrockSize.wallStone.width, BedrockSize.wallHalf]
-            : Array(repeating: BedrockSize.wallStone.width, count: 4)
-    }
+    @State private var shown = false
 
     var body: some View {
-        HStack(spacing: BedrockSize.wallGap * scale) {
+        HStack(spacing: BedrockSize.wallGap) {
             ForEach(Array(widths.enumerated()), id: \.offset) { index, width in
-                ZStack {
-                    // The empty course: a faint outline.
-                    RoundedRectangle(cornerRadius: Radius.sm * scale, style: .continuous)
-                        .strokeBorder(BedrockColor.lineSubtle, style: StrokeStyle(lineWidth: 1, dash: [3, 3]))
-                    // The stone.
-                    RoundedRectangle(cornerRadius: Radius.sm * scale, style: .continuous)
-                        .fill(LinearGradient(colors: [BedrockColor.stoneLight, BedrockColor.stoneMid],
-                                             startPoint: .top, endPoint: .bottom))
-                        .overlay(RoundedRectangle(cornerRadius: Radius.sm * scale, style: .continuous)
-                            .strokeBorder(BedrockColor.inkPrimary.opacity(0.08), lineWidth: 1))
-                        .opacity(landed ? 1 : 0)
-                        .offset(y: landed || reduceMotion ? 0 : BedrockMotion.dropHeight)
-                        .animation(stoneAnimation(index), value: landed)
-                }
-                .frame(width: width * scale, height: BedrockSize.wallStone.height * scale)
-                .opacity(isKeystoneSlot(index) ? 0 : 1)
-                .overlay {
-                    if isKeystoneSlot(index) { keystoneStone }
-                }
+                Brick(width: width, height: BedrockSize.wallStone.height, radius: Radius.sm, raised: true)
+                    .opacity(shown ? 1 : 0)
+                    .offset(y: shown || reduceMotion ? 0 : BedrockMotion.dropHeight)
+                    .animation(reduceMotion ? BedrockMotion.reducedFade
+                                            : BedrockMotion.settle.delay(Double(index) * BedrockTiming.wallStoneStagger),
+                               value: shown)
             }
         }
-        .onAppear { landed = state == .landed }
-        .onChange(of: state) { _, new in
-            let landing = new == .landed
-            if landing && !landed && scale >= 1 {
-                // A soft tap per stone as it lands, 80ms apart.
+        .onAppear { shown = landed }
+        .onChange(of: landed) { _, new in
+            if new && !shown {
                 for index in widths.indices {
                     Task { @MainActor in
                         try? await Task.sleep(for: .seconds(Double(index) * BedrockTiming.wallStoneStagger + BedrockTiming.wallStoneFall))
@@ -132,74 +118,79 @@ private struct CourseRow: View {
                     }
                 }
             }
-            landed = landing
+            shown = new
         }
-    }
-
-    private var keystoneIndex: Int { widths.count / 2 }
-
-    private func isKeystoneSlot(_ index: Int) -> Bool {
-        keystone != .none && index == keystoneIndex
-    }
-
-    /// The keystone: ember, a wedge wider at the top, with its empty slot outlined below.
-    private var keystoneStone: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: Radius.sm * scale, style: .continuous)
-                .strokeBorder(BedrockColor.emberDeep, style: StrokeStyle(lineWidth: 1, dash: [3, 3]))
-            KeystoneShape()
-                .fill(LinearGradient(colors: [BedrockColor.emberHot, BedrockColor.emberGlow, BedrockColor.ember],
-                                     startPoint: .top, endPoint: .bottom))
-                .shadow(color: BedrockColor.emberGlow.opacity(keystone == .set ? 0.6 : 0.3), radius: 8 * scale)
-                .offset(y: keystone == .hovering ? -BedrockSize.keystoneDrop * scale : 0)
-                .animation(reduceMotion ? nil : BedrockMotion.lock, value: keystone)
-        }
-    }
-
-    private func stoneAnimation(_ index: Int) -> Animation? {
-        if reduceMotion { return BedrockMotion.reducedFade }
-        return BedrockMotion.settle.delay(Double(index) * BedrockTiming.wallStoneStagger)
     }
 }
 
-/// The keystone: a wedge, wider at the top.
-private struct KeystoneShape: Shape {
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        let inset = rect.width * 0.14
-        path.move(to: CGPoint(x: rect.minX, y: rect.minY))
-        path.addLine(to: CGPoint(x: rect.maxX, y: rect.minY))
-        path.addLine(to: CGPoint(x: rect.maxX - inset, y: rect.maxY))
-        path.addLine(to: CGPoint(x: rect.minX + inset, y: rect.maxY))
-        path.closeSubpath()
-        return path
-    }
-}
-
-#if DEBUG
-struct WallViewPreview: View {
-    @State private var web: WallView.Course = .empty
-    @State private var apps: WallView.Course = .empty
-    @State private var schedule: WallView.Course = .empty
+/// One stone of a wall: the prototype's brick gradient, an inset top highlight
+/// and (on S3) a soft drop shadow.
+struct Brick: View {
+    let width: CGFloat
+    let height: CGFloat
+    let radius: CGFloat
+    var raised = false
+    var top: Color = BedrockColor.brickHi
+    var bottom: Color = BedrockColor.brickLo
 
     var body: some View {
-        PreviewPage {
-            VStack(spacing: Space.s8) {
-                WallView(web: web, apps: apps, schedule: schedule)
-                WallView(web: .landed, apps: nil, schedule: .landed, keystone: .set)
-                WallView(web: .landed, apps: .landed, schedule: .landed, scale: 0.4)
-            }
-        }
-        .task {
-            try? await Task.sleep(for: .seconds(0.8)); web = .landed
-            try? await Task.sleep(for: .seconds(0.6)); apps = .landed
-            try? await Task.sleep(for: .seconds(0.6)); schedule = .landed
-        }
+        RoundedRectangle(cornerRadius: radius, style: .continuous)
+            .fill(LinearGradient(stops: raised
+                                 ? [.init(color: top, location: 0), .init(color: BedrockColor.brickMid, location: 0.55),
+                                    .init(color: bottom, location: 1)]
+                                 : [.init(color: top, location: 0), .init(color: bottom, location: 1)],
+                                 startPoint: .top, endPoint: .bottom))
+            .overlay(RoundedRectangle(cornerRadius: radius, style: .continuous)
+                .strokeBorder(LinearGradient(colors: [.white.opacity(raised ? 0.09 : 0), .clear],
+                                             startPoint: .top, endPoint: UnitPoint(x: 0.5, y: 0.1)), lineWidth: 1))
+            .shadow(color: raised ? .black.opacity(0.45) : .clear, radius: 7, x: 0, y: 8)
+            .frame(width: width, height: height)
     }
 }
 
-#Preview("WallView · 402×874", traits: .fixedLayout(width: 402, height: 874)) { WallViewPreview().onboardingPreview(.standard) }
-#Preview("WallView · Reduce Motion", traits: .fixedLayout(width: 402, height: 874)) { WallViewPreview().onboardingPreview(.reduceMotion) }
-#Preview("WallView · AX5", traits: .fixedLayout(width: 402, height: 874)) { WallViewPreview().onboardingPreview(.ax5) }
-#Preview("WallView · AX5 · Reduce Motion", traits: .fixedLayout(width: 402, height: 874)) { WallViewPreview().onboardingPreview(.ax5ReduceMotion) }
-#endif
+/// A small wall: S4's glyph, S9's miniature, S13.6, SP4's status icon.
+struct MiniWall: View {
+    let rows: [[CGFloat]]
+    let height: CGFloat
+    let radius: CGFloat
+    let gap: CGFloat
+    var top: Color = BedrockColor.brickHi
+    var bottom: Color = BedrockColor.brickLo
+
+    var body: some View {
+        VStack(spacing: gap) {
+            ForEach(Array(rows.enumerated()), id: \.offset) { _, row in
+                HStack(spacing: gap) {
+                    ForEach(Array(row.enumerated()), id: \.offset) { _, width in
+                        Brick(width: width, height: height, radius: radius, top: top, bottom: bottom)
+                    }
+                }
+            }
+        }
+        .accessibilityHidden(true)
+    }
+
+    /// S4: 3 × 52 over 24, 52, 52, 24; 30pt tall, 5pt gaps.
+    static let test = MiniWall(rows: [[52, 52, 52], [24, 52, 52, 24]], height: 30, radius: 7, gap: 5)
+    /// S9: 4 × 46 over 21, 46, 46, 46, 21; 26pt tall, 4pt gaps.
+    static let door = MiniWall(rows: [[46, 46, 46, 46], [21, 46, 46, 46, 21]], height: 26, radius: 6, gap: 4)
+    /// S13.6: 4 × 64 over 29, 64, 64, 64, 29; 40pt tall, 6pt gaps.
+    static let sealed = MiniWall(rows: [[64, 64, 64, 64], [29, 64, 64, 64, 29]], height: 40, radius: 9, gap: 6)
+    /// SP4's status card: 3 × 15 over 6, 15, 15, 6; 10pt tall.
+    static let status = MiniWall(rows: [[15, 15, 15], [6, 15, 15, 6]], height: 10, radius: 3, gap: 3,
+                                 top: BedrockColor.markHi, bottom: BedrockColor.brickMid)
+}
+
+/// An ember glow under a wall (S4 held, S13.6, SP4).
+struct EmberGlow: View {
+    let width: CGFloat
+    let height: CGFloat
+    var strength: Double = 0.6
+
+    var body: some View {
+        EllipticalGradient(colors: [BedrockColor.emberGlow.opacity(strength), .clear], center: .center,
+                           startRadiusFraction: 0, endRadiusFraction: 0.5)
+            .frame(width: width, height: height)
+            .accessibilityHidden(true)
+    }
+}

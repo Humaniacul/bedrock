@@ -24,7 +24,7 @@ struct ScreenHeading: View {
             }
             Group {
                 if carves {
-                    CarveText(headline, font: .body).ptype(headlineType)
+                    CarveText(headline).ptype(headlineType)
                 } else {
                     Text(headline).ptype(headlineType)
                 }

@@ -206,10 +206,19 @@ public struct CarveText: View {
     @State private var elapsed: Double = 0
     @State private var visible = false
 
-    public init(_ string: String, word: Bool = false, delay: Double = 0, font: Font = BedrockFont.title) {
-        self.text = Text(string).font(font)
+    /// With no `font`, the line takes the environment's (set it with `.ptype`).
+    public init(_ string: String, word: Bool = false, delay: Double = 0, font: Font? = nil) {
+        self.text = font.map { Text(string).font($0) } ?? Text(string)
         self.glyphCount = string.count
         self.stagger = word ? BedrockMotion.carveStaggerWord : BedrockMotion.carveStaggerHeadline
+        self.delay = delay
+    }
+
+    /// A styled line (e.g. one word in Glow); `glyphs` sets the carve's length.
+    public init(_ text: Text, glyphs: Int, delay: Double = 0) {
+        self.text = text
+        self.glyphCount = glyphs
+        self.stagger = BedrockMotion.carveStaggerHeadline
         self.delay = delay
     }
 

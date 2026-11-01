@@ -1,9 +1,10 @@
 import SwiftUI
 
-/// S8's hold control (COMPONENTS.md): an 84pt glass circle with a progress ring
-/// and a small stone glyph. Hold 1.4s to set (HoldRamp haptics); releasing early
-/// drains the ring over 0.3s. Two short taps show “Keep holding”; a third
-/// shows a plain “Set it” button. With VoiceOver, double-tap sets directly.
+/// S8's hold control, as the prototype draws it: an 84pt glass circle with a
+/// 3pt ring (r 36) that fills ember over 1.4s, a small standing-stone glyph in
+/// the middle, the label under it (15pt Limestone). Releasing early drains the
+/// ring. Two short taps show “Keep holding” (Glow); a third adds a “Set it”
+/// pill. With VoiceOver, double-tap sets it directly.
 struct HoldToSetControl: View {
     let label: String
     let tapHint: String
@@ -19,21 +20,24 @@ struct HoldToSetControl: View {
     @State private var done = false
 
     var body: some View {
-        VStack(spacing: Space.s3) {
+        VStack(spacing: 10) {
+            ring
+            Text(label)
+                .ptype(.subheadPlain)
+                .foregroundStyle(BedrockColor.inkSecondary)
+                .accessibilityHidden(true)
+            if shortTaps >= 2 {
+                Text(tapHint)
+                    .ptype(.notePlain)
+                    .foregroundStyle(BedrockColor.emberGlow)
+                    .transition(.opacity)
+            }
             if shortTaps >= 3 {
-                PrimaryButton(title: fallbackTitle) { set(.tapFallback) }
-                    .bedrockAppear(.settle)
-            } else {
-                ring
-                Text(shortTaps >= 2 ? tapHint : label)
-                    .font(BedrockFont.subhead)
-                    .foregroundStyle(BedrockColor.inkSecondary)
-                    .multilineTextAlignment(.center)
-                    .contentTransition(.opacity)
-                    .animation(BedrockMotion.reducedFade, value: shortTaps)
-                    .accessibilityHidden(true)
+                PillButton(title: fallbackTitle, height: 44, padding: 18) { set(.tapFallback) }
+                    .transition(.opacity)
             }
         }
+        .animation(BedrockMotion.reducedFade, value: shortTaps)
         .onAppear { HoldRamp.shared.prepare() }
         .onDisappear { HoldRamp.shared.stopEngine() }
     }
@@ -41,17 +45,20 @@ struct HoldToSetControl: View {
     private var ring: some View {
         ZStack {
             Circle()
-                .stroke(BedrockColor.lineStrong, lineWidth: BedrockSize.holdRingWidth)
+                .stroke(BedrockColor.lineSubtle, lineWidth: 3)
+                .frame(width: 72, height: 72)
             Circle()
                 .trim(from: 0, to: progress)
-                .stroke(BedrockColor.ember, style: StrokeStyle(lineWidth: BedrockSize.holdRingWidth, lineCap: .round))
+                .stroke(BedrockColor.ember, style: StrokeStyle(lineWidth: 3, lineCap: .round))
                 .rotationEffect(.degrees(-90))
-            StoneMark()
-                .fill(progress > 0 ? BedrockColor.emberGlow : BedrockColor.stoneLight)
-                .frame(width: BedrockSize.holdGlyph.width, height: BedrockSize.holdGlyph.height)
+                .frame(width: 72, height: 72)
+            UnitPolygon.holdGlyph
+                .fill(LinearGradient(colors: [BedrockColor.glyphHi, BedrockColor.glyphLo],
+                                     startPoint: UnitPoint(x: 0.33, y: 0), endPoint: UnitPoint(x: 0.67, y: 1)))
+                .frame(width: 22, height: 24)
         }
         .frame(width: BedrockSize.holdControl, height: BedrockSize.holdControl)
-        .bedrockGlass(Circle())
+        .controlGlass(Circle(), soft: true)
         .contentShape(Circle())
         .onLongPressGesture(minimumDuration: BedrockTiming.holdToSet, maximumDistance: BedrockSize.holdSlop) {
             set(voiceOver ? .voiceover : .hold)
@@ -70,7 +77,7 @@ struct HoldToSetControl: View {
         attempts += 1
         HoldRamp.shared.begin()
         // The ring always fills, even with Reduce Motion: it's feedback, not decoration.
-        withAnimation(.linear(duration: BedrockTiming.holdToSet)) { progress = 1 }
+        withAnimation(.linear(duration: BedrockTiming.holdToSet * (1 - progress))) { progress = 1 }
     }
 
     private func endHold() {

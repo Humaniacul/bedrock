@@ -10,7 +10,6 @@ struct HomeView: View {
     @Environment(AppServices.self) private var services
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.openURL) private var openURL
-    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     @State private var state = FirstLightState.load() ?? FirstLightState()
     @State private var launch: FlowLaunch?
@@ -25,28 +24,35 @@ struct HomeView: View {
     private var wallUp: Bool { services.blocking.isProtected || state.previewMode }
 
     var body: some View {
-        ZStack(alignment: .top) {
-            OnboardingBackdrop(level: 1)
+        GeometryReader { proxy in
             ScrollView {
-                VStack(spacing: Space.s6) {
-                    header
-                    if firstAppearance && streak.foundationDays <= 1 { headline }
-                    stone
-                    UrgeButton(title: OnbCopy.string("onb.home.intercept"), style: .capsule,
-                               accessibilityHint: OnbCopy.string("onb.s15.a11y_button")) {
-                        showIntercept = true
+                // At least the visible height, so the stone centres between the
+                // headline and the urge button, as the prototype's flex column does.
+                FillHeight(minHeight: proxy.size.height, width: proxy.size.width) {
+                    VStack(spacing: 0) {
+                        header
+                        if showsHeadline {
+                            headline.padding(.top, 28)
+                        }
+                        Spacer(minLength: Space.s6)
+                        stone
+                        Spacer(minLength: Space.s6)
+                        UrgeCapsule(title: OnbCopy.string("onb.home.intercept"),
+                                    accessibilityHint: OnbCopy.string("onb.home.a11y_intercept")) {
+                            showIntercept = true
+                        }
+                        cards
+                        #if DEBUG
+                        if ProcessInfo.processInfo.environment["BEDROCK_DEBUG_STRIP"] == "1" { debugStrip }
+                        #endif
                     }
-                    cards
-                    #if DEBUG
-                    if ProcessInfo.processInfo.environment["BEDROCK_DEBUG_STRIP"] == "1" { debugStrip }
-                    #endif
+                    .padding(.horizontal, ProtoLayout.side)
+                    .padding(.bottom, ProtoLayout.bottomTight - BedrockSize.referenceBottomInset)
                 }
-                .padding(.horizontal, Space.s6)
-                .padding(.top, Space.s4)
-                .padding(.bottom, Space.s8)
             }
             .scrollBounceBehavior(.basedOnSize)
         }
+        .background { HomeSky() }
         .privacyCover()
         .fullScreenCover(isPresented: $showIntercept) { InterceptView() }
         .fullScreenCover(item: $launch, onDismiss: reload) { launch in
@@ -74,20 +80,21 @@ struct HomeView: View {
 
     // MARK: Top
 
-    /// The date and the status chip side by side; stacked when they don't fit
-    /// (large text sizes).
+    /// The date (13pt medium Limestone) and the status chip; the chip wraps
+    /// under the date when they don't fit (large text sizes).
     private var header: some View {
-        let date = Text(Date.now.formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day()))
-            .bedrockEyebrow()
+        let date = Text(Date.now.formatted(.dateTime.weekday(.wide).month(.wide).day()))
+            .ptype(.footnoteMedium)
+            .foregroundStyle(BedrockColor.inkSecondary)
             .lineLimit(1)
         let chip = StatusChip(status: status, action: statusAction)
         return ViewThatFits(in: .horizontal) {
-            HStack(alignment: .center, spacing: Space.s3) {
+            HStack(alignment: .center, spacing: Space.s2) {
                 date
                 Spacer(minLength: Space.s2)
                 chip.fixedSize()
             }
-            VStack(alignment: .leading, spacing: Space.s3) {
+            VStack(alignment: .leading, spacing: Space.s2) {
                 date
                 chip
             }
@@ -117,49 +124,59 @@ struct HomeView: View {
         }
     }
 
+    /// “Day 1. The wall is standing.” on the first visit, carved in.
+    private var showsHeadline: Bool { firstAppearance && streak.foundationDays <= 1 }
+
     private var headline: some View {
-        CarveText(OnbCopy.string(wallUp ? "onb.home.first_headline" : "onb.home.headline_no_wall"),
-                  font: BedrockFont.title)
+        CarveText(OnbCopy.string(wallUp ? "onb.home.first_headline" : "onb.home.headline_no_wall"))
+            .ptype(.titleM)
             .foregroundStyle(BedrockColor.inkPrimary)
-            .multilineTextAlignment(.center)
-            .frame(maxWidth: .infinity)
+            .fixedSize(horizontal: false, vertical: true)
+            .frame(maxWidth: .infinity, alignment: .leading)
             .accessibilityAddTraits(.isHeader)
     }
 
+    /// The home stone (132 × 194) on its shadow; after a slip, the line and Repair.
     private var stone: some View {
-        VStack(spacing: Space.s3) {
+        VStack(spacing: 0) {
             StoneView(word: word, day: max(streak.foundationDays, 1),
                       phase: streak.hasCrack ? .cracked(repaired: false) : .set(carve: false),
-                      size: dynamicTypeSize.isAccessibilitySize ? BedrockSize.stoneHome : BedrockSize.stoneRegular)
-                .bedrockAppear(.settle)
+                      style: .home)
+                .bedrockAppear(.settle, delay: 0.25)
+            StoneShadow(width: 210, height: 24, strength: 0.8)
+                .padding(.top, -10)
             if streak.hasCrack {
                 let crack = OnbCopy.parts("onb.home.crack")
                 VStack(spacing: Space.s1) {
                     Text(crack.first ?? "")
-                        .font(BedrockFont.footnote)
+                        .ptype(.note)
                         .foregroundStyle(BedrockColor.inkSecondary)
                         .multilineTextAlignment(.center)
-                    LinkButton(title: crack.last ?? "", tone: .secondary) {
+                        .fixedSize(horizontal: false, vertical: true)
+                    LinkButton(title: crack.last ?? "", tone: .ember) {
                         BedrockHaptics.lock()
                         streak.repairCrack()
                     }
                 }
+                .padding(.top, Space.s2)
             }
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, Space.s4)
     }
 
     // MARK: Cards
 
     private var cards: some View {
-        VStack(spacing: Space.s3) {
-            ForEach(Array(activeCards.prefix(2))) { card in
+        let shown = Array(activeCards.prefix(2))
+        return VStack(spacing: 10) {
+            ForEach(shown) { card in
                 HomeCard(title: card.title, subtitle: card.subtitle,
                          action: card.action, onDismiss: card.dismiss)
                     .transition(.opacity)
+                    .bedrockAppear(.strata(index: 0))
             }
         }
+        .padding(.top, shown.isEmpty ? 0 : Space.s3)
         .animation(BedrockMotion.reducedFade, value: activeCards.map(\.id))
     }
 
@@ -301,11 +318,43 @@ struct HomeView: View {
             Button("Slip") { streak.recordRelapse() }
             Button("Reset") { streak.debugReset() }
         }
-        .font(BedrockFont.footnote)
+        .ptype(.footnotePlain)
         .foregroundStyle(BedrockColor.inkTertiary)
         .buttonStyle(.plain)
+        .padding(.top, Space.s3)
     }
     #endif
+}
+
+/// Home's own sky: the horizon at full daylight, a warm wash rising from the
+/// bottom (90%), and a low sun 1.9 screens wide whose centre sits 20pt above
+/// the bottom edge.
+private struct HomeSky: View {
+    var body: some View {
+        GeometryReader { proxy in
+            ZStack {
+                BedrockColor.bgBase
+                HorizonGlow(level: 1)
+                LinearGradient(stops: [.init(color: BedrockColor.bgBase, location: 0),
+                                       .init(color: BedrockColor.homeSkyMid, location: 0.55),
+                                       .init(color: BedrockColor.homeSkyLow, location: 1)],
+                               startPoint: .top, endPoint: .bottom)
+                    .opacity(0.9)
+                EllipticalGradient(stops: [.init(color: BedrockColor.homeSun, location: 0),
+                                           .init(color: BedrockColor.homeSunMid, location: 0.5),
+                                           .init(color: .clear, location: 1)],
+                                   center: .center, startRadiusFraction: 0, endRadiusFraction: 0.5)
+                    .frame(width: proxy.size.width * 1.9, height: 640)
+                    .position(x: proxy.size.width / 2, y: proxy.size.height - 20)
+                Image("NoiseTile")
+                    .resizable(resizingMode: .tile)
+                    .opacity(BedrockSize.noiseOpacity)
+                    .blendMode(.overlay)
+            }
+        }
+        .ignoresSafeArea()
+        .accessibilityHidden(true)
+    }
 }
 
 /// A flow presented from Home or the app (upgrade, finish setup, rebuild, resume).

@@ -14,16 +14,16 @@ struct HardHoursScreen: View {
 
     var body: some View {
         OnboardingScaffold(.s5, flow: flow) {
-            VStack(alignment: .leading, spacing: Space.s7) {
+            VStack(alignment: .leading, spacing: 0) {
                 ScreenHeading(eyebrow: OnbCopy.string("onb.s5.eyebrow"),
                               headline: OnbCopy.string("onb.s5.headline"),
                               text: OnbCopy.string("onb.s5.body"))
-                VStack(alignment: .leading, spacing: Space.s4) {
-                    ChoiceChipGrid(options: options, selection: $selection,
-                                   exclusive: Set(options.suffix(1)))
-                    PrivacyChip(text: OnbCopy.string("onb.s5.privacy"),
-                                accessibilityText: OnbCopy.string("onb.common.a11y_privacy"))
-                }
+                    .padding(.bottom, Space.s6)
+                ChoiceChipGrid(options: options, selection: $selection,
+                               exclusive: Set(options.suffix(1)))
+                PrivacyChip(text: OnbCopy.string("onb.s5.privacy"),
+                            accessibilityText: OnbCopy.string("onb.common.a11y_privacy"))
+                    .padding(.top, 18)
             }
         } footer: {
             PrimaryButton(title: OnbCopy.string("onb.s5.primary"), isEnabled: !selection.isEmpty,
@@ -54,16 +54,16 @@ struct UnderneathScreen: View {
 
     var body: some View {
         OnboardingScaffold(.s6, flow: flow) {
-            VStack(alignment: .leading, spacing: Space.s7) {
+            VStack(alignment: .leading, spacing: 0) {
                 ScreenHeading(eyebrow: OnbCopy.string("onb.s6.eyebrow"),
                               headline: OnbCopy.string("onb.s6.headline"),
                               text: OnbCopy.string("onb.s6.body"))
-                VStack(alignment: .leading, spacing: Space.s4) {
-                    ChoiceChipGrid(options: options, selection: $selection,
-                                   exclusive: Set(options.suffix(1)))
-                    PrivacyChip(text: OnbCopy.string("onb.s6.privacy"),
-                                accessibilityText: OnbCopy.string("onb.common.a11y_privacy"))
-                }
+                    .padding(.bottom, Space.s6)
+                ChoiceChipGrid(options: options, selection: $selection,
+                               exclusive: Set(options.suffix(1)))
+                PrivacyChip(text: OnbCopy.string("onb.s6.privacy"),
+                            accessibilityText: OnbCopy.string("onb.common.a11y_privacy"))
+                    .padding(.top, 18)
             }
         } footer: {
             PrimaryButton(title: OnbCopy.string("onb.s6.primary"), isEnabled: !selection.isEmpty,
@@ -113,6 +113,7 @@ struct WordScreen: View {
     @State private var custom = ""
     @FocusState private var fieldFocused: Bool
 
+    /// Six words, then “My own word” (a dashed button under the grid).
     private let options = OnbCopy.parts("onb.s7.chips")
     private var ownWord: String { options.last ?? "" }
     private var choosingOwn: Bool { selection.contains(ownWord) }
@@ -125,26 +126,35 @@ struct WordScreen: View {
 
     var body: some View {
         OnboardingScaffold(.s7, flow: flow) {
-            VStack(alignment: .leading, spacing: Space.s7) {
+            VStack(alignment: .leading, spacing: 0) {
                 ScreenHeading(eyebrow: OnbCopy.string("onb.s7.eyebrow"),
                               headline: OnbCopy.string("onb.s7.headline"),
                               text: OnbCopy.string("onb.s7.body"))
-                VStack(alignment: .leading, spacing: Space.s4) {
-                    ChoiceChipGrid(options: options, selection: $selection, single: true)
+                    .padding(.bottom, Space.s6)
+                ChoiceChipGrid(options: Array(options.dropLast()), selection: $selection, single: true,
+                               totalCount: options.count)
+                Group {
                     if choosingOwn {
                         CustomWordField(text: $custom,
                                         placeholder: OnbCopy.string("onb.s7.field"),
                                         helper: OnbCopy.string("onb.s7.helper"),
                                         error: OnbCopy.string("onb.s7.error"),
                                         focused: $fieldFocused)
-                            .transition(.scale(scale: 0.96, anchor: .top).combined(with: .opacity))
                             .onSubmit { if word != nil { save() } }
+                    } else {
+                        OwnWordButton(title: ownWord, position: (options.count, options.count)) {
+                            BedrockHaptics.select()
+                            selection = [ownWord]
+                        }
                     }
-                    PrivacyChip(text: OnbCopy.string("onb.s7.privacy"),
-                                accessibilityText: OnbCopy.string("onb.common.a11y_privacy"))
                 }
-                .animation(BedrockMotion.expand, value: choosingOwn)
+                .padding(.top, 10)
+                .transition(.opacity)
+                PrivacyChip(text: OnbCopy.string("onb.s7.privacy"),
+                            accessibilityText: OnbCopy.string("onb.common.a11y_privacy"))
+                    .padding(.top, 14)
             }
+            .animation(BedrockMotion.chipColour, value: choosingOwn)
         } footer: {
             PrimaryButton(title: OnbCopy.string("onb.s7.primary"), isEnabled: word != nil,
                           disabledHint: OnbCopy.string("onb.s7.error")) { save() }
@@ -178,102 +188,130 @@ struct WordScreen: View {
     }
 }
 
+/// S7's “My own word”: full width, 52pt, a 1pt dashed edge (#4A4540), 16pt Limestone.
+private struct OwnWordButton: View {
+    let title: String
+    let position: (index: Int, count: Int)
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Text(title)
+                .ptype(.callout)
+                .foregroundStyle(BedrockColor.inkSecondary)
+                .frame(maxWidth: .infinity, minHeight: BedrockSize.chipMinHeight, alignment: .leading)
+                .padding(.horizontal, Space.s4)
+                .overlay(RoundedRectangle(cornerRadius: Radius.md, style: .continuous)
+                    .strokeBorder(BedrockColor.lineMuted, style: StrokeStyle(lineWidth: 1, dash: [3, 3])))
+                .contentShape(RoundedRectangle(cornerRadius: Radius.md, style: .continuous))
+        }
+        .buttonStyle(PressOpacityStyle())
+        .accessibilityLabel(OnbCopy.format("onb.common.a11y_option", title, position.index, position.count))
+    }
+}
+
 // MARK: - S8 · Your stone
 
 struct StoneScreen: View {
     @Environment(FirstLightFlow.self) private var flow
-    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @State private var isSet = false
     @State private var carving = false
-    @State private var afterShown = false
+    /// Set on an earlier visit: everything shows at once.
+    @State private var revisit = false
 
     private var word: String { flow.state.word ?? "" }
 
     var body: some View {
-        OnboardingScaffold(.s8, flow: flow, back: !isSet) {
-            VStack(alignment: .leading, spacing: Space.s6) {
-                VStack(alignment: .leading, spacing: Space.s2) {
-                    Text(OnbCopy.string("onb.s8.eyebrow"))
-                        .bedrockEyebrow()
-                        .padding(.bottom, Space.s1)
-                    ForEach(Array(lines.enumerated()), id: \.offset) { index, line in
-                        Text(line)
-                            .font(BedrockFont.titleS)
-                            .lineSpacing(BedrockLine.titleS.lineSpacing)
-                            .foregroundStyle(index == 2 ? BedrockColor.inkPrimary : BedrockColor.inkSecondary)
-                            .fixedSize(horizontal: false, vertical: true)
-                            .bedrockAppear(.rise, delay: Double(index) * BedrockTiming.reflectionStagger)
-                    }
-                }
-                .accessibilityElement(children: .combine)
-
-                VStack(spacing: Space.s3) {
-                    StoneView(word: word, day: 1,
-                              phase: isSet ? .set(carve: carving) : .hovering,
-                              size: dynamicTypeSize.isAccessibilitySize ? BedrockSize.stoneHome : BedrockSize.stoneRegular)
+        OnboardingScaffold(.s8, flow: flow, back: !isSet, bottom: ProtoLayout.bottomTight) {
+            VStack(alignment: .leading, spacing: 0) {
+                Eyebrow(text: OnbCopy.string("onb.s8.eyebrow"))
+                    .padding(.bottom, Space.s3)
+                reflection
+                // A 230pt area: the stone at its top, its shadow at the bottom.
+                StoneView(word: word, day: 1, phase: isSet ? .set(carve: carving) : .hovering)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 230, alignment: .top)
+                    .background(alignment: .bottom) { StoneShadow(width: 190, height: 22) }
+                    .padding(.top, Space.s4)
+                if isSet {
+                    Text(OnbCopy.string("onb.s8.after"))
+                        .ptype(.after)
+                        .foregroundStyle(BedrockColor.inkPrimary)
+                        .multilineTextAlignment(.center)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, 14)
+                        .bedrockAppear(.rise, delay: revisit ? 0 : 2.0)
+                    Spacer(minLength: Space.s4)
+                } else {
                     Text(OnbCopy.string("onb.s8.caption"))
-                        .font(BedrockFont.footnote)
-                        .foregroundStyle(BedrockColor.inkTertiary)
-                    if afterShown {
-                        Text(OnbCopy.string("onb.s8.after"))
-                            .font(BedrockFont.subhead)
-                            .foregroundStyle(BedrockColor.inkSecondary)
-                            .multilineTextAlignment(.center)
-                            .fixedSize(horizontal: false, vertical: true)
-                            .padding(.top, Space.s2)
-                            .bedrockAppear(.settle)
-                    }
-                }
-                .frame(maxWidth: .infinity)
-            }
-        } footer: {
-            Group {
-                if afterShown {
-                    PrimaryButton(title: OnbCopy.string("onb.s8.primary")) { flow.afterStone() }
-                        .bedrockAppear(.settle)
-                } else if !isSet {
+                        .ptype(.callout)
+                        .foregroundStyle(BedrockColor.inkPrimary)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, 14)
+                    Spacer(minLength: Space.s6)
                     HoldToSetControl(label: OnbCopy.string("onb.s8.hold_label"),
                                      tapHint: OnbCopy.string("onb.s8.tap_hint"),
                                      fallbackTitle: OnbCopy.string("onb.s8.fallback")) { method, attempts in
                         set(method: method, attempts: attempts)
                     }
-                } else {
-                    // The set sequence plays; the footer keeps its height.
-                    Color.clear.frame(height: BedrockSize.holdControl)
+                    .frame(maxWidth: .infinity)
+                    Spacer(minLength: Space.s6)
                 }
             }
-        } footerAccessory: {
-            CrisisLink { flow.showsCrisis = true }
+        } footer: {
+            if isSet {
+                VStack(spacing: ProtoLayout.buttonGap) {
+                    CrisisLink { flow.showsCrisis = true }
+                        .bedrockAppear(.settle, delay: revisit ? 0 : 2.4)
+                    PrimaryButton(title: OnbCopy.string("onb.s8.primary")) { flow.afterStone() }
+                        .bedrockAppear(.settle, delay: revisit ? 0 : 2.6)
+                }
+            }
         }
         // Once set, keep the new line under the stone in view.
-        .environment(\.onboardingScrollAnchor, afterShown ? .bottom : nil)
+        .environment(\.onboardingScrollAnchor, isSet ? .bottom : nil)
         .onAppear {
             if flow.state.stoneSetAt != nil {
+                revisit = true
                 isSet = true
-                afterShown = true
             }
         }
     }
 
-    /// The three reflection lines, from S5, S6 and S7.
-    private var lines: [String] {
-        [Reflection.hours(flow.state.hours),
-         Reflection.feelings(flow.state.feelings),
-         OnbCopy.string("onb.s8.line_3").replacingOccurrences(of: "{word}", with: word)]
+    /// The three reflection lines (serif 28/32, 2pt apart), carved 0.45s apart;
+    /// the word in Glow.
+    private var reflection: some View {
+        let line3 = OnbCopy.string("onb.s8.line_3")
+        let parts = line3.components(separatedBy: "{word}")
+        let lead = Text(verbatim: parts.first ?? "")
+        let tail = Text(verbatim: parts.count > 1 ? parts[1] : "")
+        let styled = Text("\(lead)\(Text(verbatim: word).foregroundStyle(BedrockColor.emberGlow))\(tail)")
+        let plain = line3.replacingOccurrences(of: "{word}", with: word)
+        return VStack(alignment: .leading, spacing: 2) {
+            CarveText(Reflection.hours(flow.state.hours), delay: 0.1)
+                .ptype(.reflect)
+                .fixedSize(horizontal: false, vertical: true)
+            CarveText(Reflection.feelings(flow.state.feelings), delay: 0.55)
+                .ptype(.reflect)
+                .fixedSize(horizontal: false, vertical: true)
+            CarveText(styled, glyphs: plain.count, delay: 1.0)
+                .ptype(.reflect)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .foregroundStyle(BedrockColor.inkPrimary)
+        .accessibilityElement(children: .combine)
     }
 
     private func set(method: StoneMethod, attempts: Int) {
         flow.update { $0.stoneSetAt = .now }
         flow.track(.stoneSet(method: method, attempts: attempts))
-        carving = true
-        isSet = true
+        carving = !reduceMotion
+        withAnimation(BedrockMotion.reducedFade) { isSet = true }
         AccessibilityNotification.Announcement(OnbCopy.string("onb.s8.a11y_set")).post()
-        Task {
-            try? await Task.sleep(for: .seconds(reduceMotion ? BedrockMotion.reducedFadeDuration : BedrockTiming.stoneTextDelay))
-            afterShown = true
-        }
     }
 }
 

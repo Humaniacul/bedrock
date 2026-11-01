@@ -8,34 +8,46 @@ struct HeadsUpScreen: View {
     @Environment(FirstLightFlow.self) private var flow
     @State private var asking = false
 
-    private var hasPattern: Bool { flow.state.hours.contains { $0.window != nil } }
+    /// The first hard hour they picked that has a time.
+    private var firstBand: HourBand? { flow.state.hours.first { $0.window != nil } }
 
-    /// A few minutes before their first S5 window: the S5 payoff, seen before iOS asks.
-    private var previewTime: Date {
-        Reminders.nextHeadsUp(for: flow.state.hours) ?? .now
+    /// 15 minutes before that window, on the day it next comes round: the S5
+    /// payoff, seen before iOS asks. No pattern: today, 9:41.
+    private var preview: (date: String, time: String) {
+        guard let firstBand, let next = Reminders.nextHeadsUp(for: [firstBand]) else {
+            return (Date.now.formatted(.dateTime.weekday(.wide).month(.wide).day()), "9:41")
+        }
+        return (next.formatted(.dateTime.weekday(.wide).month(.wide).day()),
+                next.formatted(.dateTime.hour(.defaultDigits(amPM: .omitted)).minute(.twoDigits)))
     }
 
     var body: some View {
-        let preview = OnbCopy.parts("onb.s14.preview")
+        let parts = OnbCopy.parts("onb.s14.preview")
+        let shown = preview
         OnboardingScaffold(.s14, flow: flow, back: false) {
-            VStack(alignment: .leading, spacing: Space.s7) {
+            VStack(alignment: .leading, spacing: 0) {
                 ScreenHeading(eyebrow: OnbCopy.string("onb.s14.eyebrow"),
                               headline: OnbCopy.string("onb.s14.headline"),
-                              text: OnbCopy.string(hasPattern ? "onb.s14.body" : "onb.s14.body_no_pattern"))
-                VStack(spacing: Space.s3) {
-                    NotificationPreview(time: previewTime,
-                                        appName: preview.first ?? "",
-                                        now: preview.dropFirst().first ?? "",
-                                        message: preview.last ?? "")
-                        .bedrockAppear(.settle, delay: 0.2)
-                    Text(OnbCopy.string("onb.s14.caption"))
-                        .font(BedrockFont.footnote)
-                        .foregroundStyle(BedrockColor.inkTertiary)
-                        .multilineTextAlignment(.center)
-                }
-                .frame(maxWidth: .infinity)
+                              headlineType: .titleM,
+                              headlineGap: 14,
+                              text: OnbCopy.string(firstBand != nil ? "onb.s14.body" : "onb.s14.body_no_pattern"))
+                Spacer(minLength: Space.s4)
+                NotificationPreview(date: shown.date, time: shown.time,
+                                    appName: parts.first ?? "",
+                                    now: parts.dropFirst().first ?? "",
+                                    message: parts.last ?? "",
+                                    accessibilityText: OnbCopy.string("onb.common.a11y_notification")
+                                        .replacingOccurrences(of: "{message}", with: parts.last ?? ""))
+                    .frame(maxWidth: .infinity)
+                Spacer(minLength: Space.s4)
             }
         } footer: {
+            Text(OnbCopy.string("onb.s14.caption"))
+                .ptype(.subheadPlain)
+                .foregroundStyle(BedrockColor.inkTertiary)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity)
+                .padding(.bottom, Space.s3)
             PrimaryButton(title: OnbCopy.string("onb.s14.primary"), isLoading: asking) {
                 Task { await ask() }
             }
@@ -69,41 +81,46 @@ struct PressOnceScreen: View {
     var body: some View {
         let breathe = OnbCopy.parts("onb.s15.breathe")
         OnboardingScaffold(.s15, flow: flow, back: false) {
-            VStack(alignment: .leading, spacing: Space.s8) {
+            VStack(alignment: .leading, spacing: 0) {
                 ScreenHeading(eyebrow: OnbCopy.string("onb.s15.eyebrow"),
                               headline: OnbCopy.string("onb.s15.headline"),
                               text: OnbCopy.string("onb.s15.body"))
+                Spacer(minLength: Space.s6)
                 ZStack {
                     switch phase {
                     case .waiting:
-                        UrgeButton(title: OnbCopy.string("onb.s15.button"), style: .circle,
+                        UrgeCircle(title: OnbCopy.string("onb.s15.button"),
                                    accessibilityHint: OnbCopy.string("onb.s15.a11y_button")) {
-                            withAnimation(BedrockMotion.expand) { phase = .breathing }
+                            withAnimation(BedrockMotion.reducedFade) { phase = .breathing }
                         }
-                        .transition(.scale(scale: 0.9).combined(with: .opacity))
+                        .transition(.opacity)
                     case .breathing, .done:
                         BreathRing(inLabel: breathe.first ?? "", outLabel: breathe.last ?? "") {
                             flow.track(.interceptRehearsed)
                             withAnimation(BedrockMotion.reducedFade) { phase = .done }
                         }
-                        .transition(.scale(scale: 1.1).combined(with: .opacity))
+                        .transition(.opacity)
                     }
                 }
-                .frame(maxWidth: .infinity, minHeight: BedrockSize.urgeCircle)
-
-                if phase == .done {
-                    Text(OnbCopy.string("onb.s15.closing"))
-                        .font(BedrockFont.titleS)
-                        .lineSpacing(BedrockLine.titleS.lineSpacing)
-                        .foregroundStyle(BedrockColor.inkPrimary)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .bedrockAppear(.rise)
-                }
+                .frame(maxWidth: .infinity)
+                Spacer(minLength: Space.s6)
             }
         } footer: {
             if phase == .done {
-                PrimaryButton(title: OnbCopy.string("onb.s15.primary")) { flow.finish() }
-                    .bedrockAppear(.settle, delay: 0.3)
+                VStack(spacing: 0) {
+                    Text(OnbCopy.string("onb.s15.closing"))
+                        .ptype(.body)
+                        .foregroundStyle(BedrockColor.inkPrimary)
+                        .multilineTextAlignment(.center)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(maxWidth: .infinity)
+                        .padding(.bottom, 18)
+                        .bedrockAppear(.rise)
+                    PrimaryButton(title: OnbCopy.string("onb.s15.primary")) { flow.finish() }
+                        .bedrockAppear(.settle, delay: 0.3)
+                }
+            } else {
+                Color.clear.frame(height: 122)
             }
         }
     }
